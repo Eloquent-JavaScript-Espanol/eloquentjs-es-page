@@ -1,0 +1,509 @@
+<!doctype html>
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Funciones de Orden Superior :: Eloquent JavaScript</title>
+  <link rel=stylesheet href="js/node_modules/codemirror/lib/codemirror.css">
+  <script src="js/acorn_codemirror.js"></script>
+  <link rel=stylesheet href="css/ejs.css">
+  <script src="js/sandbox.js"></script>
+  <script src="js/ejs.js"></script><script>var chapNum = 5;var sandboxLoadFiles = ["code/scripts.js","code/chapter/05_higher_order.js","code/intro.js"];</script></head>
+
+<article>
+<nav><a href="04_datos.html" title="previous chapter">◀</a> <a href="index.html" title="cover">◆</a> <a href="06_objeto.html" title="next chapter">▶</a></nav>
+
+<h1><span class=chap_num>Chapter 5</span>Funciones de Orden Superior</h1>
+
+<blockquote>
+
+<p><a class="p_ident" id="p_d9yJjP1rjg" href="#p_d9yJjP1rjg" tabindex="-1" role="presentation"></a>Tzu-li y Tzu-ssu estaban jactándose del tamaño de sus ultimos programas. ‘Doscientas mil líneas’, dijo Tzu-li, ‘sin contar los comentarios!’ Tzu-ssu respondió, ‘Pssh, el mío tiene casi un <em>millón</em> de líneas ya.’ El Maestro Yuan-Ma dijo, ‘Mi mejor programa tiene quinientas líneas.’ Al escuchar esto, Tzu-li y Tzu-ssu fueron iluminados.</p>
+
+<footer>Master Yuan-Ma, <cite>The Book of Programming</cite></footer>
+
+</blockquote>
+
+<blockquote>
+
+<p><a class="p_ident" id="p_nWIKNY/4mk" href="#p_nWIKNY/4mk" tabindex="-1" role="presentation"></a>Hay dos formas de construir un diseño de software: Una forma es hacerlo tan simple de manera que no hayan deficiencias obvias, y la otra es hacerlo tan complicado de manera que obviamente no hayan deficiencias.</p>
+
+<footer>C.A.R. Hoare, <cite>1980 ACM Turing Award Lecture</cite></footer>
+
+</blockquote><figure class="chapter true"><img src="img/chapter_picture_5.jpg" alt="Letras de diferentes idiomas"></figure>
+
+<p><a class="p_ident" id="p_UkjkuKBNDn" href="#p_UkjkuKBNDn" tabindex="-1" role="presentation"></a>Un programa grande es un programa costoso, y no solo por el tiempo que se necesita para construirlo. El tamaño casi siempre involucra complejidad, y la complejidad confunde a los programadores. A su vez, los programadores confundidos, introducen errores en los programas. Un programa grande entonces proporciona de mucho espacio para que estos bugs se oculten, haciéndolos difíciles de encontrar.</p>
+
+<p><a class="p_ident" id="p_cPXcWwe4Xi" href="#p_cPXcWwe4Xi" tabindex="-1" role="presentation"></a>Volvamos rapidamente a los dos últimos programas de ejemplo en la introducción. El primero es auto-contenido y solo tiene seis líneas de largo:</p>
+
+<pre class="snippet cm-s-default" data-language="javascript" ><a class="c_ident" id="c_M1yHnsc0DM" href="#c_M1yHnsc0DM" tabindex="-1" role="presentation"></a><span class="cm-keyword">let</span> <span class="cm-def">total</span> <span class="cm-operator">=</span> <span class="cm-number">0</span>, <span class="cm-def">cuenta</span> <span class="cm-operator">=</span> <span class="cm-number">1</span>;
+<span class="cm-keyword">while</span> (<span class="cm-variable">cuenta</span> <span class="cm-operator">&lt;=</span> <span class="cm-number">10</span>) {
+  <span class="cm-variable">total</span> <span class="cm-operator">+=</span> <span class="cm-variable">cuenta</span>;
+  <span class="cm-variable">cuenta</span> <span class="cm-operator">+=</span> <span class="cm-number">1</span>;
+}
+<span class="cm-variable">console</span>.<span class="cm-property">log</span>(<span class="cm-variable">total</span>);</pre>
+
+<p><a class="p_ident" id="p_A2x9sR/SR2" href="#p_A2x9sR/SR2" tabindex="-1" role="presentation"></a>El segundo depende de dos funciones externas y tiene una línea de longitud:</p>
+
+<pre class="snippet cm-s-default" data-language="javascript" ><a class="c_ident" id="c_pxsnyeb5dE" href="#c_pxsnyeb5dE" tabindex="-1" role="presentation"></a><span class="cm-variable">console</span>.<span class="cm-property">log</span>(<span class="cm-variable">suma</span>(<span class="cm-variable">rango</span>(<span class="cm-number">1</span>, <span class="cm-number">10</span>)));</pre>
+
+<p><a class="p_ident" id="p_o9kvfwlc72" href="#p_o9kvfwlc72" tabindex="-1" role="presentation"></a>Cuál es más probable que contenga un bug?</p>
+
+<p><a class="p_ident" id="p_kr8iBt6cDE" href="#p_kr8iBt6cDE" tabindex="-1" role="presentation"></a>Si contamos el tamaño de las definiciones de <code>suma</code> y <code>rango</code>, el segundo programa también es grande—incluso puede que sea más grande que el primero. Pero aún así, argumentaria que es más probable que sea correcto.</p>
+
+<p><a class="p_ident" id="p_IYD9ytOHV0" href="#p_IYD9ytOHV0" tabindex="-1" role="presentation"></a>Es más probable que sea correcto porque la solución se expresa en un vocabulario que corresponde al problema que se está resolviendo. Sumar un rango de números no se trata acerca de ciclos y contadores. Se trata acerca de rangos y sumas.</p>
+
+<p><a class="p_ident" id="p_mHE3r1oeUS" href="#p_mHE3r1oeUS" tabindex="-1" role="presentation"></a>Las definiciones de este vocabulario (las funciones <code>suma</code> y <code>rango</code>) seguirán involucrando ciclos, contadores y otros detalles incidentales. Pero ya que expresan conceptos más simples que el programa como un conjunto, son más fáciles de realizar correctamente.</p>
+
+<h2><a class="h_ident" id="h_jeqhU5hoax" href="#h_jeqhU5hoax" tabindex="-1" role="presentation"></a>Abstracción</h2>
+
+<p><a class="p_ident" id="p_52TVMKkB+L" href="#p_52TVMKkB+L" tabindex="-1" role="presentation"></a>En el contexto de la programación, estos tipos de vocabularios suelen ser llamados <em>abstracciones</em>. Las abstracciones esconden detalles y nos dan la capacidad de hablar acerca de los problemas a un nivel superior (o más abstracto).</p>
+
+<p><a class="p_ident" id="p_h/6ZRS+XB2" href="#p_h/6ZRS+XB2" tabindex="-1" role="presentation"></a>Como una analogía, compara estas dos recetas de sopa de guisantes:</p>
+
+<blockquote>
+
+<p><a class="p_ident" id="p_cmARxUCIWe" href="#p_cmARxUCIWe" tabindex="-1" role="presentation"></a>Coloque 1 taza de guisantes secos por persona en un recipiente. Agregue agua hasta que los guisantes esten bien cubiertos. Deje los guisantes en agua durante al menos 12 horas. Saque los guisantes del agua y pongalos en una cacerola para cocinar. Agregue 4 tazas de agua por persona. Cubra la sartén y mantenga los guisantes hirviendo a fuego lento durante dos horas. Tome media cebolla por persona. Cortela en piezas con un cuchillo. Agréguela a los guisantes. Tome un tallo de apio por persona. Cortelo en pedazos con un cuchillo. Agréguelo a los guisantes. Tome una zanahoria por persona. Cortela en pedazos. Con un cuchillo! Agregarla a los guisantes. Cocine por 10 minutos más.</p>
+
+</blockquote>
+
+<p><a class="p_ident" id="p_z7kQtEIwXR" href="#p_z7kQtEIwXR" tabindex="-1" role="presentation"></a>Y la segunda receta:</p>
+
+<blockquote>
+
+<p><a class="p_ident" id="p_tZ51jSgceM" href="#p_tZ51jSgceM" tabindex="-1" role="presentation"></a>Por persona: 1 taza de guisantes secos, media cebolla picada, un tallo de apio y una zanahoria.</p>
+
+<p><a class="p_ident" id="p_KCh2w7/Upm" href="#p_KCh2w7/Upm" tabindex="-1" role="presentation"></a>Remoje los guisantes durante 12 horas. Cocine a fuego lento durante 2 horas en 4 tazas de agua (por persona). Picar y agregar verduras. Cocine por 10 minutos más.</p>
+
+</blockquote>
+
+<p><a class="p_ident" id="p_KixeTs095A" href="#p_KixeTs095A" tabindex="-1" role="presentation"></a>La segunda es más corta y fácil de interpretar. Pero necesitas entender algunas palabras más relacionadas a la cocina—<em>remojar</em>, <em>cocinar a fuego lento</em>, <em>picar</em>, y, supongo, <em>verduras</em>.</p>
+
+<p><a class="p_ident" id="p_2GLKAqL5sr" href="#p_2GLKAqL5sr" tabindex="-1" role="presentation"></a>Cuando programamos, no podemos confiar en que todas las palabras que necesitaremos estaran esperando por nosotros en el diccionario. Por lo tanto, puedes caer en el patrón de la primera receta—resolviendo los pasos precisos que debe realizar la computadora, uno por uno, ciego a los conceptos de orden superior que estos expresan.</p>
+
+<p><a class="p_ident" id="p_kgq2yGQhy/" href="#p_kgq2yGQhy/" tabindex="-1" role="presentation"></a>En la programación, es una habilidad útil, darse cuenta cuando estás trabajando en un nivel de abstracción demasiado bajo.</p>
+
+<h2><a class="h_ident" id="h_66/PnH4hVD" href="#h_66/PnH4hVD" tabindex="-1" role="presentation"></a>Abstrayendo la repetición</h2>
+
+<p><a class="p_ident" id="p_+yKMsSOH6s" href="#p_+yKMsSOH6s" tabindex="-1" role="presentation"></a>Las funciones simples, como las hemos visto hasta ahora, son una buena forma de construir abstracciones. Pero a veces se quedan cortas.</p>
+
+<p><a class="p_ident" id="p_d6K5ySAVvF" href="#p_d6K5ySAVvF" tabindex="-1" role="presentation"></a>Es común que un programa haga algo una determinada cantidad de veces. Puedes escribir un ciclo <code>for</code> para eso, de esta manera:</p>
+
+<pre class="snippet cm-s-default" data-language="javascript" ><a class="c_ident" id="c_5c+C2+9IG1" href="#c_5c+C2+9IG1" tabindex="-1" role="presentation"></a><span class="cm-keyword">for</span> (<span class="cm-keyword">let</span> <span class="cm-def">i</span> <span class="cm-operator">=</span> <span class="cm-number">0</span>; <span class="cm-variable">i</span> <span class="cm-operator">&lt;</span> <span class="cm-number">10</span>; <span class="cm-variable">i</span><span class="cm-operator">++</span>) {
+  <span class="cm-variable">console</span>.<span class="cm-property">log</span>(<span class="cm-variable">i</span>);
+}</pre>
+
+<p><a class="p_ident" id="p_0933TDfB6e" href="#p_0933TDfB6e" tabindex="-1" role="presentation"></a>Podemos abstraer “hacer algo <em>N</em> veces” como una función? Bueno, es fácil escribir una función que llame a <code>console.log</code> <em>N</em> cantidad de veces.</p>
+
+<pre class="snippet cm-s-default" data-language="javascript" ><a class="c_ident" id="c_01lxFf/pce" href="#c_01lxFf/pce" tabindex="-1" role="presentation"></a><span class="cm-keyword">function</span> <span class="cm-def">repetirLog</span>(<span class="cm-def">n</span>) {
+  <span class="cm-keyword">for</span> (<span class="cm-keyword">let</span> <span class="cm-def">i</span> <span class="cm-operator">=</span> <span class="cm-number">0</span>; <span class="cm-variable-2">i</span> <span class="cm-operator">&lt;</span> <span class="cm-variable-2">n</span>; <span class="cm-variable-2">i</span><span class="cm-operator">++</span>) {
+    <span class="cm-variable">console</span>.<span class="cm-property">log</span>(<span class="cm-variable-2">i</span>);
+  }
+}</pre>
+
+<p><a class="p_ident" id="p_dV1xqd0QyN" href="#p_dV1xqd0QyN" tabindex="-1" role="presentation"></a>Pero, y si queremos hacer algo más que loggear los números? Ya que “hacer algo” se puede representar como una función y que las funciones solo son valores, podemos pasar nuestra acción como un valor de función.</p>
+
+<pre class="snippet cm-s-default" data-language="javascript" ><a class="c_ident" id="c_sisQJ7Pdvp" href="#c_sisQJ7Pdvp" tabindex="-1" role="presentation"></a><span class="cm-keyword">function</span> <span class="cm-def">repetir</span>(<span class="cm-def">n</span>, <span class="cm-def">accion</span>) {
+  <span class="cm-keyword">for</span> (<span class="cm-keyword">let</span> <span class="cm-def">i</span> <span class="cm-operator">=</span> <span class="cm-number">0</span>; <span class="cm-variable-2">i</span> <span class="cm-operator">&lt;</span> <span class="cm-variable-2">n</span>; <span class="cm-variable-2">i</span><span class="cm-operator">++</span>) {
+    <span class="cm-variable-2">accion</span>(<span class="cm-variable-2">i</span>);
+  }
+}
+
+<span class="cm-variable">repetir</span>(<span class="cm-number">3</span>, <span class="cm-variable">console</span>.<span class="cm-property">log</span>);
+<span class="cm-comment">// → 0</span>
+<span class="cm-comment">// → 1</span>
+<span class="cm-comment">// → 2</span></pre>
+
+<p><a class="p_ident" id="p_byIMt++5UQ" href="#p_byIMt++5UQ" tabindex="-1" role="presentation"></a>No es necesario que le pases una función predefinida a <code>repetir</code>. A menudo, desearas crear un valor de función al momento en su lugar.</p>
+
+<pre class="snippet cm-s-default" data-language="javascript" ><a class="c_ident" id="c_s8RST25oGA" href="#c_s8RST25oGA" tabindex="-1" role="presentation"></a><span class="cm-keyword">let</span> <span class="cm-def">etiquetas</span> <span class="cm-operator">=</span> [];
+<span class="cm-variable">repetir</span>(<span class="cm-number">5</span>, <span class="cm-def">i</span> <span class="cm-operator">=&gt;</span> {
+  <span class="cm-variable">etiquetas</span>.<span class="cm-property">push</span>(<span class="cm-string-2">`Unidad ${</span><span class="cm-variable-2">i</span> <span class="cm-operator">+</span> <span class="cm-number">1</span><span class="cm-string-2">}</span><span class="cm-string-2">`</span>);
+});
+<span class="cm-variable">console</span>.<span class="cm-property">log</span>(<span class="cm-variable">etiquetas</span>);
+<span class="cm-comment">// → [&quot;Unidad 1&quot;, &quot;Unidad 2&quot;, &quot;Unidad 3&quot;, &quot;Unidad 4&quot;, &quot;Unidad 5&quot;]</span></pre>
+
+<p><a class="p_ident" id="p_ZaxR2WEHob" href="#p_ZaxR2WEHob" tabindex="-1" role="presentation"></a>Esto está estructurado un poco como un ciclo <code>for</code>—primero describe el tipo de ciclo, y luego provee un cuerpo. Sin embargo, el cuerpo ahora está escrito como un valor de función, que está envuelto en el paréntesis de la llamada a <code>repetir</code>. Por eso es que tiene que cerrarse con el corchete de cierre <em>y</em> paréntesis de cierre. En casos como este ejemplo, donde el cuerpo es una expresión pequeña y única, podrias tambien omitir las llaves y escribir el ciclo en una sola línea.</p>
+
+<h2><a class="h_ident" id="h_sBm/RoOmVE" href="#h_sBm/RoOmVE" tabindex="-1" role="presentation"></a>Funciones de orden superior</h2>
+
+<p><a class="p_ident" id="p_yKcYFIsmMW" href="#p_yKcYFIsmMW" tabindex="-1" role="presentation"></a>Las funciones que operan en otras funciones, ya sea tomándolas como argumentos o retornandolas, se denominan <em>funciones de orden superior</em>. Como ya hemos visto que las funciones son valores regulares, no existe nada particularmente notable sobre el hecho de que tales funciones existen. El término proviene de las matemáticas, donde la distinción entre funciones y otros valores se toma más en serio.</p>
+
+<p><a class="p_ident" id="p_sGlpxAbe6R" href="#p_sGlpxAbe6R" tabindex="-1" role="presentation"></a>Las funciones de orden superior nos permiten abstraer sobre <em>acciones</em>, no solo sobre valores. Estas vienen en varias formas. Por ejemplo, puedes tener funciones que crean nuevas funciones.</p>
+
+<pre class="snippet cm-s-default" data-language="javascript" ><a class="c_ident" id="c_yl26zgd/Q+" href="#c_yl26zgd/Q+" tabindex="-1" role="presentation"></a><span class="cm-keyword">function</span> <span class="cm-def">mayorQue</span>(<span class="cm-def">n</span>) {
+  <span class="cm-keyword">return</span> <span class="cm-def">m</span> <span class="cm-operator">=&gt;</span> <span class="cm-variable-2">m</span> <span class="cm-operator">&gt;</span> <span class="cm-variable-2">n</span>;
+}
+<span class="cm-keyword">let</span> <span class="cm-def">mayorQue10</span> <span class="cm-operator">=</span> <span class="cm-variable">mayorQue</span>(<span class="cm-number">10</span>);
+<span class="cm-variable">console</span>.<span class="cm-property">log</span>(<span class="cm-variable">mayorQue10</span>(<span class="cm-number">11</span>));
+<span class="cm-comment">// → true</span></pre>
+
+<p><a class="p_ident" id="p_Q2brBZnlsJ" href="#p_Q2brBZnlsJ" tabindex="-1" role="presentation"></a>Y puedes tener funciones que cambien otras funciones.</p>
+
+<pre class="snippet cm-s-default" data-language="javascript" ><a class="c_ident" id="c_4jsDEz/PTD" href="#c_4jsDEz/PTD" tabindex="-1" role="presentation"></a><span class="cm-keyword">function</span> <span class="cm-def">ruidosa</span>(<span class="cm-def">funcion</span>) {
+  <span class="cm-keyword">return</span> (<span class="cm-meta">...</span><span class="cm-def">argumentos</span>) <span class="cm-operator">=&gt;</span> {
+    <span class="cm-variable">console</span>.<span class="cm-property">log</span>(<span class="cm-string">&quot;llamando con&quot;</span>, <span class="cm-variable-2">argumentos</span>);
+    <span class="cm-keyword">let</span> <span class="cm-def">resultado</span> <span class="cm-operator">=</span> <span class="cm-variable-2">funcion</span>(<span class="cm-meta">...</span><span class="cm-variable-2">argumentos</span>);
+    <span class="cm-variable">console</span>.<span class="cm-property">log</span>(<span class="cm-string">&quot;llamada con&quot;</span>, <span class="cm-variable-2">argumentos</span>, <span class="cm-string">&quot;, retorno&quot;</span>, <span class="cm-variable-2">resultado</span>);
+    <span class="cm-keyword">return</span> <span class="cm-variable-2">resultado</span>;
+  };
+}
+<span class="cm-variable">ruidosa</span>(<span class="cm-variable">Math</span>.<span class="cm-property">min</span>)(<span class="cm-number">3</span>, <span class="cm-number">2</span>, <span class="cm-number">1</span>);
+<span class="cm-comment">// → llamando con [3, 2, 1]</span>
+<span class="cm-comment">// → llamada con [3, 2, 1] , retorno 1</span></pre>
+
+<p><a class="p_ident" id="p_HROdaWa3AA" href="#p_HROdaWa3AA" tabindex="-1" role="presentation"></a>Incluso puedes escribir funciones que proporcionen nuevos tipos de flujo de control.</p>
+
+<pre class="snippet cm-s-default" data-language="javascript" ><a class="c_ident" id="c_nuRXUnBX/r" href="#c_nuRXUnBX/r" tabindex="-1" role="presentation"></a><span class="cm-keyword">function</span> <span class="cm-def">aMenosQue</span>(<span class="cm-def">prueba</span>, <span class="cm-def">entonces</span>) {
+  <span class="cm-keyword">if</span> (<span class="cm-operator">!</span><span class="cm-variable-2">prueba</span>) <span class="cm-variable-2">entonces</span>();
+}
+
+<span class="cm-variable">repetir</span>(<span class="cm-number">3</span>, <span class="cm-def">n</span> <span class="cm-operator">=&gt;</span> {
+  <span class="cm-variable">aMenosQue</span>(<span class="cm-variable-2">n</span> <span class="cm-operator">%</span> <span class="cm-number">2</span> <span class="cm-operator">==</span> <span class="cm-number">1</span>, () <span class="cm-operator">=&gt;</span> {
+    <span class="cm-variable">console</span>.<span class="cm-property">log</span>(<span class="cm-variable-2">n</span>, <span class="cm-string">&quot;es par&quot;</span>);
+  });
+});
+<span class="cm-comment">// → 0 es par</span>
+<span class="cm-comment">// → 2 es par</span></pre>
+
+<p><a class="p_ident" id="p_cZ5hP18DGf" href="#p_cZ5hP18DGf" tabindex="-1" role="presentation"></a>Hay un método de array incorporado, <code>forEach</code> que proporciona algo como un ciclo <code>for</code>/<code>of</code> como una función de orden superior.</p>
+
+<pre class="snippet cm-s-default" data-language="javascript" ><a class="c_ident" id="c_hd239m6Bnv" href="#c_hd239m6Bnv" tabindex="-1" role="presentation"></a>[<span class="cm-string">&quot;A&quot;</span>, <span class="cm-string">&quot;B&quot;</span>].<span class="cm-property">forEach</span>(<span class="cm-def">letra</span> <span class="cm-operator">=&gt;</span> <span class="cm-variable">console</span>.<span class="cm-property">log</span>(<span class="cm-variable-2">letra</span>));
+<span class="cm-comment">// → A</span>
+<span class="cm-comment">// → B</span></pre>
+
+<h2><a class="h_ident" id="h_3jyOshgXzS" href="#h_3jyOshgXzS" tabindex="-1" role="presentation"></a>Conjunto de datos de códigos</h2>
+
+<p><a class="p_ident" id="p_6RecciQKiu" href="#p_6RecciQKiu" tabindex="-1" role="presentation"></a>Un área donde brillan las funciones de orden superior es en el procesamiento de datos. Para procesar datos, necesitaremos algunos datos reales. Este capítulo usara un conjunto de datos acerca de códigos—sistema de escrituras como Latin, Cirílico, o Arábico.</p>
+
+<p><a class="p_ident" id="p_QWRc3oEeB3" href="#p_QWRc3oEeB3" tabindex="-1" role="presentation"></a>Recuerdas Unicode del <a href="01_valores.html#unicode">Capítulo 1</a>, el sistema que asigna un número a cada carácter en el lenguaje escrito. La mayoría de estos carácteres están asociados a un código específico. El estandar contiene 140 codigos diferentes—81 de los cuales todavía están en uso hoy, y 59 que son históricos.</p>
+
+<p><a class="p_ident" id="p_7rUJjmuXb5" href="#p_7rUJjmuXb5" tabindex="-1" role="presentation"></a>Aunque solo puedo leer con fluidez los caracteres en Latin, aprecio el hecho de que las personas estan escribiendo textos en al menos 80 diferentes sistemas de escritura, muchos de los cuales ni siquiera reconocería. Por ejemplo, aquí está una muestra de escritura a mano en Tamil.</p><figure><img src="img/tamil.png" alt="Tamil handwriting"></figure>
+
+<p><a class="p_ident" id="p_VD8Y7AaWbe" href="#p_VD8Y7AaWbe" tabindex="-1" role="presentation"></a>El conjunto de datos de ejemplo contiene algunos piezas de información acerca de los 140 codigos definidos en Unicode. Este esta disponible en la <a href="https://eloquentjavascript.net/code#5">caja de arena</a> para este capítulo  como la vinculación <code>SCRIPTS</code>. La vinculación contiene un array de objetos, cada uno de los cuales describe un codigo.</p>
+
+<pre class="snippet cm-s-default" data-language="application/json" ><a class="c_ident" id="c_YkfuyBG2fl" href="#c_YkfuyBG2fl" tabindex="-1" role="presentation"></a>{
+  <span class="cm-property">name</span>: <span class="cm-string">&quot;Coptic&quot;</span>,
+  <span class="cm-property">ranges</span>: [[<span class="cm-number">994</span>, <span class="cm-number">1008</span>], [<span class="cm-number">11392</span>, <span class="cm-number">11508</span>], [<span class="cm-number">11513</span>, <span class="cm-number">11520</span>]],
+  <span class="cm-property">direction</span>: <span class="cm-string">&quot;ltr&quot;</span>,
+  <span class="cm-property">year</span>: <span class="cm-operator">-</span><span class="cm-number">200</span>,
+  <span class="cm-property">living</span>: <span class="cm-atom">false</span>,
+  <span class="cm-property">link</span>: <span class="cm-string">&quot;https://en.wikipedia.org/wiki/Coptic_alphabet&quot;</span>
+}</pre>
+
+<p><a class="p_ident" id="p_7uIk1UXF+p" href="#p_7uIk1UXF+p" tabindex="-1" role="presentation"></a>Tal objeto te dice el nombre del codigo, los rangos de Unicode asignados a él, la dirección en la que está escrito, la tiempo de origen (aproximado), si todavía está en uso, y un enlace a más información. La dirección en la que esta escrito puede ser <code>&quot;ltr&quot;</code> (left-to-right) para izquierda a derecha, <code>&quot;rtl&quot;</code> (right-to-left) para derecha a izquierda (la forma en que se escriben los textos en árabe y en hebreo), o <code>&quot;ttb&quot;</code> (top-to-bottom) para de arriba a abajo (como con la escritura de Mongolia).</p>
+
+<p><a class="p_ident" id="p_DoOVtob5DG" href="#p_DoOVtob5DG" tabindex="-1" role="presentation"></a>La propiedad <code>ranges</code> contiene un array de rangos de caracteres Unicode, cada uno de los cuales es un array de dos elementos que contiene límites inferior y superior. Se asignan los códigos de caracteres dentro de estos rangos al codigo. El limite más bajo es inclusivo (el código 994 es un carácter Copto) y el límite superior es no-inclusivo (el código 1008 no lo es).</p>
+
+<h2><a class="h_ident" id="h_BybMDZKfNJ" href="#h_BybMDZKfNJ" tabindex="-1" role="presentation"></a>Filtrando arrays</h2>
+
+<p><a class="p_ident" id="p_m7vYox7NoY" href="#p_m7vYox7NoY" tabindex="-1" role="presentation"></a>Para encontrar los codigos en el conjunto de datos que todavía están en uso, la siguiente función podría ser útil. Filtra hacia afuera los elementos en un array que no pasen una prueba:</p>
+
+<pre class="snippet cm-s-default" data-language="javascript" ><a class="c_ident" id="c_nXtc78KurZ" href="#c_nXtc78KurZ" tabindex="-1" role="presentation"></a><span class="cm-keyword">function</span> <span class="cm-def">filtrar</span>(<span class="cm-def">array</span>, <span class="cm-def">prueba</span>) {
+  <span class="cm-keyword">let</span> <span class="cm-def">pasaron</span> <span class="cm-operator">=</span> [];
+  <span class="cm-keyword">for</span> (<span class="cm-keyword">let</span> <span class="cm-def">elemento</span> <span class="cm-keyword">of</span> <span class="cm-variable-2">array</span>) {
+    <span class="cm-keyword">if</span> (<span class="cm-variable-2">prueba</span>(<span class="cm-variable-2">elemento</span>)) {
+      <span class="cm-variable-2">pasaron</span>.<span class="cm-property">push</span>(<span class="cm-variable-2">elemento</span>);
+    }
+  }
+  <span class="cm-keyword">return</span> <span class="cm-variable-2">pasaron</span>;
+}
+
+<span class="cm-variable">console</span>.<span class="cm-property">log</span>(<span class="cm-variable">filtrar</span>(<span class="cm-variable">SCRIPTS</span>, <span class="cm-def">codigo</span> <span class="cm-operator">=&gt;</span> <span class="cm-variable-2">codigo</span>.<span class="cm-property">living</span>));
+<span class="cm-comment">// → [{name: &quot;Adlam&quot;, …}, …]</span></pre>
+
+<p><a class="p_ident" id="p_j8zFHzgnNs" href="#p_j8zFHzgnNs" tabindex="-1" role="presentation"></a>La función usa el argumento llamado <code>prueba</code>, un valor de función, para llenar una “brecha” en el cálculo—el proceso de decidir qué elementos recolectar.</p>
+
+<p><a class="p_ident" id="p_fxBBNYaZEi" href="#p_fxBBNYaZEi" tabindex="-1" role="presentation"></a>Observa cómo la función <code>filtrar</code>, en lugar de eliminar elementos del array existente, crea un nuevo array solo con los elementos que pasan la prueba. Esta función es <em>pura</em>. No modifica el array que se le es dado.</p>
+
+<p><a class="p_ident" id="p_mflQRYwRQo" href="#p_mflQRYwRQo" tabindex="-1" role="presentation"></a>Al igual que <code>forEach</code>, <code>filtrar</code> es un método de array estándar, este esta incorporado como <code>filter</code>. El ejemplo definió la función solo para mostrar lo que hace internamente. A partir de ahora, la usaremos así en su lugar:</p>
+
+<pre class="snippet cm-s-default" data-language="javascript" ><a class="c_ident" id="c_t0IMgWI85v" href="#c_t0IMgWI85v" tabindex="-1" role="presentation"></a><span class="cm-variable">console</span>.<span class="cm-property">log</span>(<span class="cm-variable">SCRIPTS</span>.<span class="cm-property">filter</span>(<span class="cm-def">codigo</span> <span class="cm-operator">=&gt;</span> <span class="cm-variable-2">codigo</span>.<span class="cm-property">direction</span> <span class="cm-operator">==</span> <span class="cm-string">&quot;ttb&quot;</span>));
+<span class="cm-comment">// → [{name: &quot;Mongolian&quot;, …}, …]</span></pre>
+
+<h2 id="map"><a class="h_ident" id="h_06AxlfgCT4" href="#h_06AxlfgCT4" tabindex="-1" role="presentation"></a>Transformando con map</h2>
+
+<p><a class="p_ident" id="p_ydEMpih2aw" href="#p_ydEMpih2aw" tabindex="-1" role="presentation"></a>Digamos que tenemos un array de objetos que representan codigos, producidos al filtrar el array <code>SCRIPTS</code> de alguna manera. Pero queremos un array de nombres, que es más fácil de inspeccionar</p>
+
+<p><a class="p_ident" id="p_eEu8IlZwFm" href="#p_eEu8IlZwFm" tabindex="-1" role="presentation"></a>El método <code>map</code> (“mapear”) transforma un array al aplicar una función a todos sus elementos y construir un nuevo array a partir de los valores retornados. El nuevo array tendrá la misma longitud que el array de entrada, pero su contenido ha sido <em>mapeado</em> a una nueva forma en base a la función.</p>
+
+<pre class="snippet cm-s-default" data-language="javascript" ><a class="c_ident" id="c_Cs9n8u1mbP" href="#c_Cs9n8u1mbP" tabindex="-1" role="presentation"></a><span class="cm-keyword">function</span> <span class="cm-def">map</span>(<span class="cm-def">array</span>, <span class="cm-def">transformar</span>) {
+  <span class="cm-keyword">let</span> <span class="cm-def">mapeados</span> <span class="cm-operator">=</span> [];
+  <span class="cm-keyword">for</span> (<span class="cm-keyword">let</span> <span class="cm-def">elemento</span> <span class="cm-keyword">of</span> <span class="cm-variable-2">array</span>) {
+    <span class="cm-variable-2">mapeados</span>.<span class="cm-property">push</span>(<span class="cm-variable-2">transformar</span>(<span class="cm-variable-2">elemento</span>));
+  }
+  <span class="cm-keyword">return</span> <span class="cm-variable-2">mapeados</span>;
+}
+
+<span class="cm-keyword">let</span> <span class="cm-def">codigosDerechaAIzquierda</span> <span class="cm-operator">=</span> <span class="cm-variable">SCRIPTS</span>.<span class="cm-property">filter</span>(<span class="cm-def">codigo</span> <span class="cm-operator">=&gt;</span> <span class="cm-variable-2">codigo</span>.<span class="cm-property">direction</span> <span class="cm-operator">==</span> <span class="cm-string">&quot;rtl&quot;</span>);
+<span class="cm-variable">console</span>.<span class="cm-property">log</span>(<span class="cm-variable">map</span>(<span class="cm-variable">codigosDerechaAIzquierda</span>, <span class="cm-def">codigo</span> <span class="cm-operator">=&gt;</span> <span class="cm-variable-2">codigo</span>.<span class="cm-property">name</span>));
+<span class="cm-comment">// → [&quot;Adlam&quot;, &quot;Arabic&quot;, &quot;Imperial Aramaic&quot;, …]</span></pre>
+
+<p><a class="p_ident" id="p_88/HEh2NGp" href="#p_88/HEh2NGp" tabindex="-1" role="presentation"></a>Al igual que <code>forEach</code> y <code>filter</code>, <code>map</code> es un método de array estándar.</p>
+
+<h2><a class="h_ident" id="h_ddK/7bb9/9" href="#h_ddK/7bb9/9" tabindex="-1" role="presentation"></a>Resumiendo con reduce</h2>
+
+<p><a class="p_ident" id="p_76/7z0YYNY" href="#p_76/7z0YYNY" tabindex="-1" role="presentation"></a>Otra cosa común que hacer con arrays es calcular un valor único a partir de ellos. Nuestro ejemplo recurrente, sumar una colección de números, es una instancia de esto. Otro ejemplo sería encontrar el codigo con la mayor cantidad de caracteres.</p>
+
+<p><a class="p_ident" id="p_EiDL8H6ZNm" href="#p_EiDL8H6ZNm" tabindex="-1" role="presentation"></a>La operación de orden superior que representa este patrón se llama <em>reduce</em> (“reducir”)—a veces también llamada <em>fold</em> (“doblar”). Esta construye un valor al repetidamente tomar un solo elemento del array y combinándolo con el valor actual. Al sumar números, comenzarías con el número cero y, para cada elemento, agregas eso a la suma.</p>
+
+<p><a class="p_ident" id="p_Gy7ho+P5wg" href="#p_Gy7ho+P5wg" tabindex="-1" role="presentation"></a>Los parámetros para <code>reduce</code> son, además del array, una función de combinación y un valor de inicio. Esta función es un poco menos sencilla que <code>filter</code> y <code>map</code>, así que mira atentamente:</p>
+
+<pre class="snippet cm-s-default" data-language="javascript" ><a class="c_ident" id="c_C68P/nqtaK" href="#c_C68P/nqtaK" tabindex="-1" role="presentation"></a><span class="cm-keyword">function</span> <span class="cm-def">reduce</span>(<span class="cm-def">array</span>, <span class="cm-def">combinar</span>, <span class="cm-def">inicio</span>) {
+  <span class="cm-keyword">let</span> <span class="cm-def">actual</span> <span class="cm-operator">=</span> <span class="cm-variable-2">inicio</span>;
+  <span class="cm-keyword">for</span> (<span class="cm-keyword">let</span> <span class="cm-def">elemento</span> <span class="cm-keyword">of</span> <span class="cm-variable-2">array</span>) {
+    <span class="cm-variable-2">actual</span> <span class="cm-operator">=</span> <span class="cm-variable-2">combinar</span>(<span class="cm-variable-2">actual</span>, <span class="cm-variable-2">elemento</span>);
+  }
+  <span class="cm-keyword">return</span> <span class="cm-variable-2">actual</span>;
+}
+
+<span class="cm-variable">console</span>.<span class="cm-property">log</span>(<span class="cm-variable">reduce</span>([<span class="cm-number">1</span>, <span class="cm-number">2</span>, <span class="cm-number">3</span>, <span class="cm-number">4</span>], (<span class="cm-def">a</span>, <span class="cm-def">b</span>) <span class="cm-operator">=&gt;</span> <span class="cm-variable-2">a</span> <span class="cm-operator">+</span> <span class="cm-variable-2">b</span>, <span class="cm-number">0</span>));
+<span class="cm-comment">// → 10</span></pre>
+
+<p><a class="p_ident" id="p_LD/WPM3R8X" href="#p_LD/WPM3R8X" tabindex="-1" role="presentation"></a>El método de array estándar <code>reduce</code>, que por supuesto corresponde a esta función tiene una mayor comodidad. Si tu array contiene al menos un elemento, tienes permitido omitir el argumento <code>inicio</code>. El método tomará el primer elemento del array como su valor de inicio y comienza a reducir a partir del segundo elemento.</p>
+
+<pre class="snippet cm-s-default" data-language="javascript" ><a class="c_ident" id="c_Dxn7muuMkk" href="#c_Dxn7muuMkk" tabindex="-1" role="presentation"></a><span class="cm-variable">console</span>.<span class="cm-property">log</span>([<span class="cm-number">1</span>, <span class="cm-number">2</span>, <span class="cm-number">3</span>, <span class="cm-number">4</span>].<span class="cm-property">reduce</span>((<span class="cm-def">a</span>, <span class="cm-def">b</span>) <span class="cm-operator">=&gt;</span> <span class="cm-variable-2">a</span> <span class="cm-operator">+</span> <span class="cm-variable-2">b</span>));
+<span class="cm-comment">// → 10</span></pre>
+
+<p><a class="p_ident" id="p_AFR6SoBhbd" href="#p_AFR6SoBhbd" tabindex="-1" role="presentation"></a>Para usar <code>reduce</code> (dos veces) para encontrar el codigo con la mayor cantidad de caracteres, podemos escribir algo como esto:</p>
+
+<pre class="snippet cm-s-default" data-language="javascript" ><a class="c_ident" id="c_M/6NzBPsnG" href="#c_M/6NzBPsnG" tabindex="-1" role="presentation"></a><span class="cm-keyword">function</span> <span class="cm-def">cuentaDeCaracteres</span>(<span class="cm-def">codigo</span>) {
+  <span class="cm-keyword">return</span> <span class="cm-variable-2">codigo</span>.<span class="cm-property">ranges</span>.<span class="cm-property">reduce</span>((<span class="cm-def">cuenta</span>, [<span class="cm-def">desde</span>, <span class="cm-def">hasta</span>]) <span class="cm-operator">=&gt;</span> {
+    <span class="cm-keyword">return</span> <span class="cm-variable-2">cuenta</span> <span class="cm-operator">+</span> (<span class="cm-variable-2">hasta</span> <span class="cm-operator">-</span> <span class="cm-variable-2">desde</span>);
+  }, <span class="cm-number">0</span>);
+}
+
+<span class="cm-variable">console</span>.<span class="cm-property">log</span>(<span class="cm-variable">SCRIPTS</span>.<span class="cm-property">reduce</span>((<span class="cm-def">a</span>, <span class="cm-def">b</span>) <span class="cm-operator">=&gt;</span> {
+  <span class="cm-keyword">return</span> <span class="cm-variable">cuentaDeCaracteres</span>(<span class="cm-variable-2">a</span>) <span class="cm-operator">&lt;</span> <span class="cm-variable">cuentaDeCaracteres</span>(<span class="cm-variable-2">b</span>) <span class="cm-operator">?</span> <span class="cm-variable-2">b</span> : <span class="cm-variable-2">a</span>;
+}));
+<span class="cm-comment">// → {name: &quot;Han&quot;, …}</span></pre>
+
+<p><a class="p_ident" id="p_h4Jk417+fU" href="#p_h4Jk417+fU" tabindex="-1" role="presentation"></a>La función <code>cuentaDeCaracteres</code> reduce los rangos asignados a un codigo sumando sus tamaños. Ten en cuenta el uso de la desestructuración en el parámetro lista de la función reductora. La segunda llamada a <code>reduce</code> luego usa esto para encontrar el codigo más grande al comparar repetidamente dos scripts y retornando el más grande.</p>
+
+<p><a class="p_ident" id="p_qQIVAKE9Gz" href="#p_qQIVAKE9Gz" tabindex="-1" role="presentation"></a>El codigo Han tiene más de 89,000 caracteres asignados en el Estándar Unicode, por lo que es, por mucho, el mayor sistema de escritura en el conjunto de datos. Han es un codigo (a veces) usado para texto chino, japonés y coreano. Esos idiomas comparten muchos caracteres, aunque tienden a escribirlos de manera diferente. El consorcio Unicode (con sede en EE.UU.) decidió tratarlos como un único sistema de escritura para ahorrar códigos de caracteres. Esto se llama <em>unificación Han</em> y aún enoja bastante a algunas personas.</p>
+
+<h2><a class="h_ident" id="h_bzPoX82c4F" href="#h_bzPoX82c4F" tabindex="-1" role="presentation"></a>Composabilidad</h2>
+
+<p><a class="p_ident" id="p_l+zkYNkyHd" href="#p_l+zkYNkyHd" tabindex="-1" role="presentation"></a>Considera cómo habríamos escrito el ejemplo anterior (encontrar el código más grande) sin funciones de orden superior. El código no es mucho peor.</p>
+
+<pre class="snippet cm-s-default" data-language="javascript" ><a class="c_ident" id="c_hTTWEyo4pc" href="#c_hTTWEyo4pc" tabindex="-1" role="presentation"></a><span class="cm-keyword">let</span> <span class="cm-def">mayor</span> <span class="cm-operator">=</span> <span class="cm-atom">null</span>;
+<span class="cm-keyword">for</span> (<span class="cm-keyword">let</span> <span class="cm-def">codigo</span> <span class="cm-keyword">of</span> <span class="cm-variable">SCRIPTS</span>) {
+  <span class="cm-keyword">if</span> (<span class="cm-variable">mayor</span> <span class="cm-operator">==</span> <span class="cm-atom">null</span> <span class="cm-operator">|</span><span class="cm-operator">|</span>
+      <span class="cm-variable">cuentaDeCaracteres</span>(<span class="cm-variable">mayor</span>) <span class="cm-operator">&lt;</span> <span class="cm-variable">cuentaDeCaracteres</span>(<span class="cm-variable">codigo</span>)) {
+    <span class="cm-variable">mayor</span> <span class="cm-operator">=</span> <span class="cm-variable">codigo</span>;
+  }
+}
+<span class="cm-variable">console</span>.<span class="cm-property">log</span>(<span class="cm-variable">mayor</span>);
+<span class="cm-comment">// → {name: &quot;Han&quot;, …}</span></pre>
+
+<p><a class="p_ident" id="p_B/ehSV46Xi" href="#p_B/ehSV46Xi" tabindex="-1" role="presentation"></a>Hay algunos vinculaciones más, y el programa tiene cuatro líneas más. Pero todavía es bastante legible.</p>
+
+<p id="average_function"><a class="p_ident" id="p_wtw6Nbg5Ug" href="#p_wtw6Nbg5Ug" tabindex="-1" role="presentation"></a>Las funciones de orden superior comienzan a brillar cuando necesitas <em>componer</em> operaciones. Como ejemplo, vamos a escribir código que encuentre el año de origen promedio para los codigos vivos y muertos en el conjunto de datos.</p>
+
+<pre class="snippet cm-s-default" data-language="javascript" ><a class="c_ident" id="c_m9qstJrH33" href="#c_m9qstJrH33" tabindex="-1" role="presentation"></a><span class="cm-keyword">function</span> <span class="cm-def">promedio</span>(<span class="cm-def">array</span>) {
+  <span class="cm-keyword">return</span> <span class="cm-variable-2">array</span>.<span class="cm-property">reduce</span>((<span class="cm-def">a</span>, <span class="cm-def">b</span>) <span class="cm-operator">=&gt;</span> <span class="cm-variable-2">a</span> <span class="cm-operator">+</span> <span class="cm-variable-2">b</span>) <span class="cm-operator">/</span> <span class="cm-variable-2">array</span>.<span class="cm-property">length</span>;
+}
+
+<span class="cm-variable">console</span>.<span class="cm-property">log</span>(<span class="cm-variable">Math</span>.<span class="cm-property">round</span>(<span class="cm-variable">promedio</span>(
+  <span class="cm-variable">SCRIPTS</span>.<span class="cm-property">filter</span>(<span class="cm-def">codigo</span> <span class="cm-operator">=&gt;</span> <span class="cm-variable-2">codigo</span>.<span class="cm-property">living</span>).<span class="cm-property">map</span>(<span class="cm-def">codigo</span> <span class="cm-operator">=&gt;</span> <span class="cm-variable-2">codigo</span>.<span class="cm-property">year</span>))));
+<span class="cm-comment">// → 1185</span>
+<span class="cm-variable">console</span>.<span class="cm-property">log</span>(<span class="cm-variable">Math</span>.<span class="cm-property">round</span>(<span class="cm-variable">promedio</span>(
+  <span class="cm-variable">SCRIPTS</span>.<span class="cm-property">filter</span>(<span class="cm-def">codigo</span> <span class="cm-operator">=&gt;</span> <span class="cm-operator">!</span><span class="cm-variable-2">codigo</span>.<span class="cm-property">living</span>).<span class="cm-property">map</span>(<span class="cm-def">codigo</span> <span class="cm-operator">=&gt;</span> <span class="cm-variable-2">codigo</span>.<span class="cm-property">year</span>))));
+<span class="cm-comment">// → 209</span></pre>
+
+<p><a class="p_ident" id="p_ZmT602BkxI" href="#p_ZmT602BkxI" tabindex="-1" role="presentation"></a>Entonces, los codigos muertos en Unicode son, en promedio, más antiguos que los vivos. Esta no es una estadística terriblemente significativa o sorprendente. Pero espero que aceptes que el código utilizado para calcularlo no es difícil de leer. Puedes verlo como una tubería: comenzamos con todos los codigos, filtramos los vivos (o muertos), tomamos los años de aquellos, los promediamos, y redondeamos el resultado.</p>
+
+<p><a class="p_ident" id="p_pzZtIIrz5r" href="#p_pzZtIIrz5r" tabindex="-1" role="presentation"></a>Definitivamente también podrías haber escribir este codigo como un gran ciclo.</p>
+
+<pre class="snippet cm-s-default" data-language="javascript" ><a class="c_ident" id="c_3A20NWWbIH" href="#c_3A20NWWbIH" tabindex="-1" role="presentation"></a><span class="cm-keyword">let</span> <span class="cm-def">total</span> <span class="cm-operator">=</span> <span class="cm-number">0</span>, <span class="cm-def">cuenta</span> <span class="cm-operator">=</span> <span class="cm-number">0</span>;
+<span class="cm-keyword">for</span> (<span class="cm-keyword">let</span> <span class="cm-def">codigo</span> <span class="cm-keyword">of</span> <span class="cm-variable">SCRIPTS</span>) {
+  <span class="cm-keyword">if</span> (<span class="cm-variable">codigo</span>.<span class="cm-property">living</span>) {
+    <span class="cm-variable">total</span> <span class="cm-operator">+=</span> <span class="cm-variable">codigo</span>.<span class="cm-property">year</span>;
+    <span class="cm-variable">cuenta</span> <span class="cm-operator">+=</span> <span class="cm-number">1</span>;
+  }
+}
+<span class="cm-variable">console</span>.<span class="cm-property">log</span>(<span class="cm-variable">Math</span>.<span class="cm-property">round</span>(<span class="cm-variable">total</span> <span class="cm-operator">/</span> <span class="cm-variable">cuenta</span>));
+<span class="cm-comment">// → 1185</span></pre>
+
+<p><a class="p_ident" id="p_MlfnTkRcMS" href="#p_MlfnTkRcMS" tabindex="-1" role="presentation"></a>Pero es más difícil de ver qué se está calculando y cómo. Y ya que los resultados intermedios no se representan como valores coherentes, sería mucho más trabajo extraer algo así como <code>promedio</code> en una función aparte.</p>
+
+<p><a class="p_ident" id="p_awISRdiZPK" href="#p_awISRdiZPK" tabindex="-1" role="presentation"></a>En términos de lo que la computadora realmente está haciendo, estos dos enfoques también son bastante diferentes. El primero creará nuevos arrays al ejecutar <code>filter</code> y <code>map</code>, mientras que el segundo solo computa algunos números, haciendo menos trabajo. Por lo general, puedes permitirte el enfoque legible, pero si estás procesando arrays enormes, y haciendolo muchas veces, el estilo menos abstracto podría ser mejor debido a la velocidad extra.</p>
+
+<h2><a class="h_ident" id="h_35qVztCMxJ" href="#h_35qVztCMxJ" tabindex="-1" role="presentation"></a>Strings y códigos de caracteres</h2>
+
+<p><a class="p_ident" id="p_U/nm/9Aw2H" href="#p_U/nm/9Aw2H" tabindex="-1" role="presentation"></a>Un uso del conjunto de datos sería averiguar qué código esta usando una pieza de texto. Veamos un programa que hace esto.</p>
+
+<p><a class="p_ident" id="p_GatVMstQav" href="#p_GatVMstQav" tabindex="-1" role="presentation"></a>Recuerda que cada codigo tiene un array de rangos para los códigos de caracteres asociados a el. Entonces, dado un código de carácter, podríamos usar una función como esta para encontrar el codigo correspondiente (si lo hay):</p>
+
+<pre class="snippet cm-s-default" data-language="javascript" ><a class="c_ident" id="c_pYtiDhdAiV" href="#c_pYtiDhdAiV" tabindex="-1" role="presentation"></a><span class="cm-keyword">function</span> <span class="cm-def">codigoCaracter</span>(<span class="cm-def">codigo_caracter</span>) {
+  <span class="cm-keyword">for</span> (<span class="cm-keyword">let</span> <span class="cm-def">codigo</span> <span class="cm-keyword">of</span> <span class="cm-variable">SCRIPTS</span>) {
+    <span class="cm-keyword">if</span> (<span class="cm-variable-2">codigo</span>.<span class="cm-property">ranges</span>.<span class="cm-property">some</span>(([<span class="cm-def">desde</span>, <span class="cm-def">hasta</span>]) <span class="cm-operator">=&gt;</span> {
+      <span class="cm-keyword">return</span> <span class="cm-variable-2">codigo_caracter</span> <span class="cm-operator">&gt;=</span> <span class="cm-variable-2">desde</span> <span class="cm-operator">&amp;</span><span class="cm-operator">&amp;</span> <span class="cm-variable-2">codigo_caracter</span> <span class="cm-operator">&lt;</span> <span class="cm-variable-2">hasta</span>;
+    })) {
+      <span class="cm-keyword">return</span> <span class="cm-variable-2">codigo</span>;
+    }
+  }
+  <span class="cm-keyword">return</span> <span class="cm-atom">null</span>;
+}
+
+<span class="cm-variable">console</span>.<span class="cm-property">log</span>(<span class="cm-variable">codigoCaracter</span>(<span class="cm-number">121</span>));
+<span class="cm-comment">// → {name: &quot;Latin&quot;, …}</span></pre>
+
+<p><a class="p_ident" id="p_hJDL1Q3G7R" href="#p_hJDL1Q3G7R" tabindex="-1" role="presentation"></a>El método <code>some</code> (“alguno”) es otra función de orden superior. Toma una función de prueba y te dice si esa función retorna verdadero para cualquiera de los elementos en el array.</p>
+
+<p id="code_units"><a class="p_ident" id="p_RSjcJbJgjq" href="#p_RSjcJbJgjq" tabindex="-1" role="presentation"></a>Pero cómo obtenemos los códigos de los caracteres en un string?</p>
+
+<p><a class="p_ident" id="p_cgkoPYkAxD" href="#p_cgkoPYkAxD" tabindex="-1" role="presentation"></a>En el <a href="01_valores.html">Capítulo 1</a> mencioné que los strings de JavaScript estan codificados como una secuencia de números de 16 bits. Estos se llaman <em>unidades de código</em>. Inicialmente se suponía que un código de carácter Unicode encajara dentro de esa unidad (lo que da un poco más de 65,000 caracteres). Cuando quedó claro que esto no seria suficiente, muchas las personas se resistieron a la necesidad de usar más memoria por carácter. Para apaciguar estas preocupaciones, UTF-16, el formato utilizado por los strings de JavaScript, fue inventado. Este describe la mayoría de los caracteres mas comunes usando una sola unidad de código de 16 bits, pero usa un par de dos de esas unidades para otros caracteres.</p>
+
+<p><a class="p_ident" id="p_O5T6quAti7" href="#p_O5T6quAti7" tabindex="-1" role="presentation"></a>Al dia de hoy UTF-16 generalmente se considera como una mala idea. Parece casi intencionalmente diseñado para invitar a errores. Es fácil escribir programas que pretenden que las unidades de código y caracteres son la misma cosa. Y si tu lenguaje no usa caracteres de dos unidades, esto parecerá funcionar simplemente bien. Pero tan pronto como alguien intente usar dicho programa con algunos menos comunes caracteres chinos, este se rompe. Afortunadamente, con la llegada del emoji, todo el mundo ha empezado a usar caracteres de dos unidades, y la carga de lidiar con tales problemas esta bastante mejor distribuida.</p>
+
+<p><a class="p_ident" id="p_QyIcFq9oOb" href="#p_QyIcFq9oOb" tabindex="-1" role="presentation"></a>Desafortunadamente, las operaciones obvias con strings de JavaScript, como obtener su longitud a través de la propiedad <code>length</code> y acceder a su contenido usando corchetes, trata solo con unidades de código.</p>
+
+<pre class="snippet cm-s-default" data-language="javascript" ><a class="c_ident" id="c_0zpQqvpaiG" href="#c_0zpQqvpaiG" tabindex="-1" role="presentation"></a><span class="cm-comment">// Dos caracteres emoji, caballo y zapato</span>
+<span class="cm-keyword">let</span> <span class="cm-def">caballoZapato</span> <span class="cm-operator">=</span> <span class="cm-string">&quot;🐴👟&quot;</span>;
+<span class="cm-variable">console</span>.<span class="cm-property">log</span>(<span class="cm-variable">caballoZapato</span>.<span class="cm-property">length</span>);
+<span class="cm-comment">// → 4</span>
+<span class="cm-variable">console</span>.<span class="cm-property">log</span>(<span class="cm-variable">caballoZapato</span>[<span class="cm-number">0</span>]);
+<span class="cm-comment">// → ((Medio-carácter inválido))</span>
+<span class="cm-variable">console</span>.<span class="cm-property">log</span>(<span class="cm-variable">caballoZapato</span>.<span class="cm-property">charCodeAt</span>(<span class="cm-number">0</span>));
+<span class="cm-comment">// → 55357 (Código del medio-carácter)</span>
+<span class="cm-variable">console</span>.<span class="cm-property">log</span>(<span class="cm-variable">caballoZapato</span>.<span class="cm-property">codePointAt</span>(<span class="cm-number">0</span>));
+<span class="cm-comment">// → 128052 (Código real para emoji de caballo)</span></pre>
+
+<p><a class="p_ident" id="p_BS9MJRj/qW" href="#p_BS9MJRj/qW" tabindex="-1" role="presentation"></a>El método <code>charCodeAt</code> de JavaScript te da una unidad de código, no un código de carácter completo. El método <code>codePointAt</code>, añadido despues, si da un carácter completo de Unicode. Entonces podríamos usarlo para obtener caracteres de un string. Pero el argumento pasado a <code>codePointAt</code> sigue siendo un índice en la secuencia de unidades de código. Entonces, para hacer un ciclo a traves de todos los caracteres en un string, todavía tendríamos que lidiar con la cuestión de si un carácter ocupa una o dos unidades de código.</p>
+
+<p><a class="p_ident" id="p_+k9Io/S3re" href="#p_+k9Io/S3re" tabindex="-1" role="presentation"></a>En el <a href="04_datos.html#for_of_loop">capítulo anterior</a>, mencioné que el ciclo <code>for</code>/<code>of</code> también se puede usar en strings. Como <code>codePointAt</code>, este tipo de ciclo se introdujo en un momento en que las personas eran muy conscientes de los problemas con UTF-16. Cuando lo usas para hacer un ciclo a traves de un string, te da caracteres reales, no unidades de código.</p>
+
+<pre class="snippet cm-s-default" data-language="javascript" ><a class="c_ident" id="c_4mpH2td9DZ" href="#c_4mpH2td9DZ" tabindex="-1" role="presentation"></a><span class="cm-keyword">let</span> <span class="cm-def">dragonRosa</span> <span class="cm-operator">=</span> <span class="cm-string">&quot;🐉🌹&quot;</span>;
+<span class="cm-keyword">for</span> (<span class="cm-keyword">let</span> <span class="cm-def">caracter</span> <span class="cm-keyword">of</span> <span class="cm-variable">dragonRosa</span>) {
+  <span class="cm-variable">console</span>.<span class="cm-property">log</span>(<span class="cm-variable">caracter</span>);
+}
+<span class="cm-comment">// → 🐉</span>
+<span class="cm-comment">// → 🌹</span></pre>
+
+<p><a class="p_ident" id="p_crnlwccTvb" href="#p_crnlwccTvb" tabindex="-1" role="presentation"></a>Si tienes un caracter (que será un string de unidades de uno o dos códigos), puedes usar <code>codePointAt(0)</code> para obtener su código.</p>
+
+<h2><a class="h_ident" id="h_6v14c/pbJh" href="#h_6v14c/pbJh" tabindex="-1" role="presentation"></a>Reconociendo texto</h2>
+
+<p><a class="p_ident" id="p_AJcpJCoLFc" href="#p_AJcpJCoLFc" tabindex="-1" role="presentation"></a>Tenemos una función <code>codigoCaracter</code> y una forma de correctamente hacer un ciclo a traves de caracteres. El siguiente paso sería contar los caracteres que pertenecen a cada codigo. La siguiente abstracción de conteo será útil para eso:</p>
+
+<pre class="snippet cm-s-default" data-language="javascript" ><a class="c_ident" id="c_tApjNFVSJ9" href="#c_tApjNFVSJ9" tabindex="-1" role="presentation"></a><span class="cm-keyword">function</span> <span class="cm-def">contarPor</span>(<span class="cm-def">elementos</span>, <span class="cm-def">nombreGrupo</span>) {
+  <span class="cm-keyword">let</span> <span class="cm-def">cuentas</span> <span class="cm-operator">=</span> [];
+  <span class="cm-keyword">for</span> (<span class="cm-keyword">let</span> <span class="cm-def">elemento</span> <span class="cm-keyword">of</span> <span class="cm-variable-2">elementos</span>) {
+    <span class="cm-keyword">let</span> <span class="cm-def">nombre</span> <span class="cm-operator">=</span> <span class="cm-variable-2">nombreGrupo</span>(<span class="cm-variable-2">elemento</span>);
+    <span class="cm-keyword">let</span> <span class="cm-def">conocido</span> <span class="cm-operator">=</span> <span class="cm-variable-2">cuentas</span>.<span class="cm-property">findIndex</span>(<span class="cm-def">c</span> <span class="cm-operator">=&gt;</span> <span class="cm-variable-2">c</span>.<span class="cm-property">nombre</span> <span class="cm-operator">==</span> <span class="cm-variable-2">nombre</span>);
+    <span class="cm-keyword">if</span> (<span class="cm-variable-2">conocido</span> <span class="cm-operator">==</span> <span class="cm-operator">-</span><span class="cm-number">1</span>) {
+      <span class="cm-variable-2">cuentas</span>.<span class="cm-property">push</span>({<span class="cm-property">nombre</span>, <span class="cm-property">cuenta</span>: <span class="cm-number">1</span>});
+    } <span class="cm-keyword">else</span> {
+      <span class="cm-variable-2">cuentas</span>[<span class="cm-variable-2">conocido</span>].<span class="cm-property">cuenta</span><span class="cm-operator">++</span>;
+    }
+  }
+  <span class="cm-keyword">return</span> <span class="cm-variable-2">cuentas</span>;
+}
+
+<span class="cm-variable">console</span>.<span class="cm-property">log</span>(<span class="cm-variable">contarPor</span>([<span class="cm-number">1</span>, <span class="cm-number">2</span>, <span class="cm-number">3</span>, <span class="cm-number">4</span>, <span class="cm-number">5</span>], <span class="cm-def">n</span> <span class="cm-operator">=&gt;</span> <span class="cm-variable-2">n</span> <span class="cm-operator">&gt;</span> <span class="cm-number">2</span>));
+<span class="cm-comment">// → [{nombre: false, cuenta: 2}, {nombre: true, cuenta: 3}]</span></pre>
+
+<p><a class="p_ident" id="p_BkGEda/6+p" href="#p_BkGEda/6+p" tabindex="-1" role="presentation"></a>La función <code>contarPor</code> espera una colección (cualquier cosa con la que podamos hacer un ciclo <code>for</code>/<code>of</code>) y una función que calcula un nombre de grupo para un elemento dado. Retorna un array de objetos, cada uno de los cuales nombra un grupo y te dice la cantidad de elementos que se encontraron en ese grupo.</p>
+
+<p><a class="p_ident" id="p_3D6sEDfZSV" href="#p_3D6sEDfZSV" tabindex="-1" role="presentation"></a>Utiliza otro método de array—<code>findIndex</code> (“encontrar index”). Este método es algo así como <code>indexOf</code>, pero en lugar de buscar un valor específico, este encuentra el primer valor para el cual la función dada retorna verdadero. Como <code>indexOf</code>, retorna -1 cuando no se encuentra dicho elemento.</p>
+
+<p><a class="p_ident" id="p_IjT5t9r4xz" href="#p_IjT5t9r4xz" tabindex="-1" role="presentation"></a>Usando <code>contarPor</code>, podemos escribir la función que nos dice qué codigos se usan en una pieza de texto.</p>
+
+<pre class="snippet cm-s-default" data-language="javascript" ><a class="c_ident" id="c_X5/Xnay0Hd" href="#c_X5/Xnay0Hd" tabindex="-1" role="presentation"></a><span class="cm-keyword">function</span> <span class="cm-def">codigosTexto</span>(<span class="cm-def">texto</span>) {
+  <span class="cm-keyword">let</span> <span class="cm-def">codigos</span> <span class="cm-operator">=</span> <span class="cm-variable">contarPor</span>(<span class="cm-variable-2">texto</span>, <span class="cm-def">caracter</span> <span class="cm-operator">=&gt;</span> {
+    <span class="cm-keyword">let</span> <span class="cm-def">codigo</span> <span class="cm-operator">=</span> <span class="cm-variable">codigoCaracter</span>(<span class="cm-variable-2">caracter</span>.<span class="cm-property">codePointAt</span>(<span class="cm-number">0</span>));
+    <span class="cm-keyword">return</span> <span class="cm-variable-2">codigo</span> <span class="cm-operator">?</span> <span class="cm-variable-2">codigo</span>.<span class="cm-property">name</span> : <span class="cm-string">&quot;ninguno&quot;</span>;
+  }).<span class="cm-property">filter</span>(({<span class="cm-def">name</span>}) <span class="cm-operator">=&gt;</span> <span class="cm-variable-2">name</span> <span class="cm-operator">!=</span> <span class="cm-string">&quot;ninguno&quot;</span>);
+
+  <span class="cm-keyword">let</span> <span class="cm-def">total</span> <span class="cm-operator">=</span> <span class="cm-variable-2">codigos</span>.<span class="cm-property">reduce</span>((<span class="cm-def">n</span>, {<span class="cm-def">count</span>}) <span class="cm-operator">=&gt;</span> <span class="cm-variable-2">n</span> <span class="cm-operator">+</span> <span class="cm-variable-2">count</span>, <span class="cm-number">0</span>);
+  <span class="cm-keyword">if</span> (<span class="cm-variable-2">total</span> <span class="cm-operator">==</span> <span class="cm-number">0</span>) <span class="cm-keyword">return</span> <span class="cm-string">&quot;No se encontraron codigos&quot;</span>;
+
+  <span class="cm-keyword">return</span> <span class="cm-variable-2">codigos</span>.<span class="cm-property">map</span>(({<span class="cm-def">name</span>, <span class="cm-def">count</span>}) <span class="cm-operator">=&gt;</span> {
+    <span class="cm-keyword">return</span> <span class="cm-string-2">`${</span><span class="cm-variable">Math</span>.<span class="cm-property">round</span>(<span class="cm-variable-2">count</span> <span class="cm-operator">*</span> <span class="cm-number">100</span> <span class="cm-operator">/</span> <span class="cm-variable-2">total</span>)<span class="cm-string-2">}</span><span class="cm-string-2">% ${</span><span class="cm-variable-2">name</span><span class="cm-string-2">}</span><span class="cm-string-2">`</span>;
+  }).<span class="cm-property">join</span>(<span class="cm-string">&quot;, &quot;</span>);
+}
+
+<span class="cm-variable">console</span>.<span class="cm-property">log</span>(<span class="cm-variable">codigosTexto</span>(<span class="cm-string">'英国的狗说&quot;woof&quot;, 俄罗斯的狗说&quot;тяв&quot;'</span>));
+<span class="cm-comment">// → 61% Han, 22% Latin, 17% Cyrillic</span></pre>
+
+<p><a class="p_ident" id="p_hJnKmlYlaW" href="#p_hJnKmlYlaW" tabindex="-1" role="presentation"></a>La función primero cuenta los caracteres por nombre, usando <code>codigoCaracter</code> para asignarles un nombre, y recurre al string <code>&quot;ninguno&quot;</code> para caracteres que no son parte de ningún codigo. La llamada <code>filter</code> deja afuera las entrada para <code>&quot;ninguno&quot;</code> del array resultante, ya que no estamos interesados ​​en esos caracteres.</p>
+
+<p><a class="p_ident" id="p_z0FN1vM2Io" href="#p_z0FN1vM2Io" tabindex="-1" role="presentation"></a>Para poder calcular porcentajes, primero necesitamos la cantidad total de caracteres que pertenecen a un codigo, lo que podemos calcular con <code>reduce</code>. Si no se encuentran tales caracteres, la función retorna un string específico. De lo contrario, transforma las entradas de conteo en strings legibles con <code>map</code> y luego las combina con <code>join</code>.</p>
+
+<h2><a class="h_ident" id="h_NUFOUyK+lw" href="#h_NUFOUyK+lw" tabindex="-1" role="presentation"></a>Resumen</h2>
+
+<p><a class="p_ident" id="p_PxRnIEl1xk" href="#p_PxRnIEl1xk" tabindex="-1" role="presentation"></a>Ser capaz de pasar valores de función a otras funciones es un aspecto profundamente útil de JavaScript. Nos permite escribir funciones que modelen calculos con “brechas” en ellas. El código que llama a estas funciones pueden llenar estas brechas al proporcionar valores de función.</p>
+
+<p><a class="p_ident" id="p_zpqX8MlagP" href="#p_zpqX8MlagP" tabindex="-1" role="presentation"></a>Los arrays proporcionan varios métodos útiles de orden superior. Puedes usar <code>forEach</code> para recorrer los elementos en un array. El método <code>filter</code> retorna un nuevo array que contiene solo los elementos que pasan una función de predicado. Transformar un array al poner cada elemento a través de una función se hace con <code>map</code>. Puedes usar <code>reduce</code> para combinar todos los elementos en una array a un solo valor. El método <code>some</code> prueba si algun elemento coincide con una función de predicado determinada. Y <code>findIndex</code> encuentra la posición del primer elemento que coincide con un predicado.</p>
+
+<h2><a class="h_ident" id="h_tkm7ntLto1" href="#h_tkm7ntLto1" tabindex="-1" role="presentation"></a>Ejercicios</h2>
+
+<h3><a class="i_ident" id="i_NYYN2FxNVG" href="#i_NYYN2FxNVG" tabindex="-1" role="presentation"></a>Aplanamiento</h3>
+
+<p><a class="p_ident" id="p_ZZao1FEB+9" href="#p_ZZao1FEB+9" tabindex="-1" role="presentation"></a>Use el método <code>reduce</code> en combinación con el método <code>concat</code> para “aplanar” un array de arrays en un único array que tenga todos los elementos de los arrays originales.</p>
+
+<pre class="snippet cm-s-default" data-language="javascript" ><a class="c_ident" id="c_9vAbUnn21O" href="#c_9vAbUnn21O" tabindex="-1" role="presentation"></a><span class="cm-keyword">let</span> <span class="cm-def">arrays</span> <span class="cm-operator">=</span> [[<span class="cm-number">1</span>, <span class="cm-number">2</span>, <span class="cm-number">3</span>], [<span class="cm-number">4</span>, <span class="cm-number">5</span>], [<span class="cm-number">6</span>]];
+<span class="cm-comment">// Tu código aquí.</span>
+<span class="cm-comment">// → [1, 2, 3, 4, 5, 6]</span></pre>
+
+<h3><a class="i_ident" id="i_0QkVFzAJAT" href="#i_0QkVFzAJAT" tabindex="-1" role="presentation"></a>Tu propio ciclo</h3>
+
+<p><a class="p_ident" id="p_m/M2ay/G/3" href="#p_m/M2ay/G/3" tabindex="-1" role="presentation"></a>Escriba una función de orden superior llamada <code>ciclo</code> que proporcione algo así como una declaración de ciclo <code>for</code>. Esta toma un valor, una función de prueba, una función de actualización y un cuerpo de función. En cada iteración, primero ejecuta la función de prueba en el valor actual del ciclo y se detiene si esta retorna falso. Luego llama al cuerpo de función, dándole el valor actual. Y finalmente, llama a la función de actualización para crear un nuevo valor y comienza desde el principio.</p>
+
+<p><a class="p_ident" id="p_WRpHBzmt3o" href="#p_WRpHBzmt3o" tabindex="-1" role="presentation"></a>Cuando definas la función, puedes usar un ciclo regular para hacer los ciclos reales.</p>
+
+<pre class="snippet cm-s-default" data-language="javascript" ><a class="c_ident" id="c_NTIIlR6lTD" href="#c_NTIIlR6lTD" tabindex="-1" role="presentation"></a><span class="cm-comment">// Tu código aquí.</span>
+
+<span class="cm-variable">loop</span>(<span class="cm-number">3</span>, <span class="cm-def">n</span> <span class="cm-operator">=&gt;</span> <span class="cm-variable-2">n</span> <span class="cm-operator">&gt;</span> <span class="cm-number">0</span>, <span class="cm-def">n</span> <span class="cm-operator">=&gt;</span> <span class="cm-variable-2">n</span> <span class="cm-operator">-</span> <span class="cm-number">1</span>, <span class="cm-variable">console</span>.<span class="cm-property">log</span>);
+<span class="cm-comment">// → 3</span>
+<span class="cm-comment">// → 2</span>
+<span class="cm-comment">// → 1</span></pre>
+
+<h3><a class="i_ident" id="i_a5L0SOx8cy" href="#i_a5L0SOx8cy" tabindex="-1" role="presentation"></a>Cada</h3>
+
+<p><a class="p_ident" id="p_PgS/WjVjys" href="#p_PgS/WjVjys" tabindex="-1" role="presentation"></a>De forma análoga al método <code>some</code>, los arrays también tienen un método <code>every</code> (“cada”). Este retorna true cuando la función dada devuelve verdadero para <em>cada</em> elemento en el array. En cierto modo, <code>some</code> es una versión del operador <code>||</code> que actúa en arrays, y <code>every</code> es como el operador <code>&amp;&amp;</code>.</p>
+
+<p><a class="p_ident" id="p_pg6rAnmtg7" href="#p_pg6rAnmtg7" tabindex="-1" role="presentation"></a>Implementa <code>every</code> como una función que tome un array y una función predicado como parámetros. Escribe dos versiones, una usando un ciclo y una usando el método <code>some</code>.</p>
+
+<pre class="snippet cm-s-default" data-language="javascript" ><a class="c_ident" id="c_6DSoMGB2bF" href="#c_6DSoMGB2bF" tabindex="-1" role="presentation"></a><span class="cm-keyword">function</span> <span class="cm-def">cada</span>(<span class="cm-def">array</span>, <span class="cm-def">test</span>) {
+  <span class="cm-comment">// Tu código aquí.</span>
+}
+
+<span class="cm-variable">console</span>.<span class="cm-property">log</span>(<span class="cm-variable">cada</span>([<span class="cm-number">1</span>, <span class="cm-number">3</span>, <span class="cm-number">5</span>], <span class="cm-def">n</span> <span class="cm-operator">=&gt;</span> <span class="cm-variable-2">n</span> <span class="cm-operator">&lt;</span> <span class="cm-number">10</span>));
+<span class="cm-comment">// → true</span>
+<span class="cm-variable">console</span>.<span class="cm-property">log</span>(<span class="cm-variable">cada</span>([<span class="cm-number">2</span>, <span class="cm-number">4</span>, <span class="cm-number">16</span>], <span class="cm-def">n</span> <span class="cm-operator">=&gt;</span> <span class="cm-variable-2">n</span> <span class="cm-operator">&lt;</span> <span class="cm-number">10</span>));
+<span class="cm-comment">// → false</span>
+<span class="cm-variable">console</span>.<span class="cm-property">log</span>(<span class="cm-variable">cada</span>([], <span class="cm-def">n</span> <span class="cm-operator">=&gt;</span> <span class="cm-variable-2">n</span> <span class="cm-operator">&lt;</span> <span class="cm-number">10</span>));
+<span class="cm-comment">// → true</span></pre>
+
+<div class="solution"><div class="solution-text">
+
+<p><a class="p_ident" id="p_unHEV1Rfhk" href="#p_unHEV1Rfhk" tabindex="-1" role="presentation"></a>Al igual que el operador <code>&amp;&amp;</code>, el método <code>every</code> puede dejar de evaluar más elementos tan pronto como haya encontrado uno que no coincida. Entonces la versión basada en un ciclo puede saltar fuera del ciclo—con <code>break</code> o <code>return</code>—tan pronto como se encuentre con un elemento para el cual la función predicado retorne falso. Si el ciclo corre hasta su final sin encontrar tal elemento, sabemos que todos los elementos coinciden y debemos retornar verdadero.</p>
+
+<p><a class="p_ident" id="p_1ge6ej4ljr" href="#p_1ge6ej4ljr" tabindex="-1" role="presentation"></a>Para construir <code>cada</code> usando <code>some</code>, podemos aplicar las <em>leyes De
+Morgan</em>, que establecen que <code>a &amp;&amp; b</code> es igual a <code>!(!a ||! b)</code>. Esto puede ser generalizado a arrays, donde todos los elementos del array coinciden si no hay elemento en el array que no coincida.</p>
+
+</div></div>
+
+<h3><a class="i_ident" id="i_Zctw3V4vWY" href="#i_Zctw3V4vWY" tabindex="-1" role="presentation"></a>Dirección de Escritura Dominante</h3>
+
+<p><a class="p_ident" id="p_CvDKOR7+8k" href="#p_CvDKOR7+8k" tabindex="-1" role="presentation"></a>Escriba una función que calcule la dirección de escritura dominante en un string de texto. Recuerde que cada objeto de codigo tiene una propiedad <code>direction</code> que puede ser <code>&quot;ltr&quot;</code> (de izquierda a derecha), <code>&quot;rtl&quot;</code> (de derecha a izquierda), o <code>&quot;ttb&quot;</code> (arriba a abajo).</p>
+
+<p><a class="p_ident" id="p_tfoXU4yxUW" href="#p_tfoXU4yxUW" tabindex="-1" role="presentation"></a>La dirección dominante es la dirección de la mayoría de los caracteres que tienen un código asociado a ellos. Las funciones <code>codigoCaracter</code> y <code>contarPor</code> definidas anteriormente en el capítulo probablemente seran útiles aquí.</p>
+
+<pre class="snippet cm-s-default" data-language="javascript" ><a class="c_ident" id="c_zj8CxfVuJH" href="#c_zj8CxfVuJH" tabindex="-1" role="presentation"></a><span class="cm-keyword">function</span> <span class="cm-def">direccionDominante</span>(<span class="cm-def">texto</span>) {
+  <span class="cm-comment">// Tu código aquí.</span>
+}
+
+<span class="cm-variable">console</span>.<span class="cm-property">log</span>(<span class="cm-variable">direccionDominante</span>(<span class="cm-string">&quot;Hola!&quot;</span>));
+<span class="cm-comment">// → ltr</span>
+<span class="cm-variable">console</span>.<span class="cm-property">log</span>(<span class="cm-variable">direccionDominante</span>(<span class="cm-string">&quot;Hey, مساء الخير&quot;</span>));
+<span class="cm-comment">// → rtl</span></pre>
+
+<div class="solution"><div class="solution-text">
+
+<p><a class="p_ident" id="p_NWYRQtvDZP" href="#p_NWYRQtvDZP" tabindex="-1" role="presentation"></a>Tu solución puede parecerse mucho a la primera mitad del ejemplo <code>codigosTexto</code>. De nuevo debes contar los caracteres por el criterio basado en <code>codigoCaracter</code>, y luego filtrar hacia afuera la parte del resultado que se refiere a caracteres sin interés (que no tengan codigos).</p>
+
+<p><a class="p_ident" id="p_GwljWyybGE" href="#p_GwljWyybGE" tabindex="-1" role="presentation"></a>Encontrar la dirección con la mayor cantidad de caracteres se puede hacer con <code>reduce</code>. Si no está claro cómo, refiérate al ejemplo anterior en el capítulo, donde se usa <code>reduce</code> para encontrar el código con la mayoría de los caracteres.</p>
+
+</div></div><nav><a href="04_datos.html" title="previous chapter">◀</a> <a href="index.html" title="cover">◆</a> <a href="06_objeto.html" title="next chapter">▶</a></nav>
+</article>

@@ -1,0 +1,853 @@
+<!doctype html>
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Expresiones Regulares :: Eloquent JavaScript</title>
+  <link rel=stylesheet href="js/node_modules/codemirror/lib/codemirror.css">
+  <script src="js/acorn_codemirror.js"></script>
+  <link rel=stylesheet href="css/ejs.css">
+  <script src="js/sandbox.js"></script>
+  <script src="js/ejs.js"></script><script>var chapNum = 9;</script></head>
+
+<article>
+<nav><a href="08_error.html" title="previous chapter">◀</a> <a href="index.html" title="cover">◆</a> <a href="10_modulos.html" title="next chapter">▶</a></nav>
+
+<h1><span class=chap_num>Chapter 9</span>Expresiones Regulares</h1>
+
+<blockquote>
+
+<p><a class="p_ident" id="p_48rajKViXI" href="#p_48rajKViXI" tabindex="-1" role="presentation"></a>Algunas personas, cuando confrontadas con un problema, piensan ‘Ya sé, usaré expresiones regulares.’ Ahora tienen dos problemas.</p>
+
+<footer>Jamie Zawinski</footer>
+
+</blockquote>
+
+<blockquote>
+
+<p><a class="p_ident" id="p_d+VJTDFmZv" href="#p_d+VJTDFmZv" tabindex="-1" role="presentation"></a>Yuan-Ma dijo: ‘Cuando cortas contra el grano de la madera, mucha fuerza se necesita. Cuando programas contra el grano del problema, mucho código se necesita.</p>
+
+<footer>Master Yuan-Ma, <cite>The Book of Programming</cite></footer>
+
+</blockquote><figure class="chapter square-framed"><img src="img/chapter_picture_9.jpg" alt="A railroad diagram"></figure>
+
+<p><a class="p_ident" id="p_rhVmYOBclU" href="#p_rhVmYOBclU" tabindex="-1" role="presentation"></a>Las herramientas y técnicas de la programación sobreviven y se propagan de una forma caótica y evolutiva. No siempre son los bonitas o las brillantes las que ganan, sino más bien las que funcionan lo suficientemente bien dentro del nicho correcto o que sucede se integran con otra pieza exitosa de tecnología.</p>
+
+<p><a class="p_ident" id="p_DXsuW+HRzs" href="#p_DXsuW+HRzs" tabindex="-1" role="presentation"></a>En este capítulo, discutiré una de esas herramientas, <em>expresiones regulares</em>. Las expresiones regulares son una forma de describir patrones en datos de tipo string. Estas forman un lenguaje pequeño e independiente que es parte de JavaScript y de muchos otros lenguajes y sistemas.</p>
+
+<p><a class="p_ident" id="p_7XhIkGJNrR" href="#p_7XhIkGJNrR" tabindex="-1" role="presentation"></a>Las expresiones regulares son terriblemente incómodas y extremadamente útiles. Su sintaxis es críptica, y la interfaz de programación que JavaScript proporciona para ellas es torpe. Pero son una poderosa herramienta  para inspeccionar y procesar cadenas. Entender apropiadamente a las expresiones regulares te hará un programador más efectivo.</p>
+
+<h2><a class="h_ident" id="h_SxIVkReIo1" href="#h_SxIVkReIo1" tabindex="-1" role="presentation"></a>Creando una expresión regular</h2>
+
+<p><a class="p_ident" id="p_10ulouAM9S" href="#p_10ulouAM9S" tabindex="-1" role="presentation"></a>Una expresión regular es un tipo de objeto. Puede ser construido con el constructor <code>RegExp</code> o escrito como un valor literal al envolver un patrón en caracteres de barras diagonales (<code>/</code>).</p>
+
+<pre class="snippet cm-s-default" data-language="javascript" ><a class="c_ident" id="c_O1I2rl+HTy" href="#c_O1I2rl+HTy" tabindex="-1" role="presentation"></a><span class="cm-keyword">let</span> <span class="cm-def">re1</span> <span class="cm-operator">=</span> <span class="cm-keyword">new</span> <span class="cm-variable">RegExp</span>(<span class="cm-string">&quot;abc&quot;</span>);
+<span class="cm-keyword">let</span> <span class="cm-def">re2</span> <span class="cm-operator">=</span> <span class="cm-string-2">/abc/</span>;</pre>
+
+<p><a class="p_ident" id="p_q5HYjv8Si4" href="#p_q5HYjv8Si4" tabindex="-1" role="presentation"></a>Ambos objetos de expresión regular representan el mismo patrón: un carácter <em>a</em> seguido por una <em>b</em> seguida de una <em>c</em>.</p>
+
+<p><a class="p_ident" id="p_Q7EVsz875t" href="#p_Q7EVsz875t" tabindex="-1" role="presentation"></a>Cuando se usa el constructor <code>RegExp</code>, el patrón se escribe como un string normal, por lo que las reglas habituales se aplican a las barras invertidas.</p>
+
+<p><a class="p_ident" id="p_m+IF274XmB" href="#p_m+IF274XmB" tabindex="-1" role="presentation"></a>La segunda notación, donde el patrón aparece entre caracteres de barras diagonales, trata a las barras invertidas de una forma diferente. Primero, dado que una barra diagonal termina el patrón, tenemos que poner una barra invertida antes de cualquier barra diagonal que queremos sea <em>parte</em> del patrón. En adición, las barras invertidas que no sean parte de códigos especiales de caracteres (como <code>\n</code>) seran <em>preservadas</em>, en lugar de ignoradas, ya que están en strings, y cambian el significado del patrón. Algunos caracteres, como los signos de interrogación pregunta y los signos de adición, tienen significados especiales en las expresiones regulares y deben ir precedidos por una barra inversa si se pretende que representen al caracter en sí mismo.</p>
+
+<pre class="snippet cm-s-default" data-language="javascript" ><a class="c_ident" id="c_140ou2ceSY" href="#c_140ou2ceSY" tabindex="-1" role="presentation"></a><span class="cm-keyword">let</span> <span class="cm-def">dieciochoMas</span> <span class="cm-operator">=</span> <span class="cm-string-2">/dieciocho\+/</span>;</pre>
+
+<h2><a class="h_ident" id="h_K6RNgSqC+A" href="#h_K6RNgSqC+A" tabindex="-1" role="presentation"></a>Probando por coincidencias</h2>
+
+<p><a class="p_ident" id="p_zrXZdrBZN+" href="#p_zrXZdrBZN+" tabindex="-1" role="presentation"></a>Los objetos de expresión regular tienen varios métodos. El más simple es <code>test</code> (“probar”). Si le pasas un string, retornar un Booleano diciéndote si el string contiene una coincidencia del patrón en la expresión.</p>
+
+<pre class="snippet cm-s-default" data-language="javascript" ><a class="c_ident" id="c_Szn1CmrIV5" href="#c_Szn1CmrIV5" tabindex="-1" role="presentation"></a><span class="cm-variable">console</span>.<span class="cm-property">log</span>(<span class="cm-string-2">/abc/</span>.<span class="cm-property">test</span>(<span class="cm-string">&quot;abcde&quot;</span>));
+<span class="cm-comment">// → true</span>
+<span class="cm-variable">console</span>.<span class="cm-property">log</span>(<span class="cm-string-2">/abc/</span>.<span class="cm-property">test</span>(<span class="cm-string">&quot;abxde&quot;</span>));
+<span class="cm-comment">// → false</span></pre>
+
+<p><a class="p_ident" id="p_YBXvkNk2iw" href="#p_YBXvkNk2iw" tabindex="-1" role="presentation"></a>Una expresión regular que consista solamente de caracteres no especiales simplemente representara esa secuencia de caracteres. Si <em>abc</em> ocurre en cualquier parte del string con la que estamos probando (no solo al comienzo), <code>test</code> retornara <code>true</code>.</p>
+
+<h2><a class="h_ident" id="h_JdVGOTeHyG" href="#h_JdVGOTeHyG" tabindex="-1" role="presentation"></a>Conjuntos de caracteres</h2>
+
+<p><a class="p_ident" id="p_Qlq6mreDAH" href="#p_Qlq6mreDAH" tabindex="-1" role="presentation"></a>Averiguar si un string contiene <em>abc</em> bien podría hacerse con una llamada a <code>indexOf</code>. Las expresiones regulares nos permiten expresar patrones más complicados.</p>
+
+<p><a class="p_ident" id="p_Eh18fULy+Q" href="#p_Eh18fULy+Q" tabindex="-1" role="presentation"></a>Digamos que queremos encontrar cualquier número. En una expresión regular, poner un conjunto de caracteres entre corchetes hace que esa parte de la expresión coincida con cualquiera de los caracteres entre los corchetes.</p>
+
+<p><a class="p_ident" id="p_chlJbgPF0u" href="#p_chlJbgPF0u" tabindex="-1" role="presentation"></a>Ambas expresiones coincidiran con todas los strings que contengan un dígito:</p>
+
+<pre class="snippet cm-s-default" data-language="javascript" ><a class="c_ident" id="c_9CIVY3OXRw" href="#c_9CIVY3OXRw" tabindex="-1" role="presentation"></a><span class="cm-variable">console</span>.<span class="cm-property">log</span>(<span class="cm-string-2">/[0123456789]/</span>.<span class="cm-property">test</span>(<span class="cm-string">&quot;en 1992&quot;</span>));
+<span class="cm-comment">// → true</span>
+<span class="cm-variable">console</span>.<span class="cm-property">log</span>(<span class="cm-string-2">/[0-9]/</span>.<span class="cm-property">test</span>(<span class="cm-string">&quot;en 1992&quot;</span>));
+<span class="cm-comment">// → true</span></pre>
+
+<p><a class="p_ident" id="p_XNXvwFdEt5" href="#p_XNXvwFdEt5" tabindex="-1" role="presentation"></a>Dentro de los corchetes, un guion (<code>-</code>) entre dos caracteres puede ser utilizado para indicar un rango de caracteres, donde el orden es determinado por el número Unicode del carácter. Los caracteres 0 a 9 estan uno al lado del otro en este orden (códigos 48 a 57), por lo que <code>[0-9]</code> los cubre a todos y coincide con cualquier dígito.</p>
+
+<p><a class="p_ident" id="p_6dfJKQcH/I" href="#p_6dfJKQcH/I" tabindex="-1" role="presentation"></a>Un numero de caracteres comunes tienen sus propios atajos incorporados. Los dígitos son uno de ellos: <code>\d</code> significa lo mismo que <code>[0-9]</code>.</p>
+
+<table>
+
+<tr><td><code>\d</code></td><td>Cualquier caracter dígito</td>
+
+</tr>
+
+<tr><td><code>\w</code></td><td>Un caracter alfanumérico</td>
+
+</tr>
+
+<tr><td><code>\s</code></td><td>Cualquier carácter de espacio en blanco (espacio, tabulación, nueva línea y similar)</td>
+
+</tr>
+
+<tr><td><code>\D</code></td><td>Un caracter que <em>no</em> es un dígito</td>
+
+</tr>
+
+<tr><td><code>\W</code></td><td>Un caracter no alfanumérico</td>
+
+</tr>
+
+<tr><td><code>\S</code></td><td>Un caracter que no es un espacio en blanco</td>
+
+</tr>
+
+<tr><td><code>.</code></td><td>Cualquier caracter a excepción de una nueva línea</td>
+
+</tr>
+
+</table>
+
+<p><a class="p_ident" id="p_2Wam0Bw7rn" href="#p_2Wam0Bw7rn" tabindex="-1" role="presentation"></a>Por lo que podrías coincidir con un formato de fecha y hora como 30-01-2003 15:20 con la siguiente expresión:</p>
+
+<pre class="snippet cm-s-default" data-language="javascript" ><a class="c_ident" id="c_ndhgKl3vLk" href="#c_ndhgKl3vLk" tabindex="-1" role="presentation"></a><span class="cm-keyword">let</span> <span class="cm-def">fechaHora</span> <span class="cm-operator">=</span> <span class="cm-string-2">/\d\d-\d\d-\d\d\d\d \d\d:\d\d/</span>;
+<span class="cm-variable">console</span>.<span class="cm-property">log</span>(<span class="cm-variable">fechaHora</span>.<span class="cm-property">test</span>(<span class="cm-string">&quot;30-01-2003 15:20&quot;</span>));
+<span class="cm-comment">// → true</span>
+<span class="cm-variable">console</span>.<span class="cm-property">log</span>(<span class="cm-variable">fechaHora</span>.<span class="cm-property">test</span>(<span class="cm-string">&quot;30-jan-2003 15:20&quot;</span>));
+<span class="cm-comment">// → false</span></pre>
+
+<p><a class="p_ident" id="p_gnYSM24Lrb" href="#p_gnYSM24Lrb" tabindex="-1" role="presentation"></a>Eso se ve completamente horrible, no? La mitad de la expresión son barras invertidas, produciendo un ruido de fondo que hace que sea difícil detectar el patrón real que queremos expresar. Veremos una versión ligeramente mejorada de esta expresión <a href="09_regexp.html#date_regexp_counted">más tarde</a>.</p>
+
+<p><a class="p_ident" id="p_qWhaV0LfTF" href="#p_qWhaV0LfTF" tabindex="-1" role="presentation"></a>Estos códigos de barra invertida también pueden usarse dentro de corchetes. Por ejemplo, <code>[\d.]</code> representa cualquier dígito o un carácter de punto. Pero el punto en sí mismo, entre corchetes, pierde su significado especial. Lo mismo va para otros caracteres especiales, como <code>+</code>.</p>
+
+<p><a class="p_ident" id="p_RJ/BCMl39W" href="#p_RJ/BCMl39W" tabindex="-1" role="presentation"></a>Para <em>invertir</em> un conjunto de caracteres, es decir, para expresar que deseas coincidir con cualquier carácter <em>excepto</em>  con los que están en el conjunto—puedes escribir un carácter de intercalación (<code>^</code>) después del corchete de apertura.</p>
+
+<pre class="snippet cm-s-default" data-language="javascript" ><a class="c_ident" id="c_KCAohdjl7s" href="#c_KCAohdjl7s" tabindex="-1" role="presentation"></a><span class="cm-keyword">let</span> <span class="cm-def">noBinario</span> <span class="cm-operator">=</span> <span class="cm-string-2">/[^01]/</span>;
+<span class="cm-variable">console</span>.<span class="cm-property">log</span>(<span class="cm-variable">noBinario</span>.<span class="cm-property">test</span>(<span class="cm-string">&quot;1100100010100110&quot;</span>));
+<span class="cm-comment">// → false</span>
+<span class="cm-variable">console</span>.<span class="cm-property">log</span>(<span class="cm-variable">noBinario</span>.<span class="cm-property">test</span>(<span class="cm-string">&quot;1100100010200110&quot;</span>));
+<span class="cm-comment">// → true</span></pre>
+
+<h2><a class="h_ident" id="h_ca3hUPuf+i" href="#h_ca3hUPuf+i" tabindex="-1" role="presentation"></a>Repitiendo partes de un patrón</h2>
+
+<p><a class="p_ident" id="p_uDAQc+XR+9" href="#p_uDAQc+XR+9" tabindex="-1" role="presentation"></a>Ya sabemos cómo hacer coincidir un solo dígito. Qué pasa si queremos hacer coincidir un número completo—una secuencia de uno o más dígitos?</p>
+
+<p><a class="p_ident" id="p_qjzG546M6P" href="#p_qjzG546M6P" tabindex="-1" role="presentation"></a>Cuando pones un signo más (<code>+</code>) después de algo en una expresión regular, este indica que el elemento puede repetirse más de una vez. Por lo tanto, <code>/\d+/</code> coincide con uno o más caracteres de dígitos.</p>
+
+<pre class="snippet cm-s-default" data-language="javascript" ><a class="c_ident" id="c_9/5mFF4Ih4" href="#c_9/5mFF4Ih4" tabindex="-1" role="presentation"></a><span class="cm-variable">console</span>.<span class="cm-property">log</span>(<span class="cm-string-2">/'\d+'/</span>.<span class="cm-property">test</span>(<span class="cm-string">&quot;'123'&quot;</span>));
+<span class="cm-comment">// → true</span>
+<span class="cm-variable">console</span>.<span class="cm-property">log</span>(<span class="cm-string-2">/'\d+'/</span>.<span class="cm-property">test</span>(<span class="cm-string">&quot;''&quot;</span>));
+<span class="cm-comment">// → false</span>
+<span class="cm-variable">console</span>.<span class="cm-property">log</span>(<span class="cm-string-2">/'\d*'/</span>.<span class="cm-property">test</span>(<span class="cm-string">&quot;'123'&quot;</span>));
+<span class="cm-comment">// → true</span>
+<span class="cm-variable">console</span>.<span class="cm-property">log</span>(<span class="cm-string-2">/'\d*'/</span>.<span class="cm-property">test</span>(<span class="cm-string">&quot;''&quot;</span>));
+<span class="cm-comment">// → true</span></pre>
+
+<p><a class="p_ident" id="p_nIC1eI+8wT" href="#p_nIC1eI+8wT" tabindex="-1" role="presentation"></a>La estrella (<code>*</code>) tiene un significado similar pero también permite que el patrón coincida cero veces. Algo con una estrella después de el nunca evitara un patrón de coincidirlo—este solo coincidirá con cero instancias si no puede encontrar ningun texto adecuado para coincidir.</p>
+
+<p><a class="p_ident" id="p_71OtsD9b9R" href="#p_71OtsD9b9R" tabindex="-1" role="presentation"></a>Un signo de interrogación hace que alguna parte de un patrón sea <em>opcional</em>, lo que significa que puede ocurrir cero o mas veces. En el siguiente ejemplo, el carácter <em>h</em> está permitido, pero el patrón también retorna verdadero cuando esta letra no esta.</p>
+
+<pre class="snippet cm-s-default" data-language="javascript" ><a class="c_ident" id="c_0U+xNR1FVB" href="#c_0U+xNR1FVB" tabindex="-1" role="presentation"></a><span class="cm-keyword">let</span> <span class="cm-def">reusar</span> <span class="cm-operator">=</span> <span class="cm-string-2">/reh?usar/</span>;
+<span class="cm-variable">console</span>.<span class="cm-property">log</span>(<span class="cm-variable">reusar</span>.<span class="cm-property">test</span>(<span class="cm-string">&quot;rehusar&quot;</span>));
+<span class="cm-comment">// → true</span>
+<span class="cm-variable">console</span>.<span class="cm-property">log</span>(<span class="cm-variable">reusar</span>.<span class="cm-property">test</span>(<span class="cm-string">&quot;reusar&quot;</span>));
+<span class="cm-comment">// → true</span></pre>
+
+<p><a class="p_ident" id="p_pQrIOoMzrK" href="#p_pQrIOoMzrK" tabindex="-1" role="presentation"></a>Para indicar que un patrón deberia ocurrir un número preciso de veces, usa llaves. Por ejemplo, al poner <code>{4}</code> después de un elemento, hace que requiera que este ocurra exactamente cuatro veces. También es posible especificar un rango de esta manera: <code>{2,4}</code> significa que el elemento debe ocurrir al menos dos veces y como máximo cuatro veces.</p>
+
+<p id="date_regexp_counted"><a class="p_ident" id="p_H5zlG+xJmk" href="#p_H5zlG+xJmk" tabindex="-1" role="presentation"></a>Aquí hay otra versión del patrón fecha y hora que permite días tanto en dígitos individuales como dobles, meses y horas. Es también un poco más fácil de descifrar.</p>
+
+<pre class="snippet cm-s-default" data-language="javascript" ><a class="c_ident" id="c_qu9TZUXwxo" href="#c_qu9TZUXwxo" tabindex="-1" role="presentation"></a><span class="cm-keyword">let</span> <span class="cm-def">fechaHora</span> <span class="cm-operator">=</span> <span class="cm-string-2">/\d{1,2}-\d{1,2}-\d{4} \d{1,2}:\d{2}/</span>;
+<span class="cm-variable">console</span>.<span class="cm-property">log</span>(<span class="cm-variable">fechaHora</span>.<span class="cm-property">test</span>(<span class="cm-string">&quot;30-1-2003 8:45&quot;</span>));
+<span class="cm-comment">// → true</span></pre>
+
+<p><a class="p_ident" id="p_SSuoUKcBqJ" href="#p_SSuoUKcBqJ" tabindex="-1" role="presentation"></a>También puedes especificar rangos de final abierto al usar llaves omitiendo el número después de la coma. Entonces, <code>{5,}</code> significa cinco o más veces.</p>
+
+<h2><a class="h_ident" id="h_fp3QNTlTTY" href="#h_fp3QNTlTTY" tabindex="-1" role="presentation"></a>Agrupando subexpresiones</h2>
+
+<p><a class="p_ident" id="p_H8RGykL9ap" href="#p_H8RGykL9ap" tabindex="-1" role="presentation"></a>Para usar un operador como <code>*</code> o <code>+</code> en más de un elemento a la vez, tienes que usar paréntesis. Una parte de una expresión regular que se encierre entre paréntesis cuenta como un elemento único en cuanto a los operadores que la siguen están preocupados.</p>
+
+<pre class="snippet cm-s-default" data-language="javascript" ><a class="c_ident" id="c_5VMMtAC1Kz" href="#c_5VMMtAC1Kz" tabindex="-1" role="presentation"></a><span class="cm-keyword">let</span> <span class="cm-def">caricaturaLlorando</span> <span class="cm-operator">=</span> <span class="cm-string-2">/boo+(hoo+)+/i</span>;
+<span class="cm-variable">console</span>.<span class="cm-property">log</span>(<span class="cm-variable">caricaturaLlorando</span>.<span class="cm-property">test</span>(<span class="cm-string">&quot;Boohoooohoohooo&quot;</span>));
+<span class="cm-comment">// → true</span></pre>
+
+<p><a class="p_ident" id="p_DFTJ6BiHwS" href="#p_DFTJ6BiHwS" tabindex="-1" role="presentation"></a>El primer y segundo caracter <code>+</code> aplican solo a la segunda <em>o</em> en <em>boo</em> y <em>hoo</em>, respectivamente. El tercer <code>+</code> se aplica a la totalidad del grupo <code>(hoo+)</code>, haciendo coincidir una o más secuencias como esa.</p>
+
+<p><a class="p_ident" id="p_uBIcF0MS0l" href="#p_uBIcF0MS0l" tabindex="-1" role="presentation"></a>La <code>i</code> al final de la expresión en el ejemplo hace que esta expresión regular sea insensible a mayúsculas y minúsculas, lo que permite que coincida con la letra mayúscula <em>B</em> en el string que se le da de entrada, asi el patrón en sí mismo este en minúsculas.</p>
+
+<h2><a class="h_ident" id="h_G8LUB/KGbs" href="#h_G8LUB/KGbs" tabindex="-1" role="presentation"></a>Coincidencias y grupos</h2>
+
+<p><a class="p_ident" id="p_RhWmvY0jC0" href="#p_RhWmvY0jC0" tabindex="-1" role="presentation"></a>El método <code>test</code> es la forma más simple de hacer coincidir una expresión. Solo te dice si coincide y nada más. Las expresiones regulares también tienen un método <code>exec</code> (“ejecutar”) que retorna <code>null</code> si no se encontró una coincidencia y retorna un objeto con información sobre la coincidencia de lo contrario.</p>
+
+<pre class="snippet cm-s-default" data-language="javascript" ><a class="c_ident" id="c_geq7uRLZVm" href="#c_geq7uRLZVm" tabindex="-1" role="presentation"></a><span class="cm-keyword">let</span> <span class="cm-def">coincidencia</span> <span class="cm-operator">=</span> <span class="cm-string-2">/\d+/</span>.<span class="cm-property">exec</span>(<span class="cm-string">&quot;uno dos 100&quot;</span>);
+<span class="cm-variable">console</span>.<span class="cm-property">log</span>(<span class="cm-variable">coincidencia</span>);
+<span class="cm-comment">// → [&quot;100&quot;]</span>
+<span class="cm-variable">console</span>.<span class="cm-property">log</span>(<span class="cm-variable">coincidencia</span>.<span class="cm-property">index</span>);
+<span class="cm-comment">// → 8</span></pre>
+
+<p><a class="p_ident" id="p_3mVpkoMAjj" href="#p_3mVpkoMAjj" tabindex="-1" role="presentation"></a>Un objeto retornado por <code>exec</code> tiene una propiedad <code>index</code> (“indice”) que nos dice <em>donde</em> en el string comienza la coincidencia exitosa. Aparte de eso, el objeto parece (y de hecho es) un array de strings, cuyo primer elemento es el string que coincidio—en el ejemplo anterior, esta es la secuencia de dígitos que estábamos buscando.</p>
+
+<p><a class="p_ident" id="p_+sljdRRG2P" href="#p_+sljdRRG2P" tabindex="-1" role="presentation"></a>Los valores de tipo string tienen un método <code>match</code> que se comporta de manera similar.</p>
+
+<pre class="snippet cm-s-default" data-language="javascript" ><a class="c_ident" id="c_KCEzXI85eI" href="#c_KCEzXI85eI" tabindex="-1" role="presentation"></a><span class="cm-variable">console</span>.<span class="cm-property">log</span>(<span class="cm-string">&quot;uno dos 100&quot;</span>.<span class="cm-property">match</span>(<span class="cm-string-2">/\d+/</span>));
+<span class="cm-comment">// → [&quot;100&quot;]</span></pre>
+
+<p><a class="p_ident" id="p_89iSo20ARv" href="#p_89iSo20ARv" tabindex="-1" role="presentation"></a>Cuando la expresión regular contenga subexpresiones agrupadas con paréntesis, el texto que coincida con esos grupos también aparecerá en el array. La coincidencia completa es siempre el primer elemento. El siguiente elemento es la parte que coincidio con el primer grupo (el que abre paréntesis primero en la expresión), luego el segundo grupo, y asi sucesivamente.</p>
+
+<pre class="snippet cm-s-default" data-language="javascript" ><a class="c_ident" id="c_xZ7Hb3bnuM" href="#c_xZ7Hb3bnuM" tabindex="-1" role="presentation"></a><span class="cm-keyword">let</span> <span class="cm-def">textoCitado</span> <span class="cm-operator">=</span> <span class="cm-string-2">/'([^']*)'/</span>;
+<span class="cm-variable">console</span>.<span class="cm-property">log</span>(<span class="cm-variable">textoCitado</span>.<span class="cm-property">exec</span>(<span class="cm-string">&quot;ella dijo 'hola'&quot;</span>));
+<span class="cm-comment">// → [&quot;'hola'&quot;, &quot;hola&quot;]</span></pre>
+
+<p><a class="p_ident" id="p_mesWUfRxLZ" href="#p_mesWUfRxLZ" tabindex="-1" role="presentation"></a>Cuando un grupo no termina siendo emparejado en absoluto (por ejemplo, cuando es seguido de un signo de interrogación), su posición en el array de salida sera <code>undefined</code>. Del mismo modo, cuando un grupo coincida multiples veces, solo la ultima coincidencia termina en el array.</p>
+
+<pre class="snippet cm-s-default" data-language="javascript" ><a class="c_ident" id="c_0hJqBCu0mK" href="#c_0hJqBCu0mK" tabindex="-1" role="presentation"></a><span class="cm-variable">console</span>.<span class="cm-property">log</span>(<span class="cm-string-2">/mal(isimo)?/</span>.<span class="cm-property">exec</span>(<span class="cm-string">&quot;mal&quot;</span>));
+<span class="cm-comment">// → [&quot;mal&quot;, undefined]</span>
+<span class="cm-variable">console</span>.<span class="cm-property">log</span>(<span class="cm-string-2">/(\d)+/</span>.<span class="cm-property">exec</span>(<span class="cm-string">&quot;123&quot;</span>));
+<span class="cm-comment">// → [&quot;123&quot;, &quot;3&quot;]</span></pre>
+
+<p><a class="p_ident" id="p_K5bXeBuFt3" href="#p_K5bXeBuFt3" tabindex="-1" role="presentation"></a>Los grupos pueden ser útiles para extraer partes de un string. Si no solo queremos verificar si un string contiene una fecha pero también extraerla y construir un objeto que la represente, podemos envolver paréntesis alrededor de los patrones de dígitos y tomar directamente la fecha del resultado de <code>exec</code>.</p>
+
+<p><a class="p_ident" id="p_hrz9Lx8p81" href="#p_hrz9Lx8p81" tabindex="-1" role="presentation"></a>Pero primero, un breve desvío, en el que discutiremos la forma incorporada de representar valores de fecha y hora en JavaScript.</p>
+
+<h2><a class="h_ident" id="h_BW+gS4MySC" href="#h_BW+gS4MySC" tabindex="-1" role="presentation"></a>La clase Date (“Fecha”)</h2>
+
+<p><a class="p_ident" id="p_FXZtcuTtyV" href="#p_FXZtcuTtyV" tabindex="-1" role="presentation"></a>JavaScript tiene una clase estándar para representar fechas—o mejor dicho, puntos en el tiempo. Se llama <code>Date</code>. Si simplemente creas un objeto fecha usando <code>new</code>, obtienes la fecha y hora actual.</p>
+
+<pre class="snippet cm-s-default" data-language="javascript" ><a class="c_ident" id="c_AjgqFetryg" href="#c_AjgqFetryg" tabindex="-1" role="presentation"></a><span class="cm-variable">console</span>.<span class="cm-property">log</span>(<span class="cm-keyword">new</span> <span class="cm-variable">Date</span>());
+<span class="cm-comment">// → Mon Nov 13 2017 16:19:11 GMT+0100 (CET)</span></pre>
+
+<p><a class="p_ident" id="p_K97kxIorCv" href="#p_K97kxIorCv" tabindex="-1" role="presentation"></a>También puedes crear un objeto para un tiempo específico.</p>
+
+<pre class="snippet cm-s-default" data-language="javascript" ><a class="c_ident" id="c_2VCU0f4HsQ" href="#c_2VCU0f4HsQ" tabindex="-1" role="presentation"></a><span class="cm-variable">console</span>.<span class="cm-property">log</span>(<span class="cm-keyword">new</span> <span class="cm-variable">Date</span>(<span class="cm-number">2009</span>, <span class="cm-number">11</span>, <span class="cm-number">9</span>));
+<span class="cm-comment">// → Wed Dec 09 2009 00:00:00 GMT+0100 (CET)</span>
+<span class="cm-variable">console</span>.<span class="cm-property">log</span>(<span class="cm-keyword">new</span> <span class="cm-variable">Date</span>(<span class="cm-number">2009</span>, <span class="cm-number">11</span>, <span class="cm-number">9</span>, <span class="cm-number">12</span>, <span class="cm-number">59</span>, <span class="cm-number">59</span>, <span class="cm-number">999</span>));
+<span class="cm-comment">// → Wed Dec 09 2009 12:59:59 GMT+0100 (CET)</span></pre>
+
+<p><a class="p_ident" id="p_qHIfG4E/TQ" href="#p_qHIfG4E/TQ" tabindex="-1" role="presentation"></a>JavaScript usa una convención en donde los números de los meses comienzan en cero (por lo que Diciembre es 11), sin embargo, los números de los días comienzan en uno. Esto es confuso y tonto. Ten cuidado.</p>
+
+<p><a class="p_ident" id="p_2J32V8P3Ua" href="#p_2J32V8P3Ua" tabindex="-1" role="presentation"></a>Los últimos cuatro argumentos (horas, minutos, segundos y milisegundos) son opcionales y se toman como cero cuando no se dan.</p>
+
+<p><a class="p_ident" id="p_gxwZAuY3o1" href="#p_gxwZAuY3o1" tabindex="-1" role="presentation"></a>Las marcas de tiempo se almacenan como la cantidad de milisegundos desde el inicio de 1970, en la zona horaria UTC. Esto sigue una convención establecida por el “Tiempo Unix”, el cual se inventó en ese momento. Puedes usar números negativos para los tiempos anteriores a 1970. Usar el método <code>getTime</code> (“obtenerTiempo”) en un objeto fecha retorna este número. Es bastante grande, como te puedes imaginar.</p>
+
+<pre class="snippet cm-s-default" data-language="javascript" ><a class="c_ident" id="c_lMlCuckMIc" href="#c_lMlCuckMIc" tabindex="-1" role="presentation"></a><span class="cm-variable">console</span>.<span class="cm-property">log</span>(<span class="cm-keyword">new</span> <span class="cm-variable">Date</span>(<span class="cm-number">2013</span>, <span class="cm-number">11</span>, <span class="cm-number">19</span>).<span class="cm-property">getTime</span>());
+<span class="cm-comment">// → 1387407600000</span>
+<span class="cm-variable">console</span>.<span class="cm-property">log</span>(<span class="cm-keyword">new</span> <span class="cm-variable">Date</span>(<span class="cm-number">1387407600000</span>));
+<span class="cm-comment">// → Thu Dec 19 2013 00:00:00 GMT+0100 (CET)</span></pre>
+
+<p><a class="p_ident" id="p_BOzQiC24E0" href="#p_BOzQiC24E0" tabindex="-1" role="presentation"></a>Si le das al constructor <code>Date</code> un único argumento, ese argumento sera tratado como un conteo de milisegundos. Puedes obtener el recuento de milisegundos actual creando un nuevo objeto <code>Date</code> y llamando <code>getTime</code> en él o llamando a la función <code>Date.now</code>.</p>
+
+<p><a class="p_ident" id="p_qgqh8WntLF" href="#p_qgqh8WntLF" tabindex="-1" role="presentation"></a>Los objetos de fecha proporcionan métodos como <code>getFullYear</code> (“obtenerAñoCompleto”), <code>getMonth</code> (“obtenerMes”), <code>getDate</code> (“obtenerFecha”), <code>getHours</code> (“obtenerHoras”), <code>getMinutes</code> (“obtenerMinutos”), y <code>getSeconds</code> (“obtenerSegundos”) para extraer sus componentes. Además de <code>getFullYear</code>, también existe <code>getYear</code> (“obtenerAño”), que te da como resultado un valor de año de dos dígitos bastante inútil (como <code>93</code> o <code>14</code>).</p>
+
+<p><a class="p_ident" id="p_Ejq4QjaDfy" href="#p_Ejq4QjaDfy" tabindex="-1" role="presentation"></a>Al poner paréntesis alrededor de las partes de la expresión en las que estamos interesados, ahora podemos crear un objeto de fecha a partir de un string.</p>
+
+<pre class="snippet cm-s-default" data-language="javascript" ><a class="c_ident" id="c_uZraWP/Mp3" href="#c_uZraWP/Mp3" tabindex="-1" role="presentation"></a><span class="cm-keyword">function</span> <span class="cm-def">obtenerFecha</span>(<span class="cm-def">string</span>) {
+  <span class="cm-keyword">let</span> [<span class="cm-def">_</span>, <span class="cm-def">dia</span>, <span class="cm-def">mes</span>, <span class="cm-def">año</span>] <span class="cm-operator">=</span>
+    <span class="cm-string-2">/(\d{1,2})-(\d{1,2})-(\d{4})/</span>.<span class="cm-property">exec</span>(<span class="cm-variable-2">string</span>);
+  <span class="cm-keyword">return</span> <span class="cm-keyword">new</span> <span class="cm-variable">Date</span>(<span class="cm-variable-2">año</span>, <span class="cm-variable-2">mes</span> <span class="cm-operator">-</span> <span class="cm-number">1</span>, <span class="cm-variable-2">dia</span>);
+}
+<span class="cm-variable">console</span>.<span class="cm-property">log</span>(<span class="cm-variable">obtenerFecha</span>(<span class="cm-string">&quot;30-1-2003&quot;</span>));
+<span class="cm-comment">// → Thu Jan 30 2003 00:00:00 GMT+0100 (CET)</span></pre>
+
+<p><a class="p_ident" id="p_plv7xZhoMR" href="#p_plv7xZhoMR" tabindex="-1" role="presentation"></a>La vinculación <code>_</code> (guion bajo) es ignorada, y solo se usa para omitir el elemento de coincidencia completa en el array retornado por <code>exec</code>.</p>
+
+<h2><a class="h_ident" id="h_PHfTjWLcYh" href="#h_PHfTjWLcYh" tabindex="-1" role="presentation"></a>Palabra y límites de string</h2>
+
+<p><a class="p_ident" id="p_4hjtjUup7O" href="#p_4hjtjUup7O" tabindex="-1" role="presentation"></a>Desafortunadamente, <code>obtenerFecha</code> felizmente también extraerá la absurda fecha 00-1-3000 del string <code>&quot;100-1-30000&quot;</code>. Una coincidencia puede suceder en cualquier lugar del string, por lo que en este caso, esta simplemente comenzará en el segundo carácter y terminara en el penúltimo carácter.</p>
+
+<p><a class="p_ident" id="p_beliCabbHb" href="#p_beliCabbHb" tabindex="-1" role="presentation"></a>Si queremos hacer cumplir que la coincidencia deba abarcar el string completamente, puedes agregar los marcadores <code>^</code> y <code>$</code>. El signo de intercalación (&quot;^&quot;) coincide con el inicio del string de entrada, mientras que el signo de dólar coincide con el final.  Entonces, <code>/^\d+$/</code> coincide con un string compuesto por uno o más dígitos, <code>/^!/</code> coincide con cualquier string que comience con un signo de exclamación, y <code>/x^/</code> no coincide con ningun string (no puede haber una <em>x</em> antes del inicio del string).</p>
+
+<p><a class="p_ident" id="p_h+UmRPAPSb" href="#p_h+UmRPAPSb" tabindex="-1" role="presentation"></a>Si, por el otro lado, solo queremos asegurarnos de que la fecha comience y termina en un límite de palabras, podemos usar el marcador <code>\b</code>. Un límite de palabra puede ser el inicio o el final del string o cualquier punto en el string que tenga un carácter de palabra (como en <code>\w</code>) en un lado y un carácter de no-palabra en el otro.</p>
+
+<pre class="snippet cm-s-default" data-language="javascript" ><a class="c_ident" id="c_y6TXM8fBVV" href="#c_y6TXM8fBVV" tabindex="-1" role="presentation"></a><span class="cm-variable">console</span>.<span class="cm-property">log</span>(<span class="cm-string-2">/cat/</span>.<span class="cm-property">test</span>(<span class="cm-string">&quot;concatenar&quot;</span>));
+<span class="cm-comment">// → true</span>
+<span class="cm-variable">console</span>.<span class="cm-property">log</span>(<span class="cm-string-2">/\bcat\b/</span>.<span class="cm-property">test</span>(<span class="cm-string">&quot;concatenar&quot;</span>));
+<span class="cm-comment">// → false</span></pre>
+
+<p><a class="p_ident" id="p_RfgTmK5+t/" href="#p_RfgTmK5+t/" tabindex="-1" role="presentation"></a>Ten en cuenta que un marcador de límite no coincide con un carácter real. Solo hace cumplir que la expresión regular coincida solo cuando una cierta condición se mantenga en el lugar donde aparece en el patrón.</p>
+
+<h2><a class="h_ident" id="h_TUSc554JnM" href="#h_TUSc554JnM" tabindex="-1" role="presentation"></a>Patrones de elección</h2>
+
+<p><a class="p_ident" id="p_h4CAvUTeq6" href="#p_h4CAvUTeq6" tabindex="-1" role="presentation"></a>Digamos que queremos saber si una parte del texto contiene no solo un número pero un número seguido de una de las palabras <em>cerdo</em>, <em>vaca</em>, o <em>pollo</em>, o cualquiera de sus formas plurales.</p>
+
+<p><a class="p_ident" id="p_faCL6B9cwG" href="#p_faCL6B9cwG" tabindex="-1" role="presentation"></a>Podríamos escribir tres expresiones regulares y probarlas a su vez, pero hay una manera más agradable. El carácter de tubería (<code>|</code>) denota una elección entre el patrón a su izquierda y el patrón a su derecha. Entonces puedo decir esto:</p>
+
+<pre class="snippet cm-s-default" data-language="javascript" ><a class="c_ident" id="c_dBroIgblXA" href="#c_dBroIgblXA" tabindex="-1" role="presentation"></a><span class="cm-keyword">let</span> <span class="cm-def">conteoAnimales</span> <span class="cm-operator">=</span> <span class="cm-string-2">/\b\d+ (cerdo|vaca|pollo)s?\b/</span>;
+<span class="cm-variable">console</span>.<span class="cm-property">log</span>(<span class="cm-variable">conteoAnimales</span>.<span class="cm-property">test</span>(<span class="cm-string">&quot;15 cerdo&quot;</span>));
+<span class="cm-comment">// → true</span>
+<span class="cm-variable">console</span>.<span class="cm-property">log</span>(<span class="cm-variable">conteoAnimales</span>.<span class="cm-property">test</span>(<span class="cm-string">&quot;15 cerdopollos&quot;</span>));
+<span class="cm-comment">// → false</span></pre>
+
+<p><a class="p_ident" id="p_o/w2hW+vwa" href="#p_o/w2hW+vwa" tabindex="-1" role="presentation"></a>Los paréntesis se pueden usar para limitar la parte del patrón a la que aplica el operador de tuberia, y puedes poner varios de estos operadores unos a los lados de los otros para expresar una elección entre más de dos alternativas.</p>
+
+<h2><a class="h_ident" id="h_RUb4jn/C6t" href="#h_RUb4jn/C6t" tabindex="-1" role="presentation"></a>Las mecánicas del emparejamiento</h2>
+
+<p><a class="p_ident" id="p_3ew7wUpICW" href="#p_3ew7wUpICW" tabindex="-1" role="presentation"></a>Conceptualmente, cuando usas <code>exec</code> o <code>test</code> el motor de la expresión regular busca una coincidencia en tu string al tratar de hacer coincidir la expresión primero desde el comienzo del string, luego desde el segundo caracter, y así sucesivamente hasta que encuentra una coincidencia o llega al final del string. Retornara la primera coincidencia que se puede encontrar o fallara en encontrar cualquier coincidencia.</p>
+
+<p><a class="p_ident" id="p_1gAILdomVU" href="#p_1gAILdomVU" tabindex="-1" role="presentation"></a>Para realmente hacer la coincidencia, el motor trata una expresión regular algo así como un diagrama de flujo. Este es el diagrama para la expresión de ganado en el ejemplo anterior:</p><figure><img src="img/re_pigchickens.svg" alt="Visualization of /\b\d+ (pig|cow|chicken)s?\b/"></figure>
+
+<p><a class="p_ident" id="p_2l0/1sHp0R" href="#p_2l0/1sHp0R" tabindex="-1" role="presentation"></a>Nuestra expresión coincide si podemos encontrar un camino desde el lado izquierdo del diagrama al lado derecho. Mantenemos una posición actual en el string, y cada vez que nos movemos a través de una caja, verificaremos que la parte del string después de nuestra posición actual coincida con esa caja.</p>
+
+<p><a class="p_ident" id="p_MpFyCyLIWA" href="#p_MpFyCyLIWA" tabindex="-1" role="presentation"></a>Entonces, si tratamos de coincidir <code>&quot;los 3 cerdos&quot;</code> desde la posición 4, nuestro progreso a través del diagrama de flujo se vería así:</p>
+
+<ul>
+
+<li>
+
+<p><a class="p_ident" id="p_+xDfyAIUPU" href="#p_+xDfyAIUPU" tabindex="-1" role="presentation"></a>En la posición 4, hay un límite de palabra, por lo que podemos pasar la primera caja.</p></li>
+
+<li>
+
+<p><a class="p_ident" id="p_EAElnI/PMz" href="#p_EAElnI/PMz" tabindex="-1" role="presentation"></a>Aún en la posición 4, encontramos un dígito, por lo que también podemos pasar la segunda caja.</p></li>
+
+<li>
+
+<p><a class="p_ident" id="p_l9lpVySNJr" href="#p_l9lpVySNJr" tabindex="-1" role="presentation"></a>En la posición 5, una ruta regresa a antes de la segunda caja (dígito), mientras que la otro se mueve hacia adelante a través de la caja que contiene un caracter de espacio simple. Hay un espacio aquí, no un dígito, asi que debemos tomar el segundo camino.</p></li>
+
+<li>
+
+<p><a class="p_ident" id="p_DQb7puPaWG" href="#p_DQb7puPaWG" tabindex="-1" role="presentation"></a>Ahora estamos en la posición 6 (el comienzo de “cerdos”) y en el camino de tres vías en el diagrama. No vemos “vaca” o “pollo” aquí, pero vemos “cerdo”, entonces tomamos esa rama.</p></li>
+
+<li>
+
+<p><a class="p_ident" id="p_Is8lDl28Ea" href="#p_Is8lDl28Ea" tabindex="-1" role="presentation"></a>En la posición 9, después de la rama de tres vías, un camino se salta la caja <em>s</em> y va directamente al límite de la palabra final, mientras que la otra ruta coincide con una <em>s</em>. Aquí hay un carácter <em>s</em>, no una palabra límite, por lo que pasamos por la caja <em>s</em>.</p></li>
+
+<li>
+
+<p><a class="p_ident" id="p_JSIARo4Mrb" href="#p_JSIARo4Mrb" tabindex="-1" role="presentation"></a>Estamos en la posición 10 (al final del string) y solo podemos hacer coincidir una palabra límite. El final de un string cuenta como un límite de palabra, así que pasamos por la última caja y hemos emparejado con éxito este string.</p></li></ul>
+
+<h2 id="backtracking"><a class="h_ident" id="h_QSQg7gP3i8" href="#h_QSQg7gP3i8" tabindex="-1" role="presentation"></a>Retrocediendo</h2>
+
+<p><a class="p_ident" id="p_QOY2sD8j/J" href="#p_QOY2sD8j/J" tabindex="-1" role="presentation"></a>La expresión regular <code>/<wbr>\b([01]+b|[\da-f]+h|\d+)\b/<wbr></code> coincide con un número binario seguido de una <em>b</em>, un número hexadecimal (es decir, en base 16, con las letras <em>a</em> a <em>f</em> representando los dígitos 10 a 15) seguido de una <em>h</em>, o un número decimal regular sin caracter de sufijo. Este es el diagrama correspondiente:</p><figure><img src="img/re_number.svg" alt="Visualization of /\b([01]+b|\d+|[\da-f]+h)\b/"></figure>
+
+<p><a class="p_ident" id="p_JCytuWr0Go" href="#p_JCytuWr0Go" tabindex="-1" role="presentation"></a>Al hacer coincidir esta expresión, a menudo sucederá que la rama superior (binaria) sea ingresada aunque la entrada en realidad no contenga un número binario. Al hacer coincidir el string <code>&quot;103&quot;</code>, por ejemplo, queda claro solo en el 3 que estamos en la rama equivocada. El string <em>si</em> coincide con la expresión, pero no con la rama en la que nos encontramos actualmente.</p>
+
+<p><a class="p_ident" id="p_QVeM6rkw6V" href="#p_QVeM6rkw6V" tabindex="-1" role="presentation"></a>Entonces el “emparejador” <em>retrocede</em>. Al ingresar a una rama, este recuerda su posición actual (en este caso, al comienzo del string, justo después del primer cuadro de límite en el diagrama) para que pueda retroceder e intentar otra rama si la actual no funciona. Para el string <code>&quot;103&quot;</code>, después de encontrar los 3 caracteres, comenzará a probar la rama para números hexadecimales, que falla nuevamente porque no hay <em>h</em> después del número. Por lo tanto, intenta con la rama de número decimal. Esta encaja, y se informa de una coincidencia después de todo.</p>
+
+<p><a class="p_ident" id="p_sjZZSN3zxO" href="#p_sjZZSN3zxO" tabindex="-1" role="presentation"></a>El emparejador se detiene tan pronto como encuentra una coincidencia completa. Esto significa que si múltiples ramas podrían coincidir con un string, solo la primera (ordenado por donde las ramas aparecen en la expresión regular) es usada.</p>
+
+<p><a class="p_ident" id="p_G1JkUqppfY" href="#p_G1JkUqppfY" tabindex="-1" role="presentation"></a>El retroceso también ocurre para repetición de operadores como + y <code>*</code>. Si hace coincidir <code>/^.*x/</code> contra <code>&quot;abcxe&quot;</code>, la parte <code>.*</code> intentará primero consumir todo el string. El motor entonces se dará cuenta de que necesita una <em>x</em> para que coincida con el patrón. Como no hay <em>x</em> al pasar el final del string, el operador de estrella intenta hacer coincidir un caracter menos. Pero el emparejador tampoco encuentra una <em>x</em> después de <code>abcx</code>, por lo que retrocede nuevamente, haciendo coincidir el operador de estrella con <code>abc</code>. <em>Ahora</em> encuentra una <em>x</em> donde lo necesita e informa de una coincidencia exitosa de las posiciones 0 a 4.</p>
+
+<p><a class="p_ident" id="p_n0a3+qvV3e" href="#p_n0a3+qvV3e" tabindex="-1" role="presentation"></a>Es posible escribir expresiones regulares que harán un <em>monton</em> de retrocesos. Este problema ocurre cuando un patrón puede coincidir con una pieza de entrada en muchas maneras diferentes. Por ejemplo, si nos confundimos mientras escribimos una expresión regular de números binarios, podríamos accidentalmente escribir algo como <code>/([01]+)+b/</code>.</p><figure><img src="img/re_slow.svg" alt="Visualization of /([01]+)+b/"></figure>
+
+<p><a class="p_ident" id="p_U6fuT9IZ+N" href="#p_U6fuT9IZ+N" tabindex="-1" role="presentation"></a>Si intentas hacer coincidir eso con algunas largas series de ceros y unos sin un caracter <em>b</em> al final, el emparejador primero pasara por el ciclo interior hasta que se quede sin dígitos. Entonces nota que no hay <em>b</em>, asi que retrocede una posición, atraviesa el ciclo externo una vez, y se da por vencido otra vez, tratando de retroceder fuera del ciclo interno una vez más. Continuará probando todas las rutas posibles a través de estos dos bucles. Esto significa que la cantidad de trabajo se <em>duplica</em> con cada caracter. Incluso para unas pocas docenas de caracters, la coincidencia resultante tomará prácticamente para siempre.</p>
+
+<h2><a class="h_ident" id="h_f49QceigRC" href="#h_f49QceigRC" tabindex="-1" role="presentation"></a>El método replace</h2>
+
+<p><a class="p_ident" id="p_/x9zmxO6HF" href="#p_/x9zmxO6HF" tabindex="-1" role="presentation"></a>Los valores de string tienen un método <code>replace</code> (“reemplazar”) que se puede usar para reemplazar parte del string con otro string.</p>
+
+<pre class="snippet cm-s-default" data-language="javascript" ><a class="c_ident" id="c_dPdIdK/Wyi" href="#c_dPdIdK/Wyi" tabindex="-1" role="presentation"></a><span class="cm-variable">console</span>.<span class="cm-property">log</span>(<span class="cm-string">&quot;papa&quot;</span>.<span class="cm-property">replace</span>(<span class="cm-string">&quot;p&quot;</span>, <span class="cm-string">&quot;m&quot;</span>));
+<span class="cm-comment">// → mapa</span></pre>
+
+<p><a class="p_ident" id="p_jRLNNW4/Hs" href="#p_jRLNNW4/Hs" tabindex="-1" role="presentation"></a>El primer argumento también puede ser una expresión regular, en cuyo caso ña primera coincidencia de la expresión regular es reemplazada. Cuando una opción <code>g</code> (para <em>global</em>) se agrega a la expresión regular, <em>todas</em> las coincidencias en el string será reemplazadas, no solo la primera.</p>
+
+<pre class="snippet cm-s-default" data-language="javascript" ><a class="c_ident" id="c_ztGnSKyKy1" href="#c_ztGnSKyKy1" tabindex="-1" role="presentation"></a><span class="cm-variable">console</span>.<span class="cm-property">log</span>(<span class="cm-string">&quot;Borobudur&quot;</span>.<span class="cm-property">replace</span>(<span class="cm-string-2">/[ou]/</span>, <span class="cm-string">&quot;a&quot;</span>));
+<span class="cm-comment">// → Barobudur</span>
+<span class="cm-variable">console</span>.<span class="cm-property">log</span>(<span class="cm-string">&quot;Borobudur&quot;</span>.<span class="cm-property">replace</span>(<span class="cm-string-2">/[ou]/g</span>, <span class="cm-string">&quot;a&quot;</span>));
+<span class="cm-comment">// → Barabadar</span></pre>
+
+<p><a class="p_ident" id="p_GFVG9Jte6I" href="#p_GFVG9Jte6I" tabindex="-1" role="presentation"></a>Hubiera sido sensato si la elección entre reemplazar una coincidencia o todas las coincidencias se hiciera a través de un argumento adicional en <code>replace</code> o proporcionando un método diferente, <code>replaceAll</code> (“reemplazarTodas”). Pero por alguna desafortunada razón, la elección se basa en una propiedad de los expresiones regulares en su lugar.</p>
+
+<p><a class="p_ident" id="p_mDtLRf/Jcr" href="#p_mDtLRf/Jcr" tabindex="-1" role="presentation"></a>El verdadero poder de usar expresiones regulares con <code>replace</code> viene del hecho de que podemos referirnos a grupos coincidentes en la string de reemplazo. Por ejemplo, supongamos que tenemos una gran string que contenga los nombres de personas, un nombre por línea, en el formato <code>Apellido, Nombre</code>. Si deseamos intercambiar estos nombres y eliminar la coma para obtener un formato <code>Nombre Apellido</code>, podemos usar el siguiente código:</p>
+
+<pre class="snippet cm-s-default" data-language="javascript" ><a class="c_ident" id="c_5P5aZAbVLL" href="#c_5P5aZAbVLL" tabindex="-1" role="presentation"></a><span class="cm-variable">console</span>.<span class="cm-property">log</span>(
+  <span class="cm-string">&quot;Liskov, Barbara\nMcCarthy, John\nWadler, Philip&quot;</span>
+    .<span class="cm-property">replace</span>(<span class="cm-string-2">/(\w+), (\w+)/g</span>, <span class="cm-string">&quot;$2 $1&quot;</span>));
+<span class="cm-comment">// → Barbara Liskov</span>
+<span class="cm-comment">//   John McCarthy</span>
+<span class="cm-comment">//   Philip Wadler</span></pre>
+
+<p><a class="p_ident" id="p_FMkIpSMPMb" href="#p_FMkIpSMPMb" tabindex="-1" role="presentation"></a>Los <code>$1</code> y <code>$2</code> en el string de reemplazo se refieren a los grupos entre paréntesis del patrón. <code>$1</code> se reemplaza por el texto que coincide con el primer grupo, <code>$2</code> por el segundo, y así sucesivamente, hasta <code>$9</code>. Puedes hacer referencia a la coincidencia completa con <code>$&amp;</code>.</p>
+
+<p><a class="p_ident" id="p_PjX6Xa/sT1" href="#p_PjX6Xa/sT1" tabindex="-1" role="presentation"></a>Es posible pasar una función, en lugar de un string, como segundo argumento para <code>replace</code>. Para cada reemplazo, la función será llamada con los grupos coincidentes (así como con la coincidencia completa) como argumentos, y su valor de retorno se insertará en el nuevo string.</p>
+
+<p><a class="p_ident" id="p_Dz+Dd3xyXR" href="#p_Dz+Dd3xyXR" tabindex="-1" role="presentation"></a>Aquí hay un pequeño ejemplo:</p>
+
+<pre class="snippet cm-s-default" data-language="javascript" ><a class="c_ident" id="c_gDi2JsOAAF" href="#c_gDi2JsOAAF" tabindex="-1" role="presentation"></a><span class="cm-keyword">let</span> <span class="cm-def">s</span> <span class="cm-operator">=</span> <span class="cm-string">&quot;la cia y el fbi&quot;</span>;
+<span class="cm-variable">console</span>.<span class="cm-property">log</span>(<span class="cm-variable">s</span>.<span class="cm-property">replace</span>(<span class="cm-string-2">/\b(fbi|cia)\b/g</span>,
+            <span class="cm-def">str</span> <span class="cm-operator">=&gt;</span> <span class="cm-variable-2">str</span>.<span class="cm-property">toUpperCase</span>()));
+<span class="cm-comment">// → la CIA y el FBI</span></pre>
+
+<p><a class="p_ident" id="p_2Vgz4PcqzS" href="#p_2Vgz4PcqzS" tabindex="-1" role="presentation"></a>Y aquí hay uno más interesante:</p>
+
+<pre class="snippet cm-s-default" data-language="javascript" ><a class="c_ident" id="c_zJiuz/QUQt" href="#c_zJiuz/QUQt" tabindex="-1" role="presentation"></a><span class="cm-keyword">let</span> <span class="cm-def">almacen</span> <span class="cm-operator">=</span> <span class="cm-string">&quot;1 limon, 2 lechugas, y 101 huevos&quot;</span>;
+<span class="cm-keyword">function</span> <span class="cm-def">menosUno</span>(<span class="cm-def">coincidencia</span>, <span class="cm-def">cantidad</span>, <span class="cm-def">unidad</span>) {
+  <span class="cm-variable-2">cantidad</span> <span class="cm-operator">=</span> <span class="cm-variable">Number</span>(<span class="cm-variable-2">cantidad</span>) <span class="cm-operator">-</span> <span class="cm-number">1</span>;
+  <span class="cm-keyword">if</span> (<span class="cm-variable-2">cantidad</span> <span class="cm-operator">==</span> <span class="cm-number">1</span>) { <span class="cm-comment">// solo queda uno, remover la 's'</span>
+    <span class="cm-variable-2">unidad</span> <span class="cm-operator">=</span> <span class="cm-variable-2">unidad</span>.<span class="cm-property">slice</span>(<span class="cm-number">0</span>, <span class="cm-variable-2">unidad</span>.<span class="cm-property">length</span> <span class="cm-operator">-</span> <span class="cm-number">1</span>);
+  } <span class="cm-keyword">else</span> <span class="cm-keyword">if</span> (<span class="cm-variable-2">cantidad</span> <span class="cm-operator">==</span> <span class="cm-number">0</span>) {
+    <span class="cm-variable-2">cantidad</span> <span class="cm-operator">=</span> <span class="cm-string">&quot;sin&quot;</span>;
+  }
+  <span class="cm-keyword">return</span> <span class="cm-variable-2">cantidad</span> <span class="cm-operator">+</span> <span class="cm-string">&quot; &quot;</span> <span class="cm-operator">+</span> <span class="cm-variable-2">unidad</span>;
+}
+<span class="cm-variable">console</span>.<span class="cm-property">log</span>(<span class="cm-variable">almacen</span>.<span class="cm-property">replace</span>(<span class="cm-string-2">/(\d+) (\w+)/g</span>, <span class="cm-variable">menosUno</span>));
+<span class="cm-comment">// → sin limon, 1 lechuga, y 100 huevos</span></pre>
+
+<p><a class="p_ident" id="p_NgKi8ZuBCw" href="#p_NgKi8ZuBCw" tabindex="-1" role="presentation"></a>Esta función toma un string, encuentra todas las ocurrencias de un número seguido de una palabra alfanumérica, y retorna un string en la que cada ocurrencia es decrementada por uno.</p>
+
+<p><a class="p_ident" id="p_qqz3tmeoFi" href="#p_qqz3tmeoFi" tabindex="-1" role="presentation"></a>El grupo <code>(\d+)</code> termina como el argumento <code>cantidad</code> para la función, y el grupo <code>(\w+)</code> se vincula a <code>unidad</code>. La función convierte <code>cantidad</code> a un número—lo que siempre funciona, ya que coincidio con <code>\d+</code>—y realiza algunos ajustes en caso de que solo quede uno o cero.</p>
+
+<h2><a class="h_ident" id="h_Z9SoY0xUbT" href="#h_Z9SoY0xUbT" tabindex="-1" role="presentation"></a>Codicia</h2>
+
+<p><a class="p_ident" id="p_srmywGrX8o" href="#p_srmywGrX8o" tabindex="-1" role="presentation"></a>Es posible usar <code>replace</code> para escribir una función que elimine todo los comentarios de un fragmento de código JavaScript. Aquí hay un primer intento:</p>
+
+<pre class="snippet cm-s-default" data-language="javascript" ><a class="c_ident" id="c_XhW3a68hwt" href="#c_XhW3a68hwt" tabindex="-1" role="presentation"></a><span class="cm-keyword">function</span> <span class="cm-def">removerComentarios</span>(<span class="cm-def">codigo</span>) {
+  <span class="cm-keyword">return</span> <span class="cm-variable-2">codigo</span>.<span class="cm-property">replace</span>(<span class="cm-string-2">/\/\/.*|\/\*[^]*\*\//g</span>, <span class="cm-string">&quot;&quot;</span>);
+}
+<span class="cm-variable">console</span>.<span class="cm-property">log</span>(<span class="cm-variable">removerComentarios</span>(<span class="cm-string">&quot;1 + /* 2 */3&quot;</span>));
+<span class="cm-comment">// → 1 + 3</span>
+<span class="cm-variable">console</span>.<span class="cm-property">log</span>(<span class="cm-variable">removerComentarios</span>(<span class="cm-string">&quot;x = 10;// ten!&quot;</span>));
+<span class="cm-comment">// → x = 10;</span>
+<span class="cm-variable">console</span>.<span class="cm-property">log</span>(<span class="cm-variable">removerComentarios</span>(<span class="cm-string">&quot;1 /* a */+/* b */ 1&quot;</span>));
+<span class="cm-comment">// → 1  1</span></pre>
+
+<p><a class="p_ident" id="p_Yg9dzRQLa/" href="#p_Yg9dzRQLa/" tabindex="-1" role="presentation"></a>La parte anterior al operador <em>o</em> coincide con dos caracteres de barra inclinada seguido de cualquier número de caracteres que no sean nuevas lineas. La parte para los comentarios de líneas múltiples es más complicado. Usamos <code>[^]</code> (cualquier caracter que no está en el conjunto de caracteres vacíos) como una forma de unir cualquier caracter. No podemos simplemente usar un punto aquí porque los comentarios de bloque pueden continuar en una nueva línea, y el carácter del período no coincide con caracteres de nuevas lineas.</p>
+
+<p><a class="p_ident" id="p_mxzz/dlHK7" href="#p_mxzz/dlHK7" tabindex="-1" role="presentation"></a>Pero la salida de la última línea parece haber salido mal. Por qué?</p>
+
+<p><a class="p_ident" id="p_KYpv5oZkiP" href="#p_KYpv5oZkiP" tabindex="-1" role="presentation"></a>La parte <code>[^]*</code> de la expresión, como describí en la sección retroceder, primero coincidirá tanto como sea posible. Si eso causa un falo en la siguiente parte del patrón, el emparejador retrocede un caracter e intenta nuevamente desde allí. En el ejemplo, el emparejador primero intenta emparejar el resto del string y luego se mueve hacia atrás desde allí. Este encontrará una ocurrencia de <code>*/</code> después de retroceder cuatro caracteres y emparejar eso. Esto no es lo que queríamos, la intención era hacer coincidir un solo comentario, no ir hasta el final del código y encontrar el final del último comentario de bloque.</p>
+
+<p><a class="p_ident" id="p_fC+SPfUUr7" href="#p_fC+SPfUUr7" tabindex="-1" role="presentation"></a>Debido a este comportamiento, decimos que los operadores de repetición (<code>+</code>, <code>*</code>, <code>?</code> y <code>{}</code>) son _ codiciosos, lo que significa que coinciden con tanto como pueden y retroceden desde allí. Si colocas un signo de interrogación después de ellos (<code>+?</code>, <code>*?</code>, <code>??</code>, <code>{}?</code>), se vuelven no-codiciosos y comienzan a hacer coincidir lo menos posible, haciendo coincidir más solo cuando el patrón restante no se ajuste a la coincidencia más pequeña.</p>
+
+<p><a class="p_ident" id="p_MUXpQzArez" href="#p_MUXpQzArez" tabindex="-1" role="presentation"></a>Y eso es exactamente lo que queremos en este caso. Al hacer que la estrella coincida con el tramo más pequeño de caracteres que nos lleve a un <code>*/</code>, consumimos un comentario de bloque y nada más.</p>
+
+<pre class="snippet cm-s-default" data-language="javascript" ><a class="c_ident" id="c_5xyJRgQ8ZS" href="#c_5xyJRgQ8ZS" tabindex="-1" role="presentation"></a><span class="cm-keyword">function</span> <span class="cm-def">removerComentarios</span>(<span class="cm-def">codigo</span>) {
+  <span class="cm-keyword">return</span> <span class="cm-variable-2">codigo</span>.<span class="cm-property">replace</span>(<span class="cm-string-2">/\/\/.*|\/\*[^]*?\*\//g</span>, <span class="cm-string">&quot;&quot;</span>);
+}
+<span class="cm-variable">console</span>.<span class="cm-property">log</span>(<span class="cm-variable">removerComentarios</span>(<span class="cm-string">&quot;1 /* a */+/* b */ 1&quot;</span>));
+<span class="cm-comment">// → 1 + 1</span></pre>
+
+<p><a class="p_ident" id="p_nXWV9IQlHo" href="#p_nXWV9IQlHo" tabindex="-1" role="presentation"></a>Una gran cantidad de errores en los programas de expresiones regulares se pueden rastrear a intencionalmente usar un operador codicioso, donde uno que no sea codicioso trabajaria mejor. Al usar un operador de repetición, considera la variante no-codiciosa primero.</p>
+
+<h2><a class="h_ident" id="h_TvDJUjKnLB" href="#h_TvDJUjKnLB" tabindex="-1" role="presentation"></a>Creando objetos RegExp dinámicamente</h2>
+
+<p><a class="p_ident" id="p_lo3eOPOqw0" href="#p_lo3eOPOqw0" tabindex="-1" role="presentation"></a>Hay casos en los que quizás no sepas el patrón exacto necesario para coincidir cuando estes escribiendo tu código. Imagina que quieres buscar el nombre del usuario en un texto y encerrarlo en caracteres de subrayado para que se destaque. Como solo sabrás el nombrar una vez que el programa se está ejecutando realmente, no puedes usar la notación basada en barras.</p>
+
+<p><a class="p_ident" id="p_BBS+T2GQBp" href="#p_BBS+T2GQBp" tabindex="-1" role="presentation"></a>Pero puedes construir un string y usar el constructor <code>RegExp</code> en el. Aquí hay un ejemplo:</p>
+
+<pre class="snippet cm-s-default" data-language="javascript" ><a class="c_ident" id="c_pEwP7FVLER" href="#c_pEwP7FVLER" tabindex="-1" role="presentation"></a><span class="cm-keyword">let</span> <span class="cm-def">nombre</span> <span class="cm-operator">=</span> <span class="cm-string">&quot;harry&quot;</span>;
+<span class="cm-keyword">let</span> <span class="cm-def">texto</span> <span class="cm-operator">=</span> <span class="cm-string">&quot;Harry es un personaje sospechoso.&quot;</span>;
+<span class="cm-keyword">let</span> <span class="cm-def">regexp</span> <span class="cm-operator">=</span> <span class="cm-keyword">new</span> <span class="cm-variable">RegExp</span>(<span class="cm-string">&quot;\\b(&quot;</span> <span class="cm-operator">+</span> <span class="cm-variable">nombre</span> <span class="cm-operator">+</span> <span class="cm-string">&quot;)\\b&quot;</span>, <span class="cm-string">&quot;gi&quot;</span>);
+<span class="cm-variable">console</span>.<span class="cm-property">log</span>(<span class="cm-variable">texto</span>.<span class="cm-property">replace</span>(<span class="cm-variable">regexp</span>, <span class="cm-string">&quot;_$1_&quot;</span>));
+<span class="cm-comment">// → _Harry_ es un personaje sospechoso.</span></pre>
+
+<p><a class="p_ident" id="p_9jHxK9736F" href="#p_9jHxK9736F" tabindex="-1" role="presentation"></a>Al crear los marcadores de límite <code>\b</code>, tenemos que usar dos barras invertidas porque las estamos escribiendo en un string normal, no en una expresión regular contenida en barras. El segundo argumento para el constructor <code>RegExp</code> contiene las opciones para la expresión regular—en este caso, <code>&quot;gi&quot;</code> para global e insensible a mayúsculas y minúsculas.</p>
+
+<p><a class="p_ident" id="p_e//9ofp1EC" href="#p_e//9ofp1EC" tabindex="-1" role="presentation"></a>Pero, y si el nombre es <code>&quot;dea+hl[]rd&quot;</code> porque nuestro usuario es un nerd adolescente? Eso daría como resultado una expresión regular sin sentido que en realidad no coincidirá con el nombre del usuario.</p>
+
+<p><a class="p_ident" id="p_PLgFCFdANG" href="#p_PLgFCFdANG" tabindex="-1" role="presentation"></a>Para solucionar esto, podemos agregar barras diagonales inversas antes de cualquier caracter que tenga un significado especial.</p>
+
+<pre class="snippet cm-s-default" data-language="javascript" ><a class="c_ident" id="c_Y/XQWpJ5gZ" href="#c_Y/XQWpJ5gZ" tabindex="-1" role="presentation"></a><span class="cm-keyword">let</span> <span class="cm-def">nombre</span> <span class="cm-operator">=</span> <span class="cm-string">&quot;dea+hl[]rd&quot;</span>;
+<span class="cm-keyword">let</span> <span class="cm-def">texto</span> <span class="cm-operator">=</span> <span class="cm-string">&quot;Este sujeto dea+hl[]rd es super fastidioso.&quot;</span>;
+<span class="cm-keyword">let</span> <span class="cm-def">escapados</span> <span class="cm-operator">=</span> <span class="cm-variable">nombre</span>.<span class="cm-property">replace</span>(<span class="cm-string-2">/[\\[.+*?(){|^$]/g</span>, <span class="cm-string">&quot;\\$&amp;&quot;</span>);
+<span class="cm-keyword">let</span> <span class="cm-def">regexp</span> <span class="cm-operator">=</span> <span class="cm-keyword">new</span> <span class="cm-variable">RegExp</span>(<span class="cm-string">&quot;\\b&quot;</span> <span class="cm-operator">+</span> <span class="cm-variable">escapados</span> <span class="cm-operator">+</span> <span class="cm-string">&quot;\\b&quot;</span>, <span class="cm-string">&quot;gi&quot;</span>);
+<span class="cm-variable">console</span>.<span class="cm-property">log</span>(<span class="cm-variable">texto</span>.<span class="cm-property">replace</span>(<span class="cm-variable">regexp</span>, <span class="cm-string">&quot;_$&amp;_&quot;</span>));
+<span class="cm-comment">// → Este sujeto _dea+hl[]rd_ es super fastidioso.</span></pre>
+
+<h2><a class="h_ident" id="h_uCPhVoLsMf" href="#h_uCPhVoLsMf" tabindex="-1" role="presentation"></a>El método search</h2>
+
+<p><a class="p_ident" id="p_3qxpU8WQEB" href="#p_3qxpU8WQEB" tabindex="-1" role="presentation"></a>El método <code>indexOf</code> en strings no puede invocarse con una expresión regular. Pero hay otro método, <code>search</code> (“buscar”), que espera una expresión regular. Al igual que <code>indexOf</code>, retorna el primer índice en que se encontró la expresión, o -1 cuando no se encontró.</p>
+
+<pre class="snippet cm-s-default" data-language="javascript" ><a class="c_ident" id="c_hINt/qpuxG" href="#c_hINt/qpuxG" tabindex="-1" role="presentation"></a><span class="cm-variable">console</span>.<span class="cm-property">log</span>(<span class="cm-string">&quot;  palabra&quot;</span>.<span class="cm-property">search</span>(<span class="cm-string-2">/\S/</span>));
+<span class="cm-comment">// → 2</span>
+<span class="cm-variable">console</span>.<span class="cm-property">log</span>(<span class="cm-string">&quot;    &quot;</span>.<span class="cm-property">search</span>(<span class="cm-string-2">/\S/</span>));
+<span class="cm-comment">// → -1</span></pre>
+
+<p><a class="p_ident" id="p_bCpmiIwqTW" href="#p_bCpmiIwqTW" tabindex="-1" role="presentation"></a>Desafortunadamente, no hay forma de indicar que la coincidencia debería comenzar a partir de un desplazamiento dado (como podemos con el segundo argumento para <code>indexOf</code>), que a menudo sería útil.</p>
+
+<h2><a class="h_ident" id="h_61OHLlWPwV" href="#h_61OHLlWPwV" tabindex="-1" role="presentation"></a>La propiedad lastIndex</h2>
+
+<p><a class="p_ident" id="p_RoNtjjkw3o" href="#p_RoNtjjkw3o" tabindex="-1" role="presentation"></a>De manera similar el método <code>exec</code> no proporciona una manera conveniente de comenzar buscando desde una posición dada en el string. Pero proporciona una manera <em>in</em>conveniente.</p>
+
+<p><a class="p_ident" id="p_JYAjlYrL9h" href="#p_JYAjlYrL9h" tabindex="-1" role="presentation"></a>Los objetos de expresión regular tienen propiedades. Una de esas propiedades es <code>source</code> (“fuente”), que contiene el string de donde se creó la expresión. Otra propiedad es <code>lastIndex</code> (“ultimoIndice”), que controla, en algunas circunstancias limitadas, donde comenzará la siguiente coincidencia.</p>
+
+<p><a class="p_ident" id="p_sekYFY5A/H" href="#p_sekYFY5A/H" tabindex="-1" role="presentation"></a>Esas circunstancias son que la expresión regular debe tener la opción global (<code>g</code>) o adhesiva (<code>y</code>) habilitada, y la coincidencia debe suceder a través del método <code>exec</code>. De nuevo, una solución menos confusa hubiese sido permitir que un argumento adicional fuera pasado a <code>exec</code>, pero la confusión es una característica esencial de la interfaz de las expresiones regulares de JavaScript.</p>
+
+<pre class="snippet cm-s-default" data-language="javascript" ><a class="c_ident" id="c_RIVYxeF008" href="#c_RIVYxeF008" tabindex="-1" role="presentation"></a><span class="cm-keyword">let</span> <span class="cm-def">patron</span> <span class="cm-operator">=</span> <span class="cm-string-2">/y/g</span>;
+<span class="cm-variable">patron</span>.<span class="cm-property">lastIndex</span> <span class="cm-operator">=</span> <span class="cm-number">3</span>;
+<span class="cm-keyword">let</span> <span class="cm-def">coincidencia</span> <span class="cm-operator">=</span> <span class="cm-variable">patron</span>.<span class="cm-property">exec</span>(<span class="cm-string">&quot;xyzzy&quot;</span>);
+<span class="cm-variable">console</span>.<span class="cm-property">log</span>(<span class="cm-variable">coincidencia</span>.<span class="cm-property">index</span>);
+<span class="cm-comment">// → 4</span>
+<span class="cm-variable">console</span>.<span class="cm-property">log</span>(<span class="cm-variable">patron</span>.<span class="cm-property">lastIndex</span>);
+<span class="cm-comment">// → 5</span></pre>
+
+<p><a class="p_ident" id="p_0DBtft8C4S" href="#p_0DBtft8C4S" tabindex="-1" role="presentation"></a>Si la coincidencia fue exitosa, la llamada a <code>exec</code> actualiza automáticamente a la propiedad <code>lastIndex</code> para que apunte después de la coincidencia. Si no se encontraron coincidencias, <code>lastIndex</code> vuelve a cero, que es también el valor que tiene un objeto de expresión regular recién construido.</p>
+
+<p><a class="p_ident" id="p_1u3O8Smqjw" href="#p_1u3O8Smqjw" tabindex="-1" role="presentation"></a>La diferencia entre las opciones globales y las adhesivas es que, cuandoa adhesivo está habilitado, la coincidencia solo tendrá éxito si comienza directamente en <code>lastIndex</code>, mientras que con global, buscará una posición donde pueda comenzar una coincidencia.</p>
+
+<pre class="snippet cm-s-default" data-language="javascript" ><a class="c_ident" id="c_Kr43mqOwd/" href="#c_Kr43mqOwd/" tabindex="-1" role="presentation"></a><span class="cm-keyword">let</span> <span class="cm-def">global</span> <span class="cm-operator">=</span> <span class="cm-string-2">/abc/g</span>;
+<span class="cm-variable">console</span>.<span class="cm-property">log</span>(<span class="cm-variable">global</span>.<span class="cm-property">exec</span>(<span class="cm-string">&quot;xyz abc&quot;</span>));
+<span class="cm-comment">// → [&quot;abc&quot;]</span>
+<span class="cm-keyword">let</span> <span class="cm-def">adhesivo</span> <span class="cm-operator">=</span> <span class="cm-string-2">/abc/y</span>;
+<span class="cm-variable">console</span>.<span class="cm-property">log</span>(<span class="cm-variable">adhesivo</span>.<span class="cm-property">exec</span>(<span class="cm-string">&quot;xyz abc&quot;</span>));
+<span class="cm-comment">// → null</span></pre>
+
+<p><a class="p_ident" id="p_0EBT8if9TN" href="#p_0EBT8if9TN" tabindex="-1" role="presentation"></a>Cuando se usa un valor de expresión regular compartido para múltiples llamadas a <code>exec</code>, estas actualizaciones automáticas a la propiedad <code>lastIndex</code> pueden causar problemas. Tu expresión regular podría estar accidentalmente comenzando en un índice que quedó de una llamada anterior.</p>
+
+<pre class="snippet cm-s-default" data-language="javascript" ><a class="c_ident" id="c_VwFviy0Fd0" href="#c_VwFviy0Fd0" tabindex="-1" role="presentation"></a><span class="cm-keyword">let</span> <span class="cm-def">digito</span> <span class="cm-operator">=</span> <span class="cm-string-2">/\d/g</span>;
+<span class="cm-variable">console</span>.<span class="cm-property">log</span>(<span class="cm-variable">digito</span>.<span class="cm-property">exec</span>(<span class="cm-string">&quot;aqui esta: 1&quot;</span>));
+<span class="cm-comment">// → [&quot;1&quot;]</span>
+<span class="cm-variable">console</span>.<span class="cm-property">log</span>(<span class="cm-variable">digito</span>.<span class="cm-property">exec</span>(<span class="cm-string">&quot;y ahora: 1&quot;</span>));
+<span class="cm-comment">// → null</span></pre>
+
+<p><a class="p_ident" id="p_Zq7BCGy3f7" href="#p_Zq7BCGy3f7" tabindex="-1" role="presentation"></a>Otro efecto interesante de la opción global es que cambia la forma en que funciona el método <code>match</code> en strings. Cuando se llama con una expresión global, en lugar de retornar un matriz similar al retornado por <code>exec</code>,<code>match</code> encontrará <em>todas</em> las coincidencias del patrón en el string y retornar un array que contiene los strings coincidentes.</p>
+
+<pre class="snippet cm-s-default" data-language="javascript" ><a class="c_ident" id="c_weT/d5+8vE" href="#c_weT/d5+8vE" tabindex="-1" role="presentation"></a><span class="cm-variable">console</span>.<span class="cm-property">log</span>(<span class="cm-string">&quot;Banana&quot;</span>.<span class="cm-property">match</span>(<span class="cm-string-2">/an/g</span>));
+<span class="cm-comment">// → [&quot;an&quot;, &quot;an&quot;]</span></pre>
+
+<p><a class="p_ident" id="p_m5FZuHYfaG" href="#p_m5FZuHYfaG" tabindex="-1" role="presentation"></a>Por lo tanto, ten cuidado con las expresiones regulares globales. Los casos donde son necesarias—llamadas a <code>replace</code> y lugares donde deseas explícitamente usar <code>lastIndex</code>—son generalmente los únicos lugares donde querras usarlas.</p>
+
+<h3><a class="i_ident" id="i_Zn4zWOqfYD" href="#i_Zn4zWOqfYD" tabindex="-1" role="presentation"></a>Ciclos sobre coincidencias</h3>
+
+<p><a class="p_ident" id="p_om1h8WAcsJ" href="#p_om1h8WAcsJ" tabindex="-1" role="presentation"></a>Una cosa común que hacer es escanear todas las ocurrencias de un patrón en un string, de una manera que nos de acceso al objeto de coincidencia en el cuerpo del ciclo. Podemos hacer esto usando <code>lastIndex</code> y <code>exec</code>.</p>
+
+<pre class="snippet cm-s-default" data-language="javascript" ><a class="c_ident" id="c_DhUo5PB5Vk" href="#c_DhUo5PB5Vk" tabindex="-1" role="presentation"></a><span class="cm-keyword">let</span> <span class="cm-def">entrada</span> <span class="cm-operator">=</span> <span class="cm-string">&quot;Un string con 3 numeros en el... 42 y 88.&quot;</span>;
+<span class="cm-keyword">let</span> <span class="cm-def">numero</span> <span class="cm-operator">=</span> <span class="cm-string-2">/\b\d+\b/g</span>;
+<span class="cm-keyword">let</span> <span class="cm-def">coincidencia</span>;
+<span class="cm-keyword">while</span> (<span class="cm-variable">coincidencia</span> <span class="cm-operator">=</span> <span class="cm-variable">numero</span>.<span class="cm-property">exec</span>(<span class="cm-variable">entrada</span>)) {
+  <span class="cm-variable">console</span>.<span class="cm-property">log</span>(<span class="cm-string">&quot;Se encontro&quot;</span>, <span class="cm-variable">coincidencia</span>[<span class="cm-number">0</span>], <span class="cm-string">&quot;en&quot;</span>, <span class="cm-variable">coincidencia</span>.<span class="cm-property">index</span>);
+}
+<span class="cm-comment">// → Se encontro 3 en 14</span>
+<span class="cm-comment">//   Se encontro 42 en 33</span>
+<span class="cm-comment">//   Se encontro 88 en 38</span></pre>
+
+<p><a class="p_ident" id="p_B+2zVRgc1s" href="#p_B+2zVRgc1s" tabindex="-1" role="presentation"></a>Esto hace uso del hecho de que el valor de una expresión de asignación (<code>=</code>) es el valor asignado. Entonces al usar <code>coincidencia = numero.<wbr>exec(entrada)</code> como la condición en la declaración <code>while</code>, realizamos la coincidencia al inicio de cada iteración, guardamos su resultado en una vinculación, y terminamos de repetir cuando no se encuentran más coincidencias.</p>
+
+<h2 id="ini"><a class="h_ident" id="h_oDgd/pU6o/" href="#h_oDgd/pU6o/" tabindex="-1" role="presentation"></a>Análisis de un archivo INI</h2>
+
+<p><a class="p_ident" id="p_sGp7Jxx2uG" href="#p_sGp7Jxx2uG" tabindex="-1" role="presentation"></a>Para concluir el capítulo, veremos un problema que requiere de expresiones regulares. Imagina que estamos escribiendo un programa para recolectar automáticamente información sobre nuestros enemigos de el Internet. (No escribiremos ese programa aquí, solo la parte que lee el archivo de configuración. Lo siento.) El archivo de configuración se ve así:</p>
+
+<pre class="snippet cm-s-default" data-language="text/plain" ><a class="c_ident" id="c_rpXsxhEy7o" href="#c_rpXsxhEy7o" tabindex="-1" role="presentation"></a>motordebusqueda=https://duckduckgo.com/?q=$1
+malevolencia=9.7
+
+; los comentarios estan precedidos por un punto y coma...
+; cada seccion contiene un enemigo individual
+
+[larry]
+nombrecompleto=Larry Doe
+tipo=bravucon del preescolar
+sitioweb=http://www.geocities.com/CapeCanaveral/11451
+
+[davaeorn]
+nombrecompleto=Davaeorn
+tipo=hechizero malvado
+directoriosalida=/home/marijn/enemies/davaeorn</pre>
+
+<p><a class="p_ident" id="p_2XRX7atQld" href="#p_2XRX7atQld" tabindex="-1" role="presentation"></a>Las reglas exactas para este formato (que es un formato ampliamente utilizado, usualmente llamado un archivo <em>INI</em>) son las siguientes:</p>
+
+<ul>
+
+<li>
+
+<p><a class="p_ident" id="p_WIbqET0WPn" href="#p_WIbqET0WPn" tabindex="-1" role="presentation"></a>Las líneas en blanco y líneas que comienzan con punto y coma se ignoran.</p></li>
+
+<li>
+
+<p><a class="p_ident" id="p_aZL0fMSaMp" href="#p_aZL0fMSaMp" tabindex="-1" role="presentation"></a>Las líneas envueltas en <code>[</code> y <code>]</code> comienzan una nueva sección.</p></li>
+
+<li>
+
+<p><a class="p_ident" id="p_MY2aaaNgko" href="#p_MY2aaaNgko" tabindex="-1" role="presentation"></a>Líneas que contienen un identificador alfanumérico seguido de un carácter <code>=</code> agregan una configuración a la sección actual.</p></li>
+
+<li>
+
+<p><a class="p_ident" id="p_qtk90ie/Xj" href="#p_qtk90ie/Xj" tabindex="-1" role="presentation"></a>Cualquier otra cosa no es válida.</p></li></ul>
+
+<p><a class="p_ident" id="p_g7nzf3T0qT" href="#p_g7nzf3T0qT" tabindex="-1" role="presentation"></a>Nuestra tarea es convertir un string como este en un objeto cuyas propiedades contengas strings para configuraciones sin sección y sub-objetos para secciones, con esos subobjetos conteniendo la configuración de la sección.</p>
+
+<p><a class="p_ident" id="p_7z9fdAqy4R" href="#p_7z9fdAqy4R" tabindex="-1" role="presentation"></a>Dado que el formato debe procesarse línea por línea, dividir el archivo en líneas separadas es un buen comienzo. Usamos <code>string.<wbr>split(&quot;\n&quot;)</code> para hacer esto en el <a href="04_datos.html#split">Capítulo 4</a>. Algunos sistemas operativos, sin embargo, usan no solo un carácter de nueva línea para separar lineas sino un carácter de retorno de carro seguido de una nueva línea (<code>&quot;\r\n&quot;</code>). Dado que el método <code>split</code> también permite una expresión regular como su argumento, podemos usar una expresión regular como <code>/\r?\n/</code> para dividir el string de una manera que permita tanto <code>&quot;\n&quot;</code> como <code>&quot;\r\n&quot;</code> entre líneas.</p>
+
+<pre class="snippet cm-s-default" data-language="javascript" ><a class="c_ident" id="c_6ohSnIFUhZ" href="#c_6ohSnIFUhZ" tabindex="-1" role="presentation"></a><span class="cm-keyword">function</span> <span class="cm-def">analizarINI</span>(<span class="cm-def">string</span>) {
+  <span class="cm-comment">// Comenzar con un objeto para mantener los campos de nivel superior</span>
+  <span class="cm-keyword">let</span> <span class="cm-def">resultado</span> <span class="cm-operator">=</span> {};
+  <span class="cm-keyword">let</span> <span class="cm-def">seccion</span> <span class="cm-operator">=</span> <span class="cm-variable-2">resultado</span>;
+  <span class="cm-variable-2">string</span>.<span class="cm-property">split</span>(<span class="cm-string-2">/\r?\n/</span>).<span class="cm-property">forEach</span>(<span class="cm-def">linea</span> <span class="cm-operator">=&gt;</span> {
+    <span class="cm-keyword">let</span> <span class="cm-def">coincidencia</span>;
+    <span class="cm-keyword">if</span> (<span class="cm-variable-2">coincidencia</span> <span class="cm-operator">=</span> <span class="cm-variable-2">linea</span>.<span class="cm-property">match</span>(<span class="cm-string-2">/^(\w+)=(.*)$/</span>)) {
+      <span class="cm-variable-2">seccion</span>[<span class="cm-variable-2">coincidencia</span>[<span class="cm-number">1</span>]] <span class="cm-operator">=</span> <span class="cm-variable-2">coincidencia</span>[<span class="cm-number">2</span>];
+    } <span class="cm-keyword">else</span> <span class="cm-keyword">if</span> (<span class="cm-variable-2">coincidencia</span> <span class="cm-operator">=</span> <span class="cm-variable-2">linea</span>.<span class="cm-property">match</span>(<span class="cm-string-2">/^\[(.*)\]$/</span>)) {
+      <span class="cm-variable-2">seccion</span> <span class="cm-operator">=</span> <span class="cm-variable-2">resultado</span>[<span class="cm-variable-2">coincidencia</span>[<span class="cm-number">1</span>]] <span class="cm-operator">=</span> {};
+    } <span class="cm-keyword">else</span> <span class="cm-keyword">if</span> (<span class="cm-operator">!</span><span class="cm-string-2">/^\s*(;.*)?$/</span>.<span class="cm-property">test</span>(<span class="cm-variable-2">linea</span>)) {
+      <span class="cm-keyword">throw</span> <span class="cm-keyword">new</span> <span class="cm-variable">Error</span>(<span class="cm-string">&quot;Linea '&quot;</span> <span class="cm-operator">+</span> <span class="cm-variable-2">linea</span> <span class="cm-operator">+</span> <span class="cm-string">&quot;' no es valida.&quot;</span>);
+    }
+  });
+  <span class="cm-keyword">return</span> <span class="cm-variable-2">resultado</span>;
+}
+
+<span class="cm-variable">console</span>.<span class="cm-property">log</span>(<span class="cm-variable">analizarINI</span>(<span class="cm-string-2">`</span>
+<span class="cm-string-2">nombre=Vasilis</span>
+<span class="cm-string-2">[direccion]</span>
+<span class="cm-string-2">ciudad=Tessaloniki`</span>));
+<span class="cm-comment">// → {nombre: &quot;Vasilis&quot;, direccion: {ciudad: &quot;Tessaloniki&quot;}}</span></pre>
+
+<p><a class="p_ident" id="p_LsLS8mCe4B" href="#p_LsLS8mCe4B" tabindex="-1" role="presentation"></a>El código pasa por las líneas del archivo y crea un objeto. Las propiedades en la parte superior se almacenan directamente en ese objeto, mientras que las propiedades que se encuentran en las secciones se almacenan en un objeto de sección separado. La vinculación <code>sección</code> apunta al objeto para la sección actual.</p>
+
+<p><a class="p_ident" id="p_W38Z15dwza" href="#p_W38Z15dwza" tabindex="-1" role="presentation"></a>Hay dos tipos de de líneas significativas—encabezados de seccion o lineas de propiedades. Cuando una línea es una propiedad regular, esta se almacena en la sección actual. Cuando se trata de un encabezado de sección, se crea un nuevo objeto de sección, y <code>seccion</code> se configura para apuntar a él.</p>
+
+<p><a class="p_ident" id="p_VA/8dbuBjP" href="#p_VA/8dbuBjP" tabindex="-1" role="presentation"></a>Nota el uso recurrente de <code>^</code> y <code>$</code> para asegurarse de que la expresión coincida con toda la línea, no solo con parte de ella. Dejando afuera estos resultados en código que funciona principalmente, pero que se comporta de forma extraña para algunas entradas, lo que puede ser un error difícil de rastrear.</p>
+
+<p><a class="p_ident" id="p_w+p65GaQlw" href="#p_w+p65GaQlw" tabindex="-1" role="presentation"></a>El patrón <code>if (coincidencia = string.<wbr>match (.<wbr>.<wbr>.<wbr>))</code> es similar al truco de usar una asignación como condición para <code>while</code>. A menudo no estas seguro de que tu llamada a <code>match</code> tendrá éxito, para que puedas acceder al objeto resultante solo dentro de una declaración <code>if</code> que pruebe esto. Para no romper la agradable cadena de las formas <code>else if</code>, asignamos el resultado de la coincidencia a una vinculación e inmediatamente usamos esa asignación como la prueba para la declaración <code>if</code>.</p>
+
+<p><a class="p_ident" id="p_UTX42/Ydgf" href="#p_UTX42/Ydgf" tabindex="-1" role="presentation"></a>Si una línea no es un encabezado de sección o una propiedad, la función verifica si es un comentario o una línea vacía usando la expresión <code>/^\s*(;.*)?$/</code>. Ves cómo funciona? La parte entre los paréntesis coincidirá con los comentarios, y el <code>?</code> asegura que también coincida con líneas que contengan solo espacios en blanco. Cuando una línea no coincida con cualquiera de las formas esperadas, la función arroja una excepción.</p>
+
+<h2><a class="h_ident" id="h_z2+P4EyKss" href="#h_z2+P4EyKss" tabindex="-1" role="presentation"></a>Caracteres internacionales</h2>
+
+<p><a class="p_ident" id="p_KvJWOpKltp" href="#p_KvJWOpKltp" tabindex="-1" role="presentation"></a>Debido a la simplista implementación inicial de JavaScript y al hecho de que este enfoque simplista fue luego establecido en piedra como comportamiento estándar, las expresiones regulares de JavaScript son bastante tontas acerca de los caracteres que no aparecen en el idioma inglés. Por ejemplo, en cuanto a las expresiones regulares de JavaScript, una “palabra
+caracter” es solo uno de los 26 caracteres en el alfabeto latino (mayúsculas o minúsculas), dígitos decimales, y, por alguna razón, el carácter de guion bajo. Cosas como <em>é</em> o <em>β</em>, que definitivamente son caracteres de palabras, no coincidirán con <code>\w</code> (y <em>si</em> coincidiran con <code>\W</code> mayúscula, la categoría no-palabra).</p>
+
+<p><a class="p_ident" id="p_vYGtSLL3lx" href="#p_vYGtSLL3lx" tabindex="-1" role="presentation"></a>Por un extraño accidente histórico, <code>\s</code> (espacio en blanco) no tiene este problema y coincide con todos los caracteres que el estándar Unicode considera espacios en blanco, incluyendo cosas como el (espacio de no separación) y el Separador de vocales Mongol.</p>
+
+<p><a class="p_ident" id="p_j2w4HWt2Mr" href="#p_j2w4HWt2Mr" tabindex="-1" role="presentation"></a>Otro problema es que, de forma predeterminada, las expresiones regulares funcionan en unidades del código, como se discute en el <a href="05_orden_superior.html#unidades_del_codigo">Capítulo 5</a>, no en caracteres reales. Esto significa que los caracteres que estan compustos de dos unidades de código se comportan de manera extraña.</p>
+
+<pre class="snippet cm-s-default" data-language="javascript" ><a class="c_ident" id="c_CfMTYxun8D" href="#c_CfMTYxun8D" tabindex="-1" role="presentation"></a><span class="cm-variable">console</span>.<span class="cm-property">log</span>(<span class="cm-string-2">/🍎{3}/</span>.<span class="cm-property">test</span>(<span class="cm-string">&quot;🍎🍎🍎&quot;</span>));
+<span class="cm-comment">// → false</span>
+<span class="cm-variable">console</span>.<span class="cm-property">log</span>(<span class="cm-string-2">/&lt;.&gt;/</span>.<span class="cm-property">test</span>(<span class="cm-string">&quot;&lt;🌹&gt;&quot;</span>));
+<span class="cm-comment">// → false</span>
+<span class="cm-variable">console</span>.<span class="cm-property">log</span>(<span class="cm-string-2">/&lt;.&gt;/u</span>.<span class="cm-property">test</span>(<span class="cm-string">&quot;&lt;🌹&gt;&quot;</span>));
+<span class="cm-comment">// → true</span></pre>
+
+<p><a class="p_ident" id="p_mLSeea8+P5" href="#p_mLSeea8+P5" tabindex="-1" role="presentation"></a>El problema es que la 🍎 en la primera línea se trata como dos unidades de código, y la parte <code>{3}</code> se aplica solo a la segunda. Del mismo modo, el punto coincide con una sola unidad de código, no con las dos que componen al emoji de rosa.</p>
+
+<p><a class="p_ident" id="p_n9lvK7mBbP" href="#p_n9lvK7mBbP" tabindex="-1" role="presentation"></a>Debe agregar una opción <code>u</code> (para Unicode) a tu expresión regular para hacerla tratar a tales caracteres apropiadamente. El comportamiento incorrecto sigue siendo el predeterminado, desafortunadamente, porque cambiarlo podría causar problemas en código ya existente que depende de él.</p>
+
+<p><a class="p_ident" id="p_QNINxVmrUN" href="#p_QNINxVmrUN" tabindex="-1" role="presentation"></a>Aunque esto solo se acaba de estandarizar y aun no es, al momento de escribir este libro, ampliamente compatible con muchs nabegadores, es posible usar <code>\p</code> en una expresión regular (que debe tener habilitada la opción Unicode) para que coincida con todos los caracteres a los que el estándar Unicode lis asigna una propiedad determinada.</p>
+
+<pre class="snippet cm-s-default" data-language="javascript" ><a class="c_ident" id="c_+jV1oln0sr" href="#c_+jV1oln0sr" tabindex="-1" role="presentation"></a><span class="cm-variable">console</span>.<span class="cm-property">log</span>(<span class="cm-string-2">/\p{Script=Greek}/u</span>.<span class="cm-property">test</span>(<span class="cm-string">&quot;α&quot;</span>));
+<span class="cm-comment">// → true</span>
+<span class="cm-variable">console</span>.<span class="cm-property">log</span>(<span class="cm-string-2">/\p{Script=Arabic}/u</span>.<span class="cm-property">test</span>(<span class="cm-string">&quot;α&quot;</span>));
+<span class="cm-comment">// → false</span>
+<span class="cm-variable">console</span>.<span class="cm-property">log</span>(<span class="cm-string-2">/\p{Alphabetic}/u</span>.<span class="cm-property">test</span>(<span class="cm-string">&quot;α&quot;</span>));
+<span class="cm-comment">// → true</span>
+<span class="cm-variable">console</span>.<span class="cm-property">log</span>(<span class="cm-string-2">/\p{Alphabetic}/u</span>.<span class="cm-property">test</span>(<span class="cm-string">&quot;!&quot;</span>));
+<span class="cm-comment">// → false</span></pre>
+
+<p><a class="p_ident" id="p_i4u9mOf82n" href="#p_i4u9mOf82n" tabindex="-1" role="presentation"></a>Unicode define una cantidad de propiedades útiles, aunque encontrar la que necesitas puede no ser siempre trivial. Puedes usar la notación <code>\p{Property=Value}</code> para hacer coincidir con cualquier carácter que tenga el valor dado para esa propiedad. Si el nombre de la propiedad se deja afuera, como en <code>\p{Name}</code>, se asume que el nombre es una propiedad binaria como <code>Alfabético</code> o una categoría como <code>Número</code>.</p>
+
+<h2 id="summary_regexp"><a class="h_ident" id="h_NUFOUyK+lw" href="#h_NUFOUyK+lw" tabindex="-1" role="presentation"></a>Resumen</h2>
+
+<p><a class="p_ident" id="p_Odk02sNpX4" href="#p_Odk02sNpX4" tabindex="-1" role="presentation"></a>Las expresiones regulares son objetos que representan patrones en strings. Ellas usan su propio lenguaje para expresar estos patrones.</p>
+
+<table>
+
+<tr><td><code>/abc/</code></td><td>Una secuencia de caracteres</td>
+
+</tr>
+
+<tr><td><code>/[abc]/</code></td><td>Cualquier caracter de un conjunto de caracteres</td>
+
+</tr>
+
+<tr><td><code>/[^abc]/</code></td><td>Cualquier carácter que <em>no</em> este en un conjunto de caracteres</td>
+
+</tr>
+
+<tr><td><code>/[0-9]/</code></td><td>Cualquier caracter en un rango de caracteres</td>
+
+</tr>
+
+<tr><td><code>/x+/</code></td><td>Una o más ocurrencias del patrón <code>x</code></td>
+
+</tr>
+
+<tr><td><code>/x+?/</code></td><td>Una o más ocurrencias, no codiciosas</td>
+
+</tr>
+
+<tr><td><code>/x*/</code></td><td>Cero o más ocurrencias</td>
+
+</tr>
+
+<tr><td><code>/x?/</code></td><td>Cero o una ocurrencia</td>
+
+</tr>
+
+<tr><td><code>/x{2,4}/</code></td><td>De dos a cuatro ocurrencias</td>
+
+</tr>
+
+<tr><td><code>/(abc)/</code></td><td>Un grupo</td>
+
+</tr>
+
+<tr><td><code>/a|b|c/</code></td><td>Cualquiera de varios patrones</td>
+
+</tr>
+
+<tr><td><code>/\d/</code></td><td>Cualquier caracter de digito</td>
+
+</tr>
+
+<tr><td><code>/\w/</code></td><td>Un caracter alfanumérico (“carácter de palabra”)</td>
+
+</tr>
+
+<tr><td><code>/\s/</code></td><td>Cualquier caracter de espacio en blanco</td>
+
+</tr>
+
+<tr><td><code>/./</code></td><td>Cualquier caracter excepto líneas nuevas</td>
+
+</tr>
+
+<tr><td><code>/\b/</code></td><td>Un límite de palabra</td>
+
+</tr>
+
+<tr><td><code>/^/</code></td><td>Inicio de entrada</td>
+
+</tr>
+
+<tr><td><code>/$/</code></td><td>Fin de la entrada</td>
+
+</tr>
+
+</table>
+
+<p><a class="p_ident" id="p_MaZKUJaD7h" href="#p_MaZKUJaD7h" tabindex="-1" role="presentation"></a>Una expresión regular tiene un método <code>test</code> para probar si una determinada string coincide cn ella. También tiene un método <code>exec</code> que, cuando una coincidencia es encontrada, retorna un array que contiene todos los grupos que coincidieron. Tal array tiene una propiedad <code>index</code> que indica en dónde comenzó la coincidencia.</p>
+
+<p><a class="p_ident" id="p_J+k3RYS6n3" href="#p_J+k3RYS6n3" tabindex="-1" role="presentation"></a>Los strings tienen un método <code>match</code> para coincidirlas con una expresión regular y un método <code>search</code> para buscar por una, retornando solo la posición inicial de la coincidencia. Su método <code>replace</code> puede reemplazar coincidencias de un patrón con un string o función de reemplazo.</p>
+
+<p><a class="p_ident" id="p_5tlP70sWEp" href="#p_5tlP70sWEp" tabindex="-1" role="presentation"></a>Las expresiones regulares pueden tener opciones, que se escriben después de la barra que cierra la expresión. La opción <code>i</code> hace que la coincidencia no distinga entre mayúsculas y minúsculas. La opción <code>g</code> hace que la expresión sea <em>global</em>, que, entre otras cosas, hace que el método <code>replace</code> reemplace todas las instancias en lugar de solo la primera. La opción <code>y</code> la hace adhesivo, lo que significa que hará que no busque con anticipación y omita la parte del string cuando busque una coincidencia. La opción <code>u</code> activa el modo Unicode, lo que soluciona varios problemas alrededor del manejo de caracteres que toman dos unidades de código.</p>
+
+<p><a class="p_ident" id="p_++wOlDRyso" href="#p_++wOlDRyso" tabindex="-1" role="presentation"></a>Las expresiones regulares son herramientas afiladas con un manejo incómodo. Ellas simplifican algunas tareas enormemente, pero pueden volverse inmanejables rápidamente cuando se aplican a problemas complejos. Parte de saber cómo usarlas es resistiendo el impulso de tratar de calzar cosas que no pueden ser expresadas limpiamente en ellas.</p>
+
+<h2><a class="h_ident" id="h_tkm7ntLto1" href="#h_tkm7ntLto1" tabindex="-1" role="presentation"></a>Ejercicios</h2>
+
+<p><a class="p_ident" id="p_/eK1ipHUW7" href="#p_/eK1ipHUW7" tabindex="-1" role="presentation"></a>Es casi inevitable que, durante el curso de trabajar en estos ejercicios, te sentiras confundido y frustrado por el comportamiento inexplicable de alguna regular expresión. A veces ayuda ingresar tu expresión en una herramienta en línea como <a href="https://www.debuggex.com/"><em>debuggex.com</em></a> para ver si su visualización corresponde a lo que pretendías y a experimentar con la forma en que responde a varios strings de entrada.</p>
+
+<h3><a class="i_ident" id="i_F/H0F1/0q7" href="#i_F/H0F1/0q7" tabindex="-1" role="presentation"></a>Golf Regexp</h3>
+
+<p><a class="p_ident" id="p_P+GRuqiSHl" href="#p_P+GRuqiSHl" tabindex="-1" role="presentation"></a><em>Golf de Codigo</em> es un término usado para el juego de intentar expresar un programa particular con el menor número de caracteres posible. Similarmente, <em>Golf de Regexp</em> es la práctica de escribir una expresión regular tan pequeña como sea posible para que coincida con un patrón dado, y <em>sólo</em> con ese patrón.</p>
+
+<p><a class="p_ident" id="p_74bE61d3fk" href="#p_74bE61d3fk" tabindex="-1" role="presentation"></a>Para cada uno de los siguientes elementos, escribe una expresión regular para probar si alguna de las substrings dadas ocurre en un string. La expresión regular debe coincidir solo con strings que contengan una de las substrings descritas. No te preocupes por los límites de palabras a menos que sean explícitamente mencionados. Cuando tu expresión funcione, ve si puedes hacerla más pequeña.</p>
+
+<ol>
+
+<li>
+
+<p><a class="p_ident" id="p_G1x4eWBRd+" href="#p_G1x4eWBRd+" tabindex="-1" role="presentation"></a><em>car</em> y <em>cat</em></p></li>
+
+<li>
+
+<p><a class="p_ident" id="p_LUL5rXROVp" href="#p_LUL5rXROVp" tabindex="-1" role="presentation"></a><em>pop</em> y <em>prop</em></p></li>
+
+<li>
+
+<p><a class="p_ident" id="p_4grj7sKuEe" href="#p_4grj7sKuEe" tabindex="-1" role="presentation"></a><em>ferret</em>, <em>ferry</em>, y <em>ferrari</em></p></li>
+
+<li>
+
+<p><a class="p_ident" id="p_6Oz38bob5+" href="#p_6Oz38bob5+" tabindex="-1" role="presentation"></a>Cualquier palabra que termine <em>ious</em></p></li>
+
+<li>
+
+<p><a class="p_ident" id="p_3zcZI8F3XE" href="#p_3zcZI8F3XE" tabindex="-1" role="presentation"></a>Un carácter de espacio en blanco seguido de un punto, coma, dos puntos o punto y coma</p></li>
+
+<li>
+
+<p><a class="p_ident" id="p_ElfdU/EyTI" href="#p_ElfdU/EyTI" tabindex="-1" role="presentation"></a>Una palabra con mas de seis letras</p></li>
+
+<li>
+
+<p><a class="p_ident" id="p_ex6we1EAMv" href="#p_ex6we1EAMv" tabindex="-1" role="presentation"></a>Una palabra sin la letra <em>e</em> (o <em>E</em>)</p></li>
+
+</ol>
+
+<p><a class="p_ident" id="p_ngFV4KHa81" href="#p_ngFV4KHa81" tabindex="-1" role="presentation"></a>Consulta la tabla en el <a href="09_regexp.html#summary_regexp">resumen del capítulo</a> para ayudarte. Pruebe cada solución con algunos strings de prueba.</p>
+
+<pre class="snippet cm-s-default" data-language="javascript" ><a class="c_ident" id="c_14MiyfUXHn" href="#c_14MiyfUXHn" tabindex="-1" role="presentation"></a><span class="cm-comment">// Llena con las expresiones regulares</span>
+
+<span class="cm-variable">verificar</span>(<span class="cm-string-2">/.../</span>,
+       [<span class="cm-string">&quot;my car&quot;</span>, <span class="cm-string">&quot;bad cats&quot;</span>],
+       [<span class="cm-string">&quot;camper&quot;</span>, <span class="cm-string">&quot;high art&quot;</span>]);
+
+<span class="cm-variable">verificar</span>(<span class="cm-string-2">/.../</span>,
+       [<span class="cm-string">&quot;pop culture&quot;</span>, <span class="cm-string">&quot;mad props&quot;</span>],
+       [<span class="cm-string">&quot;plop&quot;</span>, <span class="cm-string">&quot;prrrop&quot;</span>]);
+
+<span class="cm-variable">verificar</span>(<span class="cm-string-2">/.../</span>,
+       [<span class="cm-string">&quot;ferret&quot;</span>, <span class="cm-string">&quot;ferry&quot;</span>, <span class="cm-string">&quot;ferrari&quot;</span>],
+       [<span class="cm-string">&quot;ferrum&quot;</span>, <span class="cm-string">&quot;transfer A&quot;</span>]);
+
+<span class="cm-variable">verificar</span>(<span class="cm-string-2">/.../</span>,
+       [<span class="cm-string">&quot;how delicious&quot;</span>, <span class="cm-string">&quot;spacious room&quot;</span>],
+       [<span class="cm-string">&quot;ruinous&quot;</span>, <span class="cm-string">&quot;consciousness&quot;</span>]);
+
+<span class="cm-variable">verificar</span>(<span class="cm-string-2">/.../</span>,
+       [<span class="cm-string">&quot;bad punctuation .&quot;</span>],
+       [<span class="cm-string">&quot;escape the period&quot;</span>]);
+
+<span class="cm-variable">verificar</span>(<span class="cm-string-2">/.../</span>,
+       [<span class="cm-string">&quot;hottentottententen&quot;</span>],
+       [<span class="cm-string">&quot;no&quot;</span>, <span class="cm-string">&quot;hotten totten tenten&quot;</span>]);
+
+<span class="cm-variable">verificar</span>(<span class="cm-string-2">/.../</span>,
+       [<span class="cm-string">&quot;red platypus&quot;</span>, <span class="cm-string">&quot;wobbling nest&quot;</span>],
+       [<span class="cm-string">&quot;earth bed&quot;</span>, <span class="cm-string">&quot;learning ape&quot;</span>, <span class="cm-string">&quot;BEET&quot;</span>]);
+
+
+<span class="cm-keyword">function</span> <span class="cm-def">verificar</span>(<span class="cm-def">regexp</span>, <span class="cm-def">si</span>, <span class="cm-def">no</span>) {
+  <span class="cm-comment">// Ignora ejercicios sin terminar</span>
+  <span class="cm-keyword">if</span> (<span class="cm-variable-2">regexp</span>.<span class="cm-property">source</span> <span class="cm-operator">==</span> <span class="cm-string">&quot;...&quot;</span>) <span class="cm-keyword">return</span>;
+  <span class="cm-keyword">for</span> (<span class="cm-keyword">let</span> <span class="cm-def">str</span> <span class="cm-keyword">of</span> <span class="cm-variable-2">si</span>) <span class="cm-keyword">if</span> (<span class="cm-operator">!</span><span class="cm-variable-2">regexp</span>.<span class="cm-property">test</span>(<span class="cm-variable-2">str</span>)) {
+    <span class="cm-variable">console</span>.<span class="cm-property">log</span>(<span class="cm-string-2">`Fallo al coincidir '${</span><span class="cm-variable-2">str</span><span class="cm-string-2">}</span><span class="cm-string-2">'`</span>);
+  }
+  <span class="cm-keyword">for</span> (<span class="cm-keyword">let</span> <span class="cm-def">str</span> <span class="cm-keyword">of</span> <span class="cm-variable-2">no</span>) <span class="cm-keyword">if</span> (<span class="cm-variable-2">regexp</span>.<span class="cm-property">test</span>(<span class="cm-variable-2">str</span>)) {
+    <span class="cm-variable">console</span>.<span class="cm-property">log</span>(<span class="cm-string-2">`Coincidencia inesperada para '${</span><span class="cm-variable-2">str</span><span class="cm-string-2">}</span><span class="cm-string-2">'`</span>);
+  }
+}</pre>
+
+<h3><a class="i_ident" id="i_WmlpQsnI2G" href="#i_WmlpQsnI2G" tabindex="-1" role="presentation"></a>Estilo entre comillas</h3>
+
+<p><a class="p_ident" id="p_Vlm4WMQc9O" href="#p_Vlm4WMQc9O" tabindex="-1" role="presentation"></a>Imagina que has escrito una historia y has utilizado comillass simples en todas partes para marcar piezas de diálogo. Ahora quieres reemplazar todas las comillas de diálogo con comillas dobles, pero manteniendo las comillas simples usadas en contracciones como <em>aren’t</em>.</p>
+
+<p><a class="p_ident" id="p_imjeu2Umis" href="#p_imjeu2Umis" tabindex="-1" role="presentation"></a>Piensa en un patrón que distinga de estos dos tipos de uso de citas y crea una llamada al método <code>replace</code> que haga el reemplazo apropiado.</p>
+
+<pre class="snippet cm-s-default" data-language="javascript" ><a class="c_ident" id="c_HyQV4pmqjj" href="#c_HyQV4pmqjj" tabindex="-1" role="presentation"></a><span class="cm-keyword">let</span> <span class="cm-def">texto</span> <span class="cm-operator">=</span> <span class="cm-string">&quot;'I'm the cook,' he said, 'it's my job.'&quot;</span>;
+<span class="cm-comment">// Cambia esta llamada</span>
+<span class="cm-variable">console</span>.<span class="cm-property">log</span>(<span class="cm-variable">texto</span>.<span class="cm-property">replace</span>(<span class="cm-string-2">/A/g</span>, <span class="cm-string">&quot;B&quot;</span>));
+<span class="cm-comment">// → &quot;I'm the cook,&quot; he said, &quot;it's my job.&quot;</span></pre>
+
+<div class="solution"><div class="solution-text">
+
+<p><a class="p_ident" id="p_F9p3rrsc74" href="#p_F9p3rrsc74" tabindex="-1" role="presentation"></a>La solución más obvia es solo reemplazar las citas con una palabra no personaje en al menos un lado. Algo como <code>/\W'|'\W/</code>. Pero también debes tener en cuenta el inicio y el final de la línea.</p>
+
+<p><a class="p_ident" id="p_JVO9RswNf/" href="#p_JVO9RswNf/" tabindex="-1" role="presentation"></a>Además, debes asegurarte de que el reemplazo también incluya los caracteres que coincidieron con el patrón <code>\W</code> para que estos no sean dejados. Esto se puede hacer envolviéndolos en paréntesis e incluyendo sus grupos en la cadena de reemplazo (<code>$1</code>,<code>$2</code>). Los grupos que no están emparejados serán reemplazados por nada.</p>
+
+</div></div>
+
+<h3><a class="i_ident" id="i_6Y7dYgLHhI" href="#i_6Y7dYgLHhI" tabindex="-1" role="presentation"></a>Números otra vez</h3>
+
+<p><a class="p_ident" id="p_oeGH9sXraQ" href="#p_oeGH9sXraQ" tabindex="-1" role="presentation"></a>Escribe una expresión que coincida solo con el estilo de números en JavaScript. Esta debe admitir un signo opcional menos <em>o</em> más delante del número, el punto decimal, y la notación de exponente—<code>5e-3</code> o <code>1E10</code>— nuevamente con un signo opcional en frente del exponente. También ten en cuenta que no es necesario que hayan dígitos delante o detrás del punto, pero el el número no puede ser solo un punto. Es decir, <code>.5</code> y <code>5.</code> son numeros válidos de JavaScript, pero solo un punto <em>no</em> lo es.</p>
+
+<pre class="snippet cm-s-default" data-language="javascript" ><a class="c_ident" id="c_xti7pLshT2" href="#c_xti7pLshT2" tabindex="-1" role="presentation"></a><span class="cm-comment">// Completa esta expresión regular.</span>
+<span class="cm-keyword">let</span> <span class="cm-def">numero</span> <span class="cm-operator">=</span> <span class="cm-string-2">/^...$/</span>;
+
+<span class="cm-comment">// Pruebas:</span>
+<span class="cm-keyword">for</span> (<span class="cm-keyword">let</span> <span class="cm-def">str</span> <span class="cm-keyword">of</span> [<span class="cm-string">&quot;1&quot;</span>, <span class="cm-string">&quot;-1&quot;</span>, <span class="cm-string">&quot;+15&quot;</span>, <span class="cm-string">&quot;1.55&quot;</span>, <span class="cm-string">&quot;.5&quot;</span>, <span class="cm-string">&quot;5.&quot;</span>,
+                 <span class="cm-string">&quot;1.3e2&quot;</span>, <span class="cm-string">&quot;1E-4&quot;</span>, <span class="cm-string">&quot;1e+12&quot;</span>]) {
+  <span class="cm-keyword">if</span> (<span class="cm-operator">!</span><span class="cm-variable">numero</span>.<span class="cm-property">test</span>(<span class="cm-variable">str</span>)) {
+    <span class="cm-variable">console</span>.<span class="cm-property">log</span>(<span class="cm-string-2">`Fallo al coincidir '${</span><span class="cm-variable">str</span><span class="cm-string-2">}</span><span class="cm-string-2">'`</span>);
+  }
+}
+<span class="cm-keyword">for</span> (<span class="cm-keyword">let</span> <span class="cm-def">str</span> <span class="cm-keyword">of</span> [<span class="cm-string">&quot;1a&quot;</span>, <span class="cm-string">&quot;+-1&quot;</span>, <span class="cm-string">&quot;1.2.3&quot;</span>, <span class="cm-string">&quot;1+1&quot;</span>, <span class="cm-string">&quot;1e4.5&quot;</span>,
+                 <span class="cm-string">&quot;.5.&quot;</span>, <span class="cm-string">&quot;1f5&quot;</span>, <span class="cm-string">&quot;.&quot;</span>]) {
+  <span class="cm-keyword">if</span> (<span class="cm-variable">numero</span>.<span class="cm-property">test</span>(<span class="cm-variable">str</span>)) {
+    <span class="cm-variable">console</span>.<span class="cm-property">log</span>(<span class="cm-string-2">`Incorrectamente acepto '${</span><span class="cm-variable">str</span><span class="cm-string-2">}</span><span class="cm-string-2">'`</span>);
+  }
+}</pre>
+
+<div class="solution"><div class="solution-text">
+
+<p><a class="p_ident" id="p_9ClWptypXQ" href="#p_9ClWptypXQ" tabindex="-1" role="presentation"></a>Primero, no te olvides de la barra invertida delante del punto.</p>
+
+<p><a class="p_ident" id="p_fAJGkUxX8K" href="#p_fAJGkUxX8K" tabindex="-1" role="presentation"></a>Coincidir el signo opcional delante de el número, así como delante del exponente, se puede hacer con <code>[+\-]?</code> o <code>(\+|-|)</code> (más, menos o nada).</p>
+
+<p><a class="p_ident" id="p_+Tjzh9qDET" href="#p_+Tjzh9qDET" tabindex="-1" role="presentation"></a>La parte más complicada del ejercicio es el problema hacer coincidir ambos <code>&quot;5.&quot;</code> y <code>&quot;.5&quot;</code> sin tambien coincidir coincidir con <code>&quot;.&quot;</code>. Para esto, una buena solución es usar el operador <code>|</code> para separar los dos casos—ya sea uno o más dígitos seguidos opcionalmente por un punto y cero o más dígitos <em>o</em> un punto seguido de uno o más dígitos.</p>
+
+<p><a class="p_ident" id="p_6x0vWl69bT" href="#p_6x0vWl69bT" tabindex="-1" role="presentation"></a>Finalmente, para hacer que la <em>e</em> pueda ser mayuscula o minuscula, agrega una opción <code>i</code> a la expresión regular o usa <code>[eE]</code>.</p>
+
+</div></div><nav><a href="08_error.html" title="previous chapter">◀</a> <a href="index.html" title="cover">◆</a> <a href="10_modulos.html" title="next chapter">▶</a></nav>
+</article>

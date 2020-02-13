@@ -1,0 +1,672 @@
+<!doctype html>
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Programación Asincrónica :: Eloquent JavaScript</title>
+  <link rel=stylesheet href="js/node_modules/codemirror/lib/codemirror.css">
+  <script src="js/acorn_codemirror.js"></script>
+  <link rel=stylesheet href="css/ejs.css">
+  <script src="js/sandbox.js"></script>
+  <script src="js/ejs.js"></script><script>var chapNum = 11;var sandboxLoadFiles = ["code/crow-tech.js","code/chapter/11_async.js"];</script></head>
+
+<article>
+<nav><a href="10_modulos.html" title="previous chapter">◀</a> <a href="index.html" title="cover">◆</a> <a href="12_language.html" title="next chapter">▶</a></nav>
+
+<h1><span class=chap_num>Chapter 11</span>Programación Asincrónica</h1>
+
+<blockquote>
+
+<p><a class="p_ident" id="p_LUnka4+ppT" href="#p_LUnka4+ppT" tabindex="-1" role="presentation"></a>Quién puede esperar tranquilamente mientras el barro se asienta?<br>Quién puede permanecer en calma hasta el momento de actuar?</p>
+
+<footer>Laozi, <cite>Tao Te Ching</cite></footer>
+
+</blockquote><figure class="chapter framed"><img src="img/chapter_picture_11.jpg" alt="Picture of two crows on a branch"></figure>
+
+<p><a class="p_ident" id="p_MwGt+puX8F" href="#p_MwGt+puX8F" tabindex="-1" role="presentation"></a>La parte central de una computadora, la parte que lleva a cabo los pasos individuales que componen nuestros programas, es llamada <em>procesador</em>. Los programas que hemos visto hasta ahora son cosas que mantienen al procesador ocupado hasta que hayan terminado su trabajo. La velocidad a la que algo como un ciclo que manipule números pueda ser ejecutado, depende casi completamente de la velocidad del procesador.</p>
+
+<p><a class="p_ident" id="p_uMS9ltJB82" href="#p_uMS9ltJB82" tabindex="-1" role="presentation"></a>Pero muchos programas interactúan con cosas fuera del procesador. por ejemplo, podrian comunicarse a través de una red de computadoras o solicitar datos del disco duro—lo que es mucho más lento que obtenerlos desde la memoria.</p>
+
+<p><a class="p_ident" id="p_WZHJSoIMqS" href="#p_WZHJSoIMqS" tabindex="-1" role="presentation"></a>Cuando una cosa como tal este sucediendo, sería una pena dejar que el procesador se mantenga inactivo—podría haber algún otro trabajo que este pueda hacer en el mientras tanto. En parte, esto es manejado por tu sistema operativo, que cambiará el procesador entre múltiples programas en ejecución. Pero eso no ayuda cuando queremos que un <em>unico</em> programa pueda hacer progreso mientras este espera una solicitud de red.</p>
+
+<h2><a class="h_ident" id="h_bqY495jnAq" href="#h_bqY495jnAq" tabindex="-1" role="presentation"></a>Asincronicidad</h2>
+
+<p><a class="p_ident" id="p_hOUZrWQWAe" href="#p_hOUZrWQWAe" tabindex="-1" role="presentation"></a>En un modelo de programación <em>sincrónico</em>, las cosas suceden una a la vez. Cuando llamas a una función que realiza una acción de larga duración, solo retorna cuando la acción ha terminado y puede retornar el resultado. Esto detiene tu programa durante el tiempo que tome la acción.</p>
+
+<p><a class="p_ident" id="p_Fli97Zlel5" href="#p_Fli97Zlel5" tabindex="-1" role="presentation"></a>Un modelo <em>asincrónico</em> permite que ocurran varias cosas al mismo tiempo. Cuando comienzas una acción, tu programa continúa ejecutándose. Cuando la acción termina, el programa es informado y tiene acceso al resultado (por ejemplo, los datos leídos del disco).</p>
+
+<p><a class="p_ident" id="p_yFfk/Syfon" href="#p_yFfk/Syfon" tabindex="-1" role="presentation"></a>Podemos comparar a la programación síncrona y asincrónica usando un pequeño ejemplo: un programa que obtiene dos recursos de la red y luego combina resultados.</p>
+
+<p><a class="p_ident" id="p_hWk7HdPOTV" href="#p_hWk7HdPOTV" tabindex="-1" role="presentation"></a>En un entorno síncrono, donde la función de solicitud solo retorna una vez que ha hecho su trabajo, la forma más fácil de realizar esta tarea es realizar las solicitudes una después de la otra. Esto tiene el inconveniente de que la segunda solicitud se iniciará solo cuando la primera haya finalizado. El tiempo total de ejecución será como minimo la suma de los dos tiempos de respuesta.</p>
+
+<p><a class="p_ident" id="p_CzT2t5gZTO" href="#p_CzT2t5gZTO" tabindex="-1" role="presentation"></a>La solución a este problema, en un sistema síncrono, es comenzar hilos adicionales de control. Un <em>hilo</em> es otro programa activo cuya ejecución puede ser intercalada con otros programas por el sistema operativo—ya que la mayoría de las computadoras modernas contienen múltiples procesadores, múltiples hilos pueden incluso ejecutarse al mismo tiempo, en diferentes procesadores. Un segundo hilo podría iniciar la segunda solicitud, y luego ambos subprocesos esperan a que los resultados vuelvan, después de lo cual se vuelven a resincronizar para combinar sus resultados.</p>
+
+<p><a class="p_ident" id="p_9mWyi18FDB" href="#p_9mWyi18FDB" tabindex="-1" role="presentation"></a>En el siguiente diagrama, las líneas gruesas representan el tiempo que el programa pasa corriendo normalmente, y las líneas finas representan el tiempo pasado esperando la red. En el modelo síncrono, el tiempo empleado por la red es <em>parte</em> de la línea de tiempo para un hilo de control dado. En el modelo asincrónico, comenzar una acción de red conceptualmente causa una <em>división</em> en la línea del tiempo. El programa que inició la acción continúa ejecutándose, y la acción ocurre junto a el, notificando al programa cuando está termina.</p><figure><img src="img/control-io.svg" alt="Control flow for synchronous and asynchronous programming"></figure>
+
+<p><a class="p_ident" id="p_O27oJ55Ewa" href="#p_O27oJ55Ewa" tabindex="-1" role="presentation"></a>Otra forma de describir la diferencia es que esperar que las acciones terminen es <em>implicito</em> en el modelo síncrono, mientras que es <em>explicito</em>, bajo nuestro control, en el asincrónico.</p>
+
+<p><a class="p_ident" id="p_Jf0LmcCbwQ" href="#p_Jf0LmcCbwQ" tabindex="-1" role="presentation"></a>La asincronicidad corta en ambos sentidos. Hace que expresar programas que hagan algo no se ajuste al modelo de control lineal más fácil, pero también puede hacer que expresar programas que siguen una línea recta sea más incómodo. Veremos algunas formas de abordar esta incomodidad más adelante en el capítulo.</p>
+
+<p><a class="p_ident" id="p_nIDfpyrGEo" href="#p_nIDfpyrGEo" tabindex="-1" role="presentation"></a>Ambas de las plataformas de programación JavaScript importantes—navegadores y Node.js—realizan operaciones que pueden tomar un tiempo asincrónicamente, en lugar de confiar en hilos. Dado que la programación con hilos es notoriamente difícil (entender lo que hace un programa es mucho más difícil cuando está haciendo varias cosas a la vez), esto es generalmente considerado una buena cosa.</p>
+
+<h2><a class="h_ident" id="h_zjezfpLT2P" href="#h_zjezfpLT2P" tabindex="-1" role="presentation"></a>Tecnología cuervo</h2>
+
+<p><a class="p_ident" id="p_S/AtwOFfrV" href="#p_S/AtwOFfrV" tabindex="-1" role="presentation"></a>La mayoría de las personas son conscientes del hecho de que los cuervos son pájaros muy inteligentes. Pueden usar herramientas, planear con anticipación, recordar cosas e incluso comunicarse estas cosas entre ellos.</p>
+
+<p><a class="p_ident" id="p_tiea3FmOxy" href="#p_tiea3FmOxy" tabindex="-1" role="presentation"></a>Lo que la mayoría de la gente no sabe, es que son capaces de hacer muchas cosas que mantienen bien escondidas de nosotros. Personas de buena reputación (un tanto excéntricas) expertas en córvidos, me han dicho que la tecnología cuervo no esta muy por detrás de la tecnología humana, y que nos estan alcanzando.</p>
+
+<p><a class="p_ident" id="p_p/SGa+MouN" href="#p_p/SGa+MouN" tabindex="-1" role="presentation"></a>Por ejemplo, muchas culturas cuervo tienen la capacidad de construir dispositivos informáticos. Estos no son electrónicos, como lo son los dispositivos informáticos humanos, pero operan a través de las acciones de pequeños insectos, una especie estrechamente relacionada con las termitas, que ha desarrollado una relación simbiótica con los cuervos. Los pájaros les proporcionan comida, y a cambio los insectos construyen y operan sus complejas colonias que, con la ayuda de las criaturas vivientes dentro de ellos, realizan computaciones.</p>
+
+<p><a class="p_ident" id="p_3AjPxxwJKr" href="#p_3AjPxxwJKr" tabindex="-1" role="presentation"></a>Tales colonias generalmente se encuentran en nidos grandes de larga vida. Las aves e insectos trabajan juntos para construir una red de estructuras bulbosas hechas de arcilla, escondidas entre las ramitas del nido, en el que los insectos viven y trabajan.</p>
+
+<p><a class="p_ident" id="p_NqVHnOw+sH" href="#p_NqVHnOw+sH" tabindex="-1" role="presentation"></a>Para comunicarse con otros dispositivos, estas máquinas usan señales de luz. Los cuervos incrustan piezas de material reflectante en tallos de comunicación especial, y los insectos apuntan estos para reflejar la luz hacia otro nido, codificando los datos como una secuencia de flashes rápidos. Esto significa que solo los nidos que tienen una conexión visual ininterrumpida pueden comunicarse entre ellos.</p>
+
+<p><a class="p_ident" id="p_Tc4wBpyHEO" href="#p_Tc4wBpyHEO" tabindex="-1" role="presentation"></a>Nuestro amigo, el experto en córvidos, ha mapeado la red de nidos de cuervo en el pueblo de Hières-sur-Amby, a orillas del río Ródano. Este mapa muestra los nidos y sus conexiones.</p><figure><img src="img/Hieres-sur-Amby.png" alt="A network of crow nests in a small village"></figure>
+
+<p><a class="p_ident" id="p_3jtqf4BE8T" href="#p_3jtqf4BE8T" tabindex="-1" role="presentation"></a>En un ejemplo asombroso de evolución convergente, las computadoras cuervo ejecutan JavaScript. En este capítulo vamos a escribir algunas funciones de redes básicas para ellos.</p>
+
+<h2><a class="h_ident" id="h_+Gb2pDWVIs" href="#h_+Gb2pDWVIs" tabindex="-1" role="presentation"></a>Devolución de llamadas</h2>
+
+<p><a class="p_ident" id="p_VYTi8CfQtD" href="#p_VYTi8CfQtD" tabindex="-1" role="presentation"></a>Un enfoque para la programación asincrónica es hacer que las funciones que realizan una acción lenta, tomen un argumento adicional, una <em>función de
+devolución de llamada</em>. La acción se inicia y, cuando esta finaliza, la función de devolución es llamada con el resultado.</p>
+
+<p><a class="p_ident" id="p_D6ZI0eQstT" href="#p_D6ZI0eQstT" tabindex="-1" role="presentation"></a>Como ejemplo, la función <code>setTimeout</code>, disponible tanto en Node.js como en navegadores, espera una cantidad determinada de milisegundos (un segundo son mil milisegundos) y luego llama una función.</p>
+
+<pre class="snippet cm-s-default" data-language="javascript" ><a class="c_ident" id="c_RyFm7Uoiuv" href="#c_RyFm7Uoiuv" tabindex="-1" role="presentation"></a><span class="cm-variable">setTimeout</span>(() <span class="cm-operator">=&gt;</span> <span class="cm-variable">console</span>.<span class="cm-property">log</span>(<span class="cm-string">&quot;Tick&quot;</span>), <span class="cm-number">500</span>);</pre>
+
+<p><a class="p_ident" id="p_xYH9WRWLNq" href="#p_xYH9WRWLNq" tabindex="-1" role="presentation"></a>Esperar no es generalmente un tipo de trabajo muy importante, pero puede ser útil cuando se hace algo como actualizar una animación o verificar si algo está tardando más que una cantidad dada de tiempo.</p>
+
+<p><a class="p_ident" id="p_TjgnzjuNs5" href="#p_TjgnzjuNs5" tabindex="-1" role="presentation"></a>La realización de múltiples acciones asíncronas en una fila utilizando devoluciones de llamada significa que debes seguir pasando nuevas funciones para manejar la continuación de la computación después de las acciones.</p>
+
+<p><a class="p_ident" id="p_vSAdNXvsf1" href="#p_vSAdNXvsf1" tabindex="-1" role="presentation"></a>La mayoría de las computadoras en los nidos de los cuervos tienen un bulbo de almacenamiento de datos a largo plazo, donde las piezas de información se graban en ramitas para que estas puedan ser recuperadas más tarde. Grabar o encontrar un fragmento de información requiere un momento, por lo que la interfaz para el almacenamiento a largo plazo es asíncrona y utiliza funciones de devolución de llamada.</p>
+
+<p><a class="p_ident" id="p_8kIFLF702m" href="#p_8kIFLF702m" tabindex="-1" role="presentation"></a>Los bulbos de almacenamiento almacenan piezas de JSON-datos codificables bajo nombres. Un cuervo podría almacenar información sobre los lugares donde hay comida escondida bajo el nombre <code>&quot;caches de alimentos&quot;</code>, que podría contener un array de nombres que apuntan a otros datos, que describen el caché real. Para buscar un caché de alimento en los bulbos de almacenamiento del nido <em>Gran Roble</em>, un cuervo podría ejecutar código como este:</p>
+
+<pre class="snippet cm-s-default" data-language="javascript" ><a class="c_ident" id="c_4BeFgbIjnu" href="#c_4BeFgbIjnu" tabindex="-1" role="presentation"></a><span class="cm-keyword">import</span> {<span class="cm-def">granRoble</span>} <span class="cm-keyword">from</span> <span class="cm-string">&quot;./tecnologia-cuervo&quot;</span>;
+
+<span class="cm-variable">granRoble</span>.<span class="cm-property">leerAlmacenamiento</span>(<span class="cm-string">&quot;caches de alimentos&quot;</span>, <span class="cm-def">caches</span> <span class="cm-operator">=&gt;</span> {
+  <span class="cm-keyword">let</span> <span class="cm-def">primerCache</span> <span class="cm-operator">=</span> <span class="cm-variable-2">caches</span>[<span class="cm-number">0</span>];
+  <span class="cm-variable">granRoble</span>.<span class="cm-property">leerAlmacenamiento</span>(<span class="cm-variable-2">primerCache</span>, <span class="cm-def">informacion</span> <span class="cm-operator">=&gt;</span> {
+    <span class="cm-variable">console</span>.<span class="cm-property">log</span>(<span class="cm-variable-2">informacion</span>);
+  });
+});</pre>
+
+<p><a class="p_ident" id="p_eYvQDQsgFh" href="#p_eYvQDQsgFh" tabindex="-1" role="presentation"></a>(Todos los nombres de las vinculaciones y los strings se han traducido del lenguaje cuervo a Español.)</p>
+
+<p><a class="p_ident" id="p_Le4A4Fi7Ml" href="#p_Le4A4Fi7Ml" tabindex="-1" role="presentation"></a>Este estilo de programación es viable, pero el nivel de indentación aumenta con cada acción asincrónica, ya que terminas en otra función. Hacer cosas más complicadas, como ejecutar múltiples acciones al mismo tiempo, puede ser un poco incómodo.</p>
+
+<p><a class="p_ident" id="p_umiUfAGOkU" href="#p_umiUfAGOkU" tabindex="-1" role="presentation"></a>Las computadoras cuervo están construidas para comunicarse usando pares de solicitud-respuesta. Eso significa que un nido envía un mensaje a otro nido, el cual inmediatamente envía un mensaje de vuelta, confirmando el recibo y, posiblemente, incluyendo una respuesta a una pregunta formulada en el mensaje.</p>
+
+<p><a class="p_ident" id="p_ceow8lPfR5" href="#p_ceow8lPfR5" tabindex="-1" role="presentation"></a>Cada mensaje está etiquetado con un <em>tipo</em>, que determina cómo este es manejado. Nuestro código puede definir manejadores para tipos de solicitud específicos, y cuando se recibe una solicitud de este tipo, se llama al controlador para que este produzca una respuesta.</p>
+
+<p><a class="p_ident" id="p_XxBr2sveZX" href="#p_XxBr2sveZX" tabindex="-1" role="presentation"></a>La interfaz exportada por el módulo <code>&quot;./<wbr>tecnologia-cuervo&quot;</code> proporciona funciones de devolución de llamada para la comunicación. Los nidos tienen un método <code>enviar</code> que envía una solicitud. Este espera el nombre del nido objetivo, el tipo de solicitud y el contenido de la solicitud como sus primeros tres argumentos, y una función a llamar cuando llega una respuesta como su cuarto y último argumento.</p>
+
+<pre class="snippet cm-s-default" data-language="javascript" ><a class="c_ident" id="c_GuX4j1keQi" href="#c_GuX4j1keQi" tabindex="-1" role="presentation"></a><span class="cm-variable">granRoble</span>.<span class="cm-property">send</span>(<span class="cm-string">&quot;Pastura de Vacas&quot;</span>, <span class="cm-string">&quot;nota&quot;</span>, <span class="cm-string">&quot;Vamos a graznar fuerte a las 7PM&quot;</span>,
+            () <span class="cm-operator">=&gt;</span> <span class="cm-variable">console</span>.<span class="cm-property">log</span>(<span class="cm-string">&quot;Nota entregada.&quot;</span>));</pre>
+
+<p><a class="p_ident" id="p_TlckmskdPs" href="#p_TlckmskdPs" tabindex="-1" role="presentation"></a>Pero para hacer nidos capaces de recibir esa solicitud, primero tenemos que definir un tipo de solicitud llamado <code>&quot;nota&quot;</code>. El código que maneja las solicitudes debe ejecutarse no solo en este nido-computadora, sino en todos los nidos que puedan recibir mensajes de este tipo. Asumiremos que un cuervo sobrevuela e instala nuestro código controlador en todos los nidos.</p>
+
+<pre class="snippet cm-s-default" data-language="javascript" ><a class="c_ident" id="c_STQQCN/1m3" href="#c_STQQCN/1m3" tabindex="-1" role="presentation"></a><span class="cm-keyword">import</span> {<span class="cm-def">definirTipoSolicitud</span>} <span class="cm-keyword">from</span> <span class="cm-string">&quot;./tecnologia-cuervo&quot;</span>;
+
+<span class="cm-variable">definirTipoSolicitud</span>(<span class="cm-string">&quot;nota&quot;</span>, (<span class="cm-def">nido</span>, <span class="cm-def">contenido</span>, <span class="cm-def">fuente</span>, <span class="cm-def">listo</span>) <span class="cm-operator">=&gt;</span> {
+  <span class="cm-variable">console</span>.<span class="cm-property">log</span>(<span class="cm-string-2">`${</span><span class="cm-variable-2">nido</span>.<span class="cm-property">nombre</span><span class="cm-string-2">}</span> <span class="cm-string-2">recibio nota: ${</span><span class="cm-variable-2">contenido</span><span class="cm-string-2">}</span><span class="cm-string-2">`</span>);
+  <span class="cm-variable-2">listo</span>();
+});</pre>
+
+<p><a class="p_ident" id="p_3UYmlm17pc" href="#p_3UYmlm17pc" tabindex="-1" role="presentation"></a>La función <code>definirTipoSolicitud</code> define un nuevo tipo de solicitud. El ejemplo agrega soporte para solicitudes de tipo <code>&quot;nota&quot;</code>, que simplemente envían una nota a un nido dado. Nuestra implementación llama a <code>console.log</code> para que podamos verificar que la solicitud llegó. Los nidos tienen una propiedad <code>nombre</code> que contiene su nombre.</p>
+
+<p><a class="p_ident" id="p_9h6ijNEDTP" href="#p_9h6ijNEDTP" tabindex="-1" role="presentation"></a>El cuarto argumento dado al controlador, <code>listo</code>, es una función de devolución de llamada que debe ser llamada cuando se finaliza con la solicitud. Si hubiesemos utilizado el valor de retorno del controlador como el valor de respuesta, eso significaria que un controlador de solicitud no puede realizar acciones  asincrónicas por sí mismo. Una función que realiza trabajos asíncronos normalmente retorna antes de que el trabajo este hecho, habiendo arreglado que se llame una devolución de llamada cuando este completada. Entonces, necesitamos algún mecanismo asíncrono, en este caso, otra función de devolución de
+llamada—para indicar cuándo hay una respuesta disponible.</p>
+
+<p><a class="p_ident" id="p_8NhaUfuE5t" href="#p_8NhaUfuE5t" tabindex="-1" role="presentation"></a>En cierto modo, la asincronía es <em>contagiosa</em>. Cualquier función que llame a una función que funcione asincrónicamente debe ser asíncrona en si misma, utilizando una devolución de llamada o algun mecanismo similar para entregar su resultado. Llamar devoluciones de llamada es algo más involucrado y propenso a errores que simplemente retornar un valor, por lo que necesitar estructurar grandes partes de tu programa de esa manera no es algo muy bueno.</p>
+
+<h2><a class="h_ident" id="h_O5NEmIaSuD" href="#h_O5NEmIaSuD" tabindex="-1" role="presentation"></a>Promesas</h2>
+
+<p><a class="p_ident" id="p_NlzndFiWAy" href="#p_NlzndFiWAy" tabindex="-1" role="presentation"></a>Trabajar con conceptos abstractos es a menudo más fácil cuando esos conceptos pueden ser representados por valores. En el caso de acciones asíncronas, podrías, en lugar de organizar a una función para que esta sea llamada en algún momento en el futuro, retornar un objeto que represente este evento en el futuro.</p>
+
+<p><a class="p_ident" id="p_P/GXzApt2r" href="#p_P/GXzApt2r" tabindex="-1" role="presentation"></a>Esto es para lo que es la clase estándar <code>Promise</code> (“Promesa”). Una <em>promesa</em> es una acción asíncrona que puede completarse en algún punto y producir un valor. Esta puede notificar a cualquier persona que esté interesada cuando su valor este disponible.</p>
+
+<p><a class="p_ident" id="p_KHH0msUTlC" href="#p_KHH0msUTlC" tabindex="-1" role="presentation"></a>La forma más fácil de crear una promesa es llamando a <code>Promise.resolve</code> (“Promesa.resolver”). Esta función se asegura de que el valor que le des, sea envuelto en una promesa. Si ya es una promesa, simplemente es retornada—de lo contrario, obtienes una nueva promesa que termina de inmediato con tu valor como su resultado.</p>
+
+<pre class="snippet cm-s-default" data-language="javascript" ><a class="c_ident" id="c_OuoHLEOEnk" href="#c_OuoHLEOEnk" tabindex="-1" role="presentation"></a><span class="cm-keyword">let</span> <span class="cm-def">quince</span> <span class="cm-operator">=</span> <span class="cm-variable">Promise</span>.<span class="cm-property">resolve</span>(<span class="cm-number">15</span>);
+<span class="cm-variable">quince</span>.<span class="cm-property">then</span>(<span class="cm-def">valor</span> <span class="cm-operator">=&gt;</span> <span class="cm-variable">console</span>.<span class="cm-property">log</span>(<span class="cm-string-2">`Obtuve ${</span><span class="cm-variable-2">valor</span><span class="cm-string-2">}</span><span class="cm-string-2">`</span>));
+<span class="cm-comment">// → Obtuve 15</span></pre>
+
+<p><a class="p_ident" id="p_ZBtBuMDJ6+" href="#p_ZBtBuMDJ6+" tabindex="-1" role="presentation"></a>Para obtener el resultado de una promesa, puede usar su método <code>then</code> (“entonces”). Este registra una (función de devolución de llamada) para que sea llamada cuando la promesa resuelva y produzca un valor. Puedes agregar múltiples devoluciones de llamada a una única promesa, y serán llamadas, incluso si las agregas después de que la promesa ya haya sido <em>resuelta</em> (terminada).</p>
+
+<p><a class="p_ident" id="p_rywRdtUA9f" href="#p_rywRdtUA9f" tabindex="-1" role="presentation"></a>Pero eso no es todo lo que hace el método <code>then</code>. Este retorna otra promesa, que resuelve al valor que retorna la función del controlador o, si esa retorna una promesa, espera por esa promesa y luego resuelve su resultado.</p>
+
+<p><a class="p_ident" id="p_uMNYLUvChU" href="#p_uMNYLUvChU" tabindex="-1" role="presentation"></a>Es útil pensar acerca de las promesas como dispositivos para mover valores a una realidad asincrónica. Un valor normal simplemente esta allí. Un valor prometido es un valor que <em>podría</em> ya estar allí o podría aparecer en algún momento en el futuro. Las computaciones definidas en términos de promesas actúan en tales valores envueltos y se ejecutan de forma asíncrona a medida los valores se vuelven disponibles.</p>
+
+<p><a class="p_ident" id="p_JM0OcDfn4H" href="#p_JM0OcDfn4H" tabindex="-1" role="presentation"></a>Para crear una promesa, puedes usar <code>Promise</code> como un constructor. Tiene una interfaz algo extraña—el constructor espera una función como argumento, a la cual llama inmediatamente, pasando una función que puede usar para resolver la promesa. Funciona de esta manera, en lugar de, por ejemplo, con un método <code>resolve</code>, de modo que solo el código que creó la promesa pueda resolverla.</p>
+
+<p><a class="p_ident" id="p_C4xSB0FUME" href="#p_C4xSB0FUME" tabindex="-1" role="presentation"></a>Así es como crearía una interfaz basada en promesas para la función <code>leerAlmacenamiento</code>.</p>
+
+<pre class="snippet cm-s-default" data-language="javascript" ><a class="c_ident" id="c_k8+Y5vEiPH" href="#c_k8+Y5vEiPH" tabindex="-1" role="presentation"></a><span class="cm-keyword">function</span> <span class="cm-def">almacenamiento</span>(<span class="cm-def">nido</span>, <span class="cm-def">nombre</span>) {
+  <span class="cm-keyword">return</span> <span class="cm-keyword">new</span> <span class="cm-variable">Promise</span>(<span class="cm-def">resolve</span> <span class="cm-operator">=&gt;</span> {
+    <span class="cm-variable-2">nido</span>.<span class="cm-property">leerAlmacenamiento</span>(<span class="cm-variable-2">nombre</span>, <span class="cm-def">resultado</span> <span class="cm-operator">=&gt;</span> <span class="cm-variable-2">resolve</span>(<span class="cm-variable-2">resultado</span>));
+  });
+}
+
+<span class="cm-variable">almacenamiento</span>(<span class="cm-variable">granRoble</span>, <span class="cm-string">&quot;enemigos&quot;</span>)
+  .<span class="cm-property">then</span>(<span class="cm-def">valor</span> <span class="cm-operator">=&gt;</span> <span class="cm-variable">console</span>.<span class="cm-property">log</span>(<span class="cm-string">&quot;Obtuve&quot;</span>, <span class="cm-variable-2">valor</span>));</pre>
+
+<p><a class="p_ident" id="p_+8DA0vInq+" href="#p_+8DA0vInq+" tabindex="-1" role="presentation"></a>Esta función asíncrona retorna un valor significativo. Esta es la principal ventaja de las promesas—simplifican el uso de funciones asincrónicas. En lugar de tener que pasar devoluciones de llamadas, las funciones basadas en promesas son similares a las normales: toman entradas como argumentos y retornan su resultado. La única diferencia es que la salida puede que no este disponible inmediatamente.</p>
+
+<h2><a class="h_ident" id="h_ZndtKItVnk" href="#h_ZndtKItVnk" tabindex="-1" role="presentation"></a>Fracaso</h2>
+
+<p><a class="p_ident" id="p_+fxovQGwNA" href="#p_+fxovQGwNA" tabindex="-1" role="presentation"></a>Las computaciones regulares en JavaScript pueden fallar lanzando una excepción. Las computaciones asincrónicas a menudo necesitan algo así. Una solicitud de red puede fallar, o algún código que sea parte de la computación asincrónica puede arrojar una excepción.</p>
+
+<p><a class="p_ident" id="p_cSW2JL5bD/" href="#p_cSW2JL5bD/" tabindex="-1" role="presentation"></a>Uno de los problemas más urgentes con el estilo de devolución de llamadas en la programación asíncrona es que hace que sea extremadamente difícil asegurarte de que las fallas sean reportadas correctamente a las devoluciones de llamada.</p>
+
+<p><a class="p_ident" id="p_Ciz9U77oDw" href="#p_Ciz9U77oDw" tabindex="-1" role="presentation"></a>Una convención ampliamente utilizada es que el primer argumento para la devolución de llamada es usado para indicar que la acción falló, y el segundo contiene el valor producido por la acción cuando tuvo éxito. Tales funciones de devolución de llamadas siempre deben verificar si recibieron una excepción, y asegurarse de que cualquier problema que causen, incluidas las excepciones lanzadas por las funciones que estas llaman, sean atrapadas y entregadas a la función correcta.</p>
+
+<p><a class="p_ident" id="p_xsyT/+TouB" href="#p_xsyT/+TouB" tabindex="-1" role="presentation"></a>Las promesas hacen esto más fácil. Estas pueden ser resueltas (la acción termino con éxito) o rechazadas (esta falló). Los controladores de resolución (registrados con <code>then</code>) solo se llaman cuando la acción es exitosa, y los rechazos se propagan automáticamente a la nueva promesa que es retornada por <code>then</code>. Y cuando un controlador arroje una excepción, esto automáticamente hace que la promesa producida por su llamada <code>then</code> sea rechazada. Entonces, si cualquier elemento en una cadena de acciones asíncronas falla, el resultado de toda la cadena se marca como rechazado, y no se llaman más manejadores despues del punto en donde falló.</p>
+
+<p><a class="p_ident" id="p_8ax2to/93i" href="#p_8ax2to/93i" tabindex="-1" role="presentation"></a>Al igual que resolver una promesa proporciona un valor, rechazar una también proporciona uno, generalmente llamado la <em>razón</em> el rechazo. Cuando una excepción en una función de controlador provoca el rechazo, el valor de la excepción se usa como la razón. Del mismo modo, cuando un controlador retorna una promesa que es rechazada, ese rechazo fluye hacia la próxima promesa. Hay una función <code>Promise.reject</code> que crea una nueva promesa inmediatamente rechazada.</p>
+
+<p><a class="p_ident" id="p_0uP8DFjZuw" href="#p_0uP8DFjZuw" tabindex="-1" role="presentation"></a>Para manejar explícitamente tales rechazos, las promesas tienen un método <code>catch</code> (“atraoar”) que registra un controlador para que sea llamado cuando se rechaze la promesa, similar a cómo los manejadores <code>then</code> manejan la resolución normal. También es muy parecido a <code>then</code> en que retorna una nueva promesa, que se resuelve en el valor de la promesa original si esta se resuelve normalmente, y al resultado del controlador <code>catch</code> de lo contrario. Si un controlador <code>catch</code> lanza un error, la nueva promesa también es rechazada.</p>
+
+<p><a class="p_ident" id="p_bwJyIl5n+/" href="#p_bwJyIl5n+/" tabindex="-1" role="presentation"></a>Como una abreviatura, <code>then</code> también acepta un manejador de rechazo como segundo argumento, por lo que puedes instalar ambos tipos de controladores en un solo método de llamada.</p>
+
+<p><a class="p_ident" id="p_CojyWwdzMy" href="#p_CojyWwdzMy" tabindex="-1" role="presentation"></a>Una función que se pasa al constructor <code>Promise</code> recibe un segundo argumento, junto con la función de resolución, que puede usar para rechazar la nueva promesa.</p>
+
+<p><a class="p_ident" id="p_i0uRpxct7Y" href="#p_i0uRpxct7Y" tabindex="-1" role="presentation"></a>Las cadenas de promesas creadas por llamadas a <code>then</code> y <code>catch</code> puede verse como una tubería a través de la cual los valores asíncronicos o las fallas se mueven. Dado que tales cadenas se crean mediante el registro de controladores, cada enlace tiene un controlador de éxito o un controlador de rechazo (o ambos) asociados a ello. Controladores que no coinciden con ese tipo de resultados (éxito o fracaso) son ignorados. Pero los que sí coinciden son llamados, y su resultado determina qué tipo de valor viene después—éxito cuando retorna un valor que no es una promesa, rechazo cuando arroja una excepción, y el resultado de una promesa cuando retorna una de esas.</p>
+
+<p><a class="p_ident" id="p_OFYlCNSei+" href="#p_OFYlCNSei+" tabindex="-1" role="presentation"></a>Al igual que una excepción no detectada es manejada por el entorno, Los entornos de JavaScript pueden detectar cuándo una promesa rechazada no es manejada, y reportará esto como un error.</p>
+
+<h2><a class="h_ident" id="h_+7I0GHrRj4" href="#h_+7I0GHrRj4" tabindex="-1" role="presentation"></a>Las redes son difíciles</h2>
+
+<p><a class="p_ident" id="p_3mxr3V5kcv" href="#p_3mxr3V5kcv" tabindex="-1" role="presentation"></a>Ocasionalmente, no hay suficiente luz para los sistemas de espejos de los cuervos para transmitir una señal, o algo bloquea el camino de la señal. Es posible que se envíe una señal, pero que nunca se reciba.</p>
+
+<p><a class="p_ident" id="p_OauAdiWsEt" href="#p_OauAdiWsEt" tabindex="-1" role="presentation"></a>Tal y como es, eso solo causará que la devolución de llamada dada a <code>send</code> nunca sea llamada, lo que probablemente hará que el programa se detenga sin siquiera notar que hay un problema. Sería bueno si, después de un determinado período de no obtener una respuesta, una solicitud <em>expirará</em> e informara de un fracaso.</p>
+
+<p><a class="p_ident" id="p_aVIuYnHC+y" href="#p_aVIuYnHC+y" tabindex="-1" role="presentation"></a>A menudo, las fallas de transmisión son accidentes aleatorios, como la luz del faro de un auto interfieriendo con las señales de luz, y simplemente volver a intentar la solicitud puede hacer que esta tenga éxito. Entonces, mientras estamos en eso, hagamos que nuestra función de solicitud automáticamente reintente el envío de la solicitud momentos antes de que se de por vencida.</p>
+
+<p><a class="p_ident" id="p_nE5IoMf8hg" href="#p_nE5IoMf8hg" tabindex="-1" role="presentation"></a>Y, como hemos establecido que las promesas son algo bueno, tambien haremos que nuestra función de solicitud retorne una promesa. En términos de lo que pueden expresar, las devoluciones de llamada y las promesas son equivalentes. Las funciones basadas en devoluciones de llamadas se pueden envolver para exponer una interfaz basada en promesas, y viceversa.</p>
+
+<p><a class="p_ident" id="p_IhJiBanGLb" href="#p_IhJiBanGLb" tabindex="-1" role="presentation"></a>Incluso cuando una solicitud y su respuesta sean entregadas exitosamente, la respuesta puede indicar un error—por ejemplo, si la solicitud intenta utilizar un tipo de solicitud que no haya sido definida o si el controlador genera un error. Para soportar esto, <code>send</code> y <code>definirTipoSolicitud</code> siguen la convención mencionada anteriormente, donde el primer argumento pasado a las devoluciones de llamada es el motivo del fallo, si lo hay, y el segundo es el resultado real.</p>
+
+<p><a class="p_ident" id="p_sCog0AJtTL" href="#p_sCog0AJtTL" tabindex="-1" role="presentation"></a>Estos pueden ser traducidos para prometer resolución y rechazo por parte de nuestra envoltura.</p>
+
+<pre class="snippet cm-s-default" data-language="javascript" ><a class="c_ident" id="c_TaPjmi/hwg" href="#c_TaPjmi/hwg" tabindex="-1" role="presentation"></a><span class="cm-keyword">class</span> <span class="cm-def">TiempoDeEspera</span> <span class="cm-keyword">extends</span> <span class="cm-variable">Error</span> {}
+
+<span class="cm-keyword">function</span> <span class="cm-def">request</span>(<span class="cm-def">nido</span>, <span class="cm-def">objetivo</span>, <span class="cm-def">tipo</span>, <span class="cm-def">contenido</span>) {
+  <span class="cm-keyword">return</span> <span class="cm-keyword">new</span> <span class="cm-variable">Promise</span>((<span class="cm-def">resolve</span>, <span class="cm-def">reject</span>) <span class="cm-operator">=&gt;</span> {
+    <span class="cm-keyword">let</span> <span class="cm-def">listo</span> <span class="cm-operator">=</span> <span class="cm-atom">false</span>;
+    <span class="cm-keyword">function</span> <span class="cm-def">intentar</span>(<span class="cm-def">n</span>) {
+      <span class="cm-variable-2">nido</span>.<span class="cm-property">send</span>(<span class="cm-variable-2">objetivo</span>, <span class="cm-variable-2">tipo</span>, <span class="cm-variable-2">contenido</span>, (<span class="cm-def">fallo</span>, <span class="cm-def">value</span>) <span class="cm-operator">=&gt;</span> {
+        <span class="cm-variable-2">listo</span> <span class="cm-operator">=</span> <span class="cm-atom">true</span>;
+        <span class="cm-keyword">if</span> (<span class="cm-variable-2">fallo</span>) <span class="cm-variable-2">reject</span>(<span class="cm-variable-2">fallo</span>);
+        <span class="cm-keyword">else</span> <span class="cm-variable-2">resolve</span>(<span class="cm-variable-2">value</span>);
+      });
+      <span class="cm-variable">setTimeout</span>(() <span class="cm-operator">=&gt;</span> {
+        <span class="cm-keyword">if</span> (<span class="cm-variable-2">listo</span>) <span class="cm-keyword">return</span>;
+        <span class="cm-keyword">else</span> <span class="cm-keyword">if</span> (<span class="cm-variable-2">n</span> <span class="cm-operator">&lt;</span> <span class="cm-number">3</span>) <span class="cm-variable-2">intentar</span>(<span class="cm-variable-2">n</span> <span class="cm-operator">+</span> <span class="cm-number">1</span>);
+        <span class="cm-keyword">else</span> <span class="cm-variable-2">reject</span>(<span class="cm-keyword">new</span> <span class="cm-variable">TiempoDeEspera</span>(<span class="cm-string">&quot;Tiempo de espera agotado&quot;</span>));
+      }, <span class="cm-number">250</span>);
+    }
+    <span class="cm-variable-2">intentar</span>(<span class="cm-number">1</span>);
+  });
+}</pre>
+
+<p><a class="p_ident" id="p_tD198VTzjs" href="#p_tD198VTzjs" tabindex="-1" role="presentation"></a>Debido a que las promesas solo se pueden resolver (o rechazar) una vez, esto funcionara. La primera vez que se llame a <code>resolve</code> o <code>reject</code> se determinara el resultado de la promesa y cualquier llamada subsecuente, como el tiempo de espera que llega después de que finaliza la solicitud, o una solicitud que regresa después de que otra solicitud es finalizada, es ignorada.</p>
+
+<p><a class="p_ident" id="p_/a4jim37nh" href="#p_/a4jim37nh" tabindex="-1" role="presentation"></a>Para construir un ciclo asincrónico, para los reintentos, necesitamos usar un función recursiva—un ciclo regular no nos permite detenernos y esperar por una acción asincrónica. La función <code>intentar</code> hace un solo intento de enviar una solicitud. También establece un tiempo de espera que, si no ha regresado una respuesta después de 250 milisegundos, comienza el próximo intento o, si este es el cuarto intento, rechaza la promesa con una instancia de <code>TiempoDeEspera</code> como la razón.</p>
+
+<p><a class="p_ident" id="p_yPMj7iIMd2" href="#p_yPMj7iIMd2" tabindex="-1" role="presentation"></a>Volver a intentar cada cuarto de segundo y rendirse cuando no ha llegado ninguna respuesta después de un segundo es algo definitivamente arbitrario. Es incluso posible, si la solicitud llegó pero el controlador se esta tardando un poco más, que las solicitudes se entreguen varias veces. Escribiremos nuestros manejadores con ese problema en mente—los mensajes duplicados deberían de ser inofensivos.</p>
+
+<p><a class="p_ident" id="p_M47qIUUYnX" href="#p_M47qIUUYnX" tabindex="-1" role="presentation"></a>En general, no construiremos una red robusta de clase mundial hoy. Pero eso esta bien—los cuervos no tienen expectativas muy altas todavía cuando se trata de la computación.</p>
+
+<p><a class="p_ident" id="p_nyC0cgfiuV" href="#p_nyC0cgfiuV" tabindex="-1" role="presentation"></a>Para aislarnos por completo de las devoluciones de llamadas, seguiremos adelante y también definiremos un contenedor para <code>definirTipoSolicitud</code> que permite que la función controlador pueda retornar una promesa o valor normal, y envia eso hasta la devolución de llamada para nosotros.</p>
+
+<pre class="snippet cm-s-default" data-language="javascript" ><a class="c_ident" id="c_78KOMeaiW5" href="#c_78KOMeaiW5" tabindex="-1" role="presentation"></a><span class="cm-keyword">function</span> <span class="cm-def">tipoSolicitud</span>(<span class="cm-def">nombre</span>, <span class="cm-def">manejador</span>) {
+  <span class="cm-variable">definirTipoSolicitud</span>(<span class="cm-variable-2">nombre</span>, (<span class="cm-variable">nido</span>, <span class="cm-variable">contenido</span>, <span class="cm-variable">fuente</span>,
+                           <span class="cm-variable">devolucionDeLlamada</span>) <span class="cm-operator">=&gt;</span> {
+    <span class="cm-keyword">try</span> {
+      <span class="cm-variable">Promise</span>.<span class="cm-property">resolve</span>(<span class="cm-variable-2">manejador</span>(<span class="cm-variable">nido</span>, <span class="cm-variable">contenido</span>, <span class="cm-variable">fuente</span>))
+        .<span class="cm-property">then</span>(<span class="cm-def">response</span> <span class="cm-operator">=&gt;</span> <span class="cm-variable">devolucionDeLlamada</span>(<span class="cm-atom">null</span>, <span class="cm-variable-2">response</span>),
+              <span class="cm-def">failure</span> <span class="cm-operator">=&gt;</span> <span class="cm-variable">devolucionDeLlamada</span>(<span class="cm-variable-2">failure</span>));
+    } <span class="cm-keyword">catch</span> (<span class="cm-def">exception</span>) {
+      <span class="cm-variable">devolucionDeLlamada</span>(<span class="cm-variable-2">exception</span>);
+    }
+  });
+}</pre>
+
+<p><a class="p_ident" id="p_JwK1vK4X7Q" href="#p_JwK1vK4X7Q" tabindex="-1" role="presentation"></a><code>Promise.resolve</code> se usa para convertir el valor retornado por <code>manejador</code> a una promesa si no es una ya.</p>
+
+<p><a class="p_ident" id="p_hno3pNEQQT" href="#p_hno3pNEQQT" tabindex="-1" role="presentation"></a>Ten en cuenta que la llamada a <code>manejador</code> tenía que estar envuelta en un bloque <code>try</code>, para asegurarse de que cualquier excepción que aparezca<br>directamente se le dé a la devolución de llamada. Esto ilustra muy bien la dificultad de manejar adecuadamente los errores con devoluciones de llamada crudas—es muy fácil olvidarse de encaminar correctamente excepciones como esa, y si no lo haces, las fallas no se seran informadas a la devolución de llamada correcta. Las promesas hacen esto casi automático, y por lo tanto, son menos propensas a errores.</p>
+
+<h2><a class="h_ident" id="h_djIx0z8htC" href="#h_djIx0z8htC" tabindex="-1" role="presentation"></a>Colecciones de promesas</h2>
+
+<p><a class="p_ident" id="p_jMGWzKD660" href="#p_jMGWzKD660" tabindex="-1" role="presentation"></a>Cada computadora nido mantiene un array de otros nidos dentro de la distancia de transmisión en su propiedad <code>vecinos</code>. Para verificar cuáles de esos son actualmente accesibles, puede escribir una función que intente enviar un solicitud <code>&quot;ping&quot;</code> (una solicitud que simplemente pregunta por una respuesta) para cada de ellos, y ver cuáles regresan.</p>
+
+<p><a class="p_ident" id="p_h37FKIBzm9" href="#p_h37FKIBzm9" tabindex="-1" role="presentation"></a>Al trabajar con colecciones de promesas que se ejecutan al mismo tiempo, la función <code>Promise.all</code> puede ser útil. Esta retorna una promesa que espera a que se resuelvan todas las promesas del array, y luego resuelve un array de los valores que estas promesas produjeron (en el mismo orden que en el array original). Si alguna promesa es rechazada, el el resultado de <code>Promise.all</code> es en sí mismo rechazado.</p>
+
+<pre class="snippet cm-s-default" data-language="javascript" ><a class="c_ident" id="c_iZtYjaHgyN" href="#c_iZtYjaHgyN" tabindex="-1" role="presentation"></a><span class="cm-variable">tipoSolicitud</span>(<span class="cm-string">&quot;ping&quot;</span>, () <span class="cm-operator">=&gt;</span> <span class="cm-string">&quot;pong&quot;</span>);
+
+<span class="cm-keyword">function</span> <span class="cm-def">vecinosDisponibles</span>(<span class="cm-def">nido</span>) {
+  <span class="cm-keyword">let</span> <span class="cm-def">solicitudes</span> <span class="cm-operator">=</span> <span class="cm-variable-2">nido</span>.<span class="cm-property">vecinos</span>.<span class="cm-property">map</span>(<span class="cm-def">vecino</span> <span class="cm-operator">=&gt;</span> {
+    <span class="cm-keyword">return</span> <span class="cm-variable">request</span>(<span class="cm-variable-2">nido</span>, <span class="cm-variable-2">vecino</span>, <span class="cm-string">&quot;ping&quot;</span>)
+      .<span class="cm-property">then</span>(() <span class="cm-operator">=&gt;</span> <span class="cm-atom">true</span>, () <span class="cm-operator">=&gt;</span> <span class="cm-atom">false</span>);
+  });
+  <span class="cm-keyword">return</span> <span class="cm-variable">Promise</span>.<span class="cm-property">all</span>(<span class="cm-variable-2">solicitudes</span>).<span class="cm-property">then</span>(<span class="cm-def">resultado</span> <span class="cm-operator">=&gt;</span> {
+    <span class="cm-keyword">return</span> <span class="cm-variable-2">nido</span>.<span class="cm-property">vecinos</span>.<span class="cm-property">filter</span>((<span class="cm-def">_</span>, <span class="cm-def">i</span>) <span class="cm-operator">=&gt;</span> <span class="cm-variable-2">resultado</span>[<span class="cm-variable-2">i</span>]);
+  });
+}</pre>
+
+<p><a class="p_ident" id="p_pFI2KuTeWI" href="#p_pFI2KuTeWI" tabindex="-1" role="presentation"></a>Cuando un vecino no este disponible, no queremos que todo la promesa combinada falle, dado que entonces no sabríamos nada. Entonces la función que es mappeada en el conjunto de vecinos para convertirlos en promesas de solicitud vincula a los controladores que hacen las solicitudes exitosas produzcan <code>true</code> y las rechazadas produzcan <code>false</code>.</p>
+
+<p><a class="p_ident" id="p_Xbe8yMeEgy" href="#p_Xbe8yMeEgy" tabindex="-1" role="presentation"></a>En el controlador de la promesa combinada, <code>filter</code> se usa para eliminar esos elementos de la matriz <code>vecinos</code> cuyo valor correspondiente es falso. Esto hace uso del hecho de que <code>filter</code> pasa el índice de matriz del elemento actual como segundo argumento para su función de filtrado (<code>map</code>,<code>some</code>, y métodos similares de orden superior de arrays hacen lo mismo).</p>
+
+<h2><a class="h_ident" id="h_qp6nqhZJVV" href="#h_qp6nqhZJVV" tabindex="-1" role="presentation"></a>Inundación de red</h2>
+
+<p><a class="p_ident" id="p_mc77vr2ZNc" href="#p_mc77vr2ZNc" tabindex="-1" role="presentation"></a>El hecho de que los nidos solo pueden hablar con sus vecinos inhibe en gran cantidad la utilidad de esta red.</p>
+
+<p><a class="p_ident" id="p_Mk6hBd5uvA" href="#p_Mk6hBd5uvA" tabindex="-1" role="presentation"></a>Para transmitir información a toda la red, una solución es configurar un tipo de solicitud que sea reenviada automáticamente a los vecinos. Estos vecinos luego la envían a sus vecinos, hasta que toda la red ha recibido el mensaje.</p>
+
+<pre class="snippet cm-s-default" data-language="javascript" ><a class="c_ident" id="c_uzQfv+wkfU" href="#c_uzQfv+wkfU" tabindex="-1" role="presentation"></a><span class="cm-keyword">import</span> {<span class="cm-def">todosLados</span>} <span class="cm-keyword">from</span> <span class="cm-string">&quot;./tecnologia-cuervo&quot;</span>;
+
+<span class="cm-variable">todosLados</span>(<span class="cm-def">nido</span> <span class="cm-operator">=&gt;</span> {
+  <span class="cm-variable-2">nido</span>.<span class="cm-property">estado</span>.<span class="cm-property">chismorreo</span> <span class="cm-operator">=</span> [];
+});
+
+<span class="cm-keyword">function</span> <span class="cm-def">enviarChismorreo</span>(<span class="cm-def">nido</span>, <span class="cm-def">mensaje</span>, <span class="cm-def">exceptoPor</span> <span class="cm-operator">=</span> <span class="cm-atom">null</span>) {
+  <span class="cm-variable-2">nido</span>.<span class="cm-property">estado</span>.<span class="cm-property">chismorreo</span>.<span class="cm-property">push</span>(<span class="cm-variable-2">mensaje</span>);
+  <span class="cm-keyword">for</span> (<span class="cm-keyword">let</span> <span class="cm-def">vecino</span> <span class="cm-keyword">of</span> <span class="cm-variable-2">nido</span>.<span class="cm-property">vecinos</span>) {
+    <span class="cm-keyword">if</span> (<span class="cm-variable-2">vecino</span> <span class="cm-operator">==</span> <span class="cm-variable-2">exceptoPor</span>) <span class="cm-keyword">continue</span>;
+    <span class="cm-variable">request</span>(<span class="cm-variable-2">nido</span>, <span class="cm-variable-2">vecino</span>, <span class="cm-string">&quot;chismorreo&quot;</span>, <span class="cm-variable-2">mensaje</span>);
+  }
+}
+
+<span class="cm-variable">requestType</span>(<span class="cm-string">&quot;chismorreo&quot;</span>, (<span class="cm-def">nido</span>, <span class="cm-def">mensaje</span>, <span class="cm-def">fuente</span>) <span class="cm-operator">=&gt;</span> {
+  <span class="cm-keyword">if</span> (<span class="cm-variable-2">nido</span>.<span class="cm-property">estado</span>.<span class="cm-property">chismorreo</span>.<span class="cm-property">includes</span>(<span class="cm-variable-2">mensaje</span>)) <span class="cm-keyword">return</span>;
+  <span class="cm-variable">console</span>.<span class="cm-property">log</span>(<span class="cm-string-2">`${</span><span class="cm-variable-2">nido</span>.<span class="cm-property">nombre</span><span class="cm-string-2">}</span> <span class="cm-string-2">recibio chismorreo '${</span>
+               <span class="cm-variable-2">mensaje</span><span class="cm-string-2">}</span><span class="cm-string-2">' de ${</span><span class="cm-variable-2">fuente</span><span class="cm-string-2">}</span><span class="cm-string-2">`</span>);
+  <span class="cm-variable">enviarChismorreo</span>(<span class="cm-variable-2">nido</span>, <span class="cm-variable-2">mensaje</span>, <span class="cm-variable-2">fuente</span>);
+});</pre>
+
+<p><a class="p_ident" id="p_wXkjU7BZyx" href="#p_wXkjU7BZyx" tabindex="-1" role="presentation"></a>Para evitar enviar el mismo mensaje a traves de la red por siempre, cada nido mantiene un array de strings de chismorreos que ya ha visto. Para definir este array, usaremos la función <code>todosLados</code>—que ejecuta código en todos los nidos—para añadir una propiedad al objeto <code>estado</code> del nido, que es donde mantendremos estado local del nido.</p>
+
+<p><a class="p_ident" id="p_HXI1LDHLLk" href="#p_HXI1LDHLLk" tabindex="-1" role="presentation"></a>Cuando un nido recibe un mensaje de chisme duplicado, lo cual es muy probable que suceda con todo el mundo reenviando estos a ciegas, lo ignora. Pero cuando recibe un mensaje nuevo, emocionadamente le dice a todos sus vecinos a excepción de quien le envió el mensaje.</p>
+
+<p><a class="p_ident" id="p_hDb1pw7Ftw" href="#p_hDb1pw7Ftw" tabindex="-1" role="presentation"></a>Esto provocará que una nueva pieza de chismes se propague a través de la red como una mancha de tinta en agua. Incluso cuando algunas conexiones no estan trabajando actualmente, si hay una ruta alternativa a un nido dado, el chisme llegará hasta allí.</p>
+
+<p><a class="p_ident" id="p_fnb23CLMO4" href="#p_fnb23CLMO4" tabindex="-1" role="presentation"></a>Este estilo de comunicación de red se llama <em>inundamiento</em>-inunda la red con una pieza de información hasta que todos los nodos la tengan.</p>
+
+<p><a class="p_ident" id="p_9URX2UPBHL" href="#p_9URX2UPBHL" tabindex="-1" role="presentation"></a>Podemos llamar a <code>enviarChismorreo</code> para ver un mensaje fluir a través del pueblo.</p>
+
+<pre class="snippet cm-s-default" data-language="javascript" ><a class="c_ident" id="c_wLQAofZHt4" href="#c_wLQAofZHt4" tabindex="-1" role="presentation"></a><span class="cm-variable">enviarChismorreo</span>(<span class="cm-variable">granRoble</span>, <span class="cm-string">&quot;Niños con una pistola de aire en el parque&quot;</span>);</pre>
+
+<h2><a class="h_ident" id="h_Tq2WRJTf3i" href="#h_Tq2WRJTf3i" tabindex="-1" role="presentation"></a>Enrutamiento de mensajes</h2>
+
+<p><a class="p_ident" id="p_2qPE7PX31R" href="#p_2qPE7PX31R" tabindex="-1" role="presentation"></a>Si un nodo determinado quiere hablar unicamente con otro nodo, la inundación no es un enfoque muy eficiente. Especialmente cuando la red es grande, daría lugar a una gran cantidad de transferencias de datos inútiles.</p>
+
+<p><a class="p_ident" id="p_raEip7IJiT" href="#p_raEip7IJiT" tabindex="-1" role="presentation"></a>Un enfoque alternativo es configurar una manera en que los mensajes salten de nodo a nodo, hasta que lleguen a su destino. La dificultad con eso es que requiere de conocimiento sobre el diseño de la red. Para enviar una solicitud hacia la dirección de un nido lejano, es necesario saber qué nido vecino lo acerca más a su destino. Enviar la solicitud en la dirección equivocada no servirá de mucho.</p>
+
+<p><a class="p_ident" id="p_m56+me8gjB" href="#p_m56+me8gjB" tabindex="-1" role="presentation"></a>Dado que cada nido solo conoce a sus vecinos directos, no tiene la información que necesita para calcular una ruta. De alguna manera debemos extender la información acerca de estas conexiones a todos los nidos. Preferiblemente en una manera que permita ser cambiada con el tiempo, cuando los nidos son abandonados o nuevos nidos son construidos.</p>
+
+<p><a class="p_ident" id="p_xGZpdDJGia" href="#p_xGZpdDJGia" tabindex="-1" role="presentation"></a>Podemos usar la inundación de nuevo, pero en lugar de verificar si un determinado mensaje ya ha sido recibido, ahora verificamos si el nuevo conjunto de vecinos de un nido determinado coinciden con el conjunto actual que tenemos para él.</p>
+
+<pre class="snippet cm-s-default" data-language="javascript" ><a class="c_ident" id="c_E+OqEOObmX" href="#c_E+OqEOObmX" tabindex="-1" role="presentation"></a><span class="cm-variable">tipoSolicitud</span>(<span class="cm-string">&quot;conexiones&quot;</span>, (<span class="cm-variable">nido</span>, {<span class="cm-property">nombre</span>, <span class="cm-property">vecinos</span>},
+                            <span class="cm-variable">fuente</span>) <span class="cm-operator">=&gt;</span> {
+  <span class="cm-keyword">let</span> <span class="cm-def">conexiones</span> <span class="cm-operator">=</span> <span class="cm-variable">nido</span>.<span class="cm-property">estado</span>.<span class="cm-property">conexiones</span>;
+  <span class="cm-keyword">if</span> (<span class="cm-variable">JSON</span>.<span class="cm-property">stringify</span>(<span class="cm-variable-2">conexiones</span>.<span class="cm-property">get</span>(<span class="cm-variable">nombre</span>)) <span class="cm-operator">==</span>
+      <span class="cm-variable">JSON</span>.<span class="cm-property">stringify</span>(<span class="cm-variable">vecinos</span>)) <span class="cm-keyword">return</span>;
+  <span class="cm-variable-2">conexiones</span>.<span class="cm-property">set</span>(<span class="cm-variable">nombre</span>, <span class="cm-variable">vecinos</span>);
+  <span class="cm-variable">difundirConexiones</span>(<span class="cm-variable">nido</span>, <span class="cm-variable">nombre</span>, <span class="cm-variable">fuente</span>);
+});
+
+<span class="cm-keyword">function</span> <span class="cm-def">difundirConexiones</span>(<span class="cm-def">nido</span>, <span class="cm-def">nombre</span>, <span class="cm-def">exceptoPor</span> <span class="cm-operator">=</span> <span class="cm-atom">null</span>) {
+  <span class="cm-keyword">for</span> (<span class="cm-keyword">let</span> <span class="cm-def">vecino</span> <span class="cm-keyword">of</span> <span class="cm-variable-2">nido</span>.<span class="cm-property">vecinos</span>) {
+    <span class="cm-keyword">if</span> (<span class="cm-variable-2">vecino</span> <span class="cm-operator">==</span> <span class="cm-variable-2">exceptoPor</span>) <span class="cm-keyword">continue</span>;
+    <span class="cm-variable">solicitud</span>(<span class="cm-variable-2">nido</span>, <span class="cm-variable-2">vecino</span>, <span class="cm-string">&quot;conexiones&quot;</span>, {
+      <span class="cm-property">nombre</span>,
+      <span class="cm-property">vecinos</span>: <span class="cm-variable-2">nido</span>.<span class="cm-property">estado</span>.<span class="cm-property">conexiones</span>.<span class="cm-property">get</span>(<span class="cm-variable-2">nombre</span>)
+    });
+  }
+}
+
+<span class="cm-variable">todosLados</span>(<span class="cm-def">nido</span> <span class="cm-operator">=&gt;</span> {
+  <span class="cm-variable-2">nido</span>.<span class="cm-property">estado</span>.<span class="cm-property">conexiones</span> <span class="cm-operator">=</span> <span class="cm-keyword">new</span> <span class="cm-variable">Map</span>;
+  <span class="cm-variable-2">nido</span>.<span class="cm-property">estado</span>.<span class="cm-property">conexiones</span>.<span class="cm-property">set</span>(<span class="cm-variable-2">nido</span>.<span class="cm-property">nombre</span>, <span class="cm-variable-2">nido</span>.<span class="cm-property">vecinos</span>);
+  <span class="cm-variable">difundirConexiones</span>(<span class="cm-variable-2">nido</span>, <span class="cm-variable-2">nido</span>.<span class="cm-property">nombre</span>);
+});</pre>
+
+<p><a class="p_ident" id="p_8o8t+15j9h" href="#p_8o8t+15j9h" tabindex="-1" role="presentation"></a>La comparación usa <code>JSON.stringify</code> porque <code>==</code>, en objetos o arrays, solo retornara true cuando los dos tengan exactamente el mismo valor, lo cual no es lo que necesitamos aquí. Comparar los strings JSON es una cruda pero efectiva manera de comparar su contenido.</p>
+
+<p><a class="p_ident" id="p_5eXZWl/I+H" href="#p_5eXZWl/I+H" tabindex="-1" role="presentation"></a>Los nodos comienzan inmediatamente a transmitir sus conexiones, lo que debería, a menos que algunos nidos sean completamente inalcanzables, dar rápidamente cada nido un mapa del grafo de la red actual.</p>
+
+<p><a class="p_ident" id="p_Fmoj3aZlX+" href="#p_Fmoj3aZlX+" tabindex="-1" role="presentation"></a>Una cosa que puedes hacer con grafos es encontrar rutas en ellos, como vimos en el <a href="Robot">Capítulo 7</a>. Si tenemos una ruta hacia el destino de un mensaje, sabemos en qué dirección enviarlo.</p>
+
+<p><a class="p_ident" id="p_KVOhMRHe8d" href="#p_KVOhMRHe8d" tabindex="-1" role="presentation"></a>Esta función <code>encontrarRuta</code>, que se parece mucho a <code>encontrarRuta</code> del <a href="07_robot.html#findRoute">Capítulo 7</a>, busca por una forma de llegar a un determinado nodo en la red. Pero en lugar de devolver toda la ruta, simplemente retorna el siguiente paso. Ese próximo nido en si mismo, usando su información actual sobre la red, decididira <em>hacia</em> dónde enviar el mensaje.</p>
+
+<pre class="snippet cm-s-default" data-language="javascript" ><a class="c_ident" id="c_2H0b96x04I" href="#c_2H0b96x04I" tabindex="-1" role="presentation"></a><span class="cm-keyword">function</span> <span class="cm-def">encontrarRuta</span>(<span class="cm-def">desde</span>, <span class="cm-def">hasta</span>, <span class="cm-def">conexiones</span>) {
+  <span class="cm-keyword">let</span> <span class="cm-def">trabajo</span> <span class="cm-operator">=</span> [{<span class="cm-property">donde</span>: <span class="cm-variable-2">desde</span>, <span class="cm-property">via</span>: <span class="cm-atom">null</span>}];
+  <span class="cm-keyword">for</span> (<span class="cm-keyword">let</span> <span class="cm-def">i</span> <span class="cm-operator">=</span> <span class="cm-number">0</span>; <span class="cm-variable-2">i</span> <span class="cm-operator">&lt;</span> <span class="cm-variable-2">trabajo</span>.<span class="cm-property">length</span>; <span class="cm-variable-2">i</span><span class="cm-operator">++</span>) {
+    <span class="cm-keyword">let</span> {<span class="cm-def">donde</span>, <span class="cm-def">via</span>} <span class="cm-operator">=</span> <span class="cm-variable-2">trabajo</span>[<span class="cm-variable-2">i</span>];
+    <span class="cm-keyword">for</span> (<span class="cm-keyword">let</span> <span class="cm-def">siguiente</span> <span class="cm-keyword">of</span> <span class="cm-variable-2">conexiones</span>.<span class="cm-property">get</span>(<span class="cm-variable-2">donde</span>) <span class="cm-operator">|</span><span class="cm-operator">|</span> []) {
+      <span class="cm-keyword">if</span> (<span class="cm-variable-2">siguiente</span> <span class="cm-operator">==</span> <span class="cm-variable-2">hasta</span>) <span class="cm-keyword">return</span> <span class="cm-variable-2">via</span>;
+      <span class="cm-keyword">if</span> (<span class="cm-operator">!</span><span class="cm-variable-2">trabajo</span>.<span class="cm-property">some</span>(<span class="cm-def">w</span> <span class="cm-operator">=&gt;</span> <span class="cm-variable-2">w</span>.<span class="cm-property">donde</span> <span class="cm-operator">==</span> <span class="cm-variable-2">siguiente</span>)) {
+        <span class="cm-variable-2">trabajo</span>.<span class="cm-property">push</span>({<span class="cm-property">donde</span>: <span class="cm-variable-2">siguiente</span>, <span class="cm-property">via</span>: <span class="cm-variable-2">via</span> <span class="cm-operator">|</span><span class="cm-operator">|</span> <span class="cm-variable-2">siguiente</span>});
+      }
+    }
+  }
+  <span class="cm-keyword">return</span> <span class="cm-atom">null</span>;
+}</pre>
+
+<p><a class="p_ident" id="p_qFlZTilK+l" href="#p_qFlZTilK+l" tabindex="-1" role="presentation"></a>Ahora podemos construir una función que pueda enviar mensajes de larga distancia. Si el mensaje está dirigido a un vecino directo, se entrega normalmente. Si no, se empaqueta en un objeto y se envía a un vecino que este más cerca del objetivo, usando el tipo de solicitud <code>&quot;ruta&quot;</code>, que hace que ese vecino repita el mismo comportamiento.</p>
+
+<pre class="snippet cm-s-default" data-language="javascript" ><a class="c_ident" id="c_1ClaXjq0F0" href="#c_1ClaXjq0F0" tabindex="-1" role="presentation"></a><span class="cm-keyword">function</span> <span class="cm-def">solicitudRuta</span>(<span class="cm-def">nido</span>, <span class="cm-def">objetivo</span>, <span class="cm-def">tipo</span>, <span class="cm-def">contenido</span>) {
+  <span class="cm-keyword">if</span> (<span class="cm-variable-2">nido</span>.<span class="cm-property">vecinos</span>.<span class="cm-property">includes</span>(<span class="cm-variable-2">objetivo</span>)) {
+    <span class="cm-keyword">return</span> <span class="cm-variable">solicitud</span>(<span class="cm-variable-2">nido</span>, <span class="cm-variable-2">objetivo</span>, <span class="cm-variable-2">tipo</span>, <span class="cm-variable-2">contenido</span>);
+  } <span class="cm-keyword">else</span> {
+    <span class="cm-keyword">let</span> <span class="cm-def">via</span> <span class="cm-operator">=</span> <span class="cm-variable">encontrarRuta</span>(<span class="cm-variable-2">nido</span>.<span class="cm-property">nombre</span>, <span class="cm-variable-2">objetivo</span>,
+                        <span class="cm-variable-2">nido</span>.<span class="cm-property">estado</span>.<span class="cm-property">conexiones</span>);
+    <span class="cm-keyword">if</span> (<span class="cm-operator">!</span><span class="cm-variable-2">via</span>) <span class="cm-keyword">throw</span> <span class="cm-keyword">new</span> <span class="cm-variable">Error</span>(<span class="cm-string-2">`No hay rutas disponibles hacia ${</span><span class="cm-variable-2">objetivo</span><span class="cm-string-2">}</span><span class="cm-string-2">`</span>);
+    <span class="cm-keyword">return</span> <span class="cm-variable">solicitud</span>(<span class="cm-variable-2">nido</span>, <span class="cm-variable-2">via</span>, <span class="cm-string">&quot;ruta&quot;</span>,
+                   {<span class="cm-property">objetivo</span>, <span class="cm-property">tipo</span>, <span class="cm-property">contenido</span>});
+  }
+}
+
+<span class="cm-variable">tipoSolicitud</span>(<span class="cm-string">&quot;ruta&quot;</span>, (<span class="cm-def">nido</span>, {<span class="cm-def">objetivo</span>, <span class="cm-def">tipo</span>, <span class="cm-def">contenido</span>}) <span class="cm-operator">=&gt;</span> {
+  <span class="cm-keyword">return</span> <span class="cm-variable">solicitudRuta</span>(<span class="cm-variable-2">nido</span>, <span class="cm-variable-2">objetivo</span>, <span class="cm-variable-2">tipo</span>, <span class="cm-variable-2">contenido</span>);
+});</pre>
+
+<p><a class="p_ident" id="p_Ws1ikXH5Bx" href="#p_Ws1ikXH5Bx" tabindex="-1" role="presentation"></a>Ahora podemos enviar un mensaje al nido en la torre de la iglesia, que esta a cuatro saltos de red de distancia.</p>
+
+<pre class="snippet cm-s-default" data-language="javascript" ><a class="c_ident" id="c_LRRMhrpV4J" href="#c_LRRMhrpV4J" tabindex="-1" role="presentation"></a><span class="cm-variable">solicitudRuta</span>(<span class="cm-variable">granRoble</span>, <span class="cm-string">&quot;Torre de la Iglesia&quot;</span>, <span class="cm-string">&quot;nota&quot;</span>,
+             <span class="cm-string">&quot;Cuidado con las Palomas!&quot;</span>);</pre>
+
+<p><a class="p_ident" id="p_nUUq7+Jdgt" href="#p_nUUq7+Jdgt" tabindex="-1" role="presentation"></a>Hemos construido varias capas de funcionalidad sobre un sistema de comunicación primitivo para que sea conveniente de usarlo. Este es un buen (aunque simplificado) modelo de cómo las redes de computadoras reales trabajan.</p>
+
+<p><a class="p_ident" id="p_tJlGrefSq/" href="#p_tJlGrefSq/" tabindex="-1" role="presentation"></a>Una propiedad distintiva de las redes de computadoras es que no son confiables—las abstracciones construidas encima de ellas pueden ayudar, pero no se puede abstraer la falla de una falla de red. Entonces la programación de redes es típicamente mucho acerca de anticipar y lidiar con fallas.</p>
+
+<h2><a class="h_ident" id="h_NGTlK4NQNX" href="#h_NGTlK4NQNX" tabindex="-1" role="presentation"></a>Funciones asíncronas</h2>
+
+<p><a class="p_ident" id="p_qCKEaINeAg" href="#p_qCKEaINeAg" tabindex="-1" role="presentation"></a>Para almacenar información importante, se sabe que los cuervos la duplican a través de los nidos. De esta forma, cuando un halcón destruye un nido, la información no se pierde.</p>
+
+<p><a class="p_ident" id="p_OadhtIoD2H" href="#p_OadhtIoD2H" tabindex="-1" role="presentation"></a>Para obtener una pieza de información dada que no este en su propia bulbo de almacenamiento, una computadora nido puede consultar otros nidos al azar en la red hasta que encuentre uno que la tenga.</p>
+
+<pre class="snippet cm-s-default" data-language="javascript" ><a class="c_ident" id="c_Psboan94DT" href="#c_Psboan94DT" tabindex="-1" role="presentation"></a><span class="cm-variable">tipoSolicitud</span>(<span class="cm-string">&quot;almacenamiento&quot;</span>, (<span class="cm-def">nido</span>, <span class="cm-def">nombre</span>) <span class="cm-operator">=&gt;</span> <span class="cm-variable">almacenamiento</span>(<span class="cm-variable-2">nido</span>, <span class="cm-variable-2">nombre</span>));
+
+<span class="cm-keyword">function</span> <span class="cm-def">encontrarEnAlmacenamiento</span>(<span class="cm-def">nido</span>, <span class="cm-def">nombre</span>) {
+  <span class="cm-keyword">return</span> <span class="cm-variable">almacenamiento</span>(<span class="cm-variable-2">nido</span>, <span class="cm-variable-2">nombre</span>).<span class="cm-property">then</span>(<span class="cm-def">encontrado</span> <span class="cm-operator">=&gt;</span> {
+    <span class="cm-keyword">if</span> (<span class="cm-variable-2">encontrado</span> <span class="cm-operator">!=</span> <span class="cm-atom">null</span>) <span class="cm-keyword">return</span> <span class="cm-variable-2">encontrado</span>;
+    <span class="cm-keyword">else</span> <span class="cm-keyword">return</span> <span class="cm-variable">encontrarEnAlmacenamientoRemoto</span>(<span class="cm-variable-2">nido</span>, <span class="cm-variable-2">nombre</span>);
+  });
+}
+
+<span class="cm-keyword">function</span> <span class="cm-def">red</span>(<span class="cm-def">nido</span>) {
+  <span class="cm-keyword">return</span> <span class="cm-variable">Array</span>.<span class="cm-property">from</span>(<span class="cm-variable-2">nido</span>.<span class="cm-property">estado</span>.<span class="cm-property">conexiones</span>.<span class="cm-property">keys</span>());
+}
+
+<span class="cm-keyword">function</span> <span class="cm-def">encontrarEnAlmacenamientoRemoto</span>(<span class="cm-def">nido</span>, <span class="cm-def">nombre</span>) {
+  <span class="cm-keyword">let</span> <span class="cm-def">fuentes</span> <span class="cm-operator">=</span> <span class="cm-variable">red</span>(<span class="cm-variable-2">nido</span>).<span class="cm-property">filter</span>(<span class="cm-def">n</span> <span class="cm-operator">=&gt;</span> <span class="cm-variable-2">n</span> <span class="cm-operator">!=</span> <span class="cm-variable-2">nido</span>.<span class="cm-property">nombre</span>);
+  <span class="cm-keyword">function</span> <span class="cm-def">siguiente</span>() {
+    <span class="cm-keyword">if</span> (<span class="cm-variable-2">fuentes</span>.<span class="cm-property">length</span> <span class="cm-operator">==</span> <span class="cm-number">0</span>) {
+      <span class="cm-keyword">return</span> <span class="cm-variable">Promise</span>.<span class="cm-property">reject</span>(<span class="cm-keyword">new</span> <span class="cm-variable">Error</span>(<span class="cm-string">&quot;No encontrado&quot;</span>));
+    } <span class="cm-keyword">else</span> {
+      <span class="cm-keyword">let</span> <span class="cm-def">fuente</span> <span class="cm-operator">=</span> <span class="cm-variable-2">fuentes</span>[<span class="cm-variable">Math</span>.<span class="cm-property">floor</span>(<span class="cm-variable">Math</span>.<span class="cm-property">random</span>() <span class="cm-operator">*</span>
+                                      <span class="cm-variable-2">fuentes</span>.<span class="cm-property">length</span>)];
+      <span class="cm-variable-2">fuentes</span> <span class="cm-operator">=</span> <span class="cm-variable-2">fuentes</span>.<span class="cm-property">filter</span>(<span class="cm-def">n</span> <span class="cm-operator">=&gt;</span> <span class="cm-variable-2">n</span> <span class="cm-operator">!=</span> <span class="cm-variable-2">fuente</span>);
+      <span class="cm-keyword">return</span> <span class="cm-variable">solicitudRuta</span>(<span class="cm-variable-2">nido</span>, <span class="cm-variable-2">fuente</span>, <span class="cm-string">&quot;almacenamiento&quot;</span>, <span class="cm-variable-2">nombre</span>)
+        .<span class="cm-property">then</span>(<span class="cm-def">valor</span> <span class="cm-operator">=&gt;</span> <span class="cm-variable-2">valor</span> <span class="cm-operator">!=</span> <span class="cm-atom">null</span> <span class="cm-operator">?</span> <span class="cm-variable-2">valor</span> : <span class="cm-variable-2">siguiente</span>(),
+              <span class="cm-variable-2">siguiente</span>);
+    }
+  }
+  <span class="cm-keyword">return</span> <span class="cm-variable-2">siguiente</span>();
+}</pre>
+
+<p><a class="p_ident" id="p_sdl1GEp8JU" href="#p_sdl1GEp8JU" tabindex="-1" role="presentation"></a>Como <code>conexiones</code> es un <code>Map</code>, <code>Object.keys</code> no funciona en él. Este tiene un <em>metódo</em> <code>keys</code>, pero que retorna un iterador en lugar de un array. Un iterador (o valor iterable) se puede convertir a un array con la función <code>Array.from</code>.</p>
+
+<p><a class="p_ident" id="p_Jv62s/66FV" href="#p_Jv62s/66FV" tabindex="-1" role="presentation"></a>Incluso con promesas, este es un código bastante incómodo. Múltiples acciones asincrónicas están encadenadas juntas de maneras no-obvias. Nosotros de nuevo necesitamos una función recursiva (<code>siguiente</code>) para modelar ciclos a través de nidos.</p>
+
+<p><a class="p_ident" id="p_pHrgGGk//r" href="#p_pHrgGGk//r" tabindex="-1" role="presentation"></a>Y lo que el código realmente hace es completamente lineal—siempre espera a que se complete la acción anterior antes de comenzar la siguiente. En un modelo de programación sincrónica, sería más simple de expresar.</p>
+
+<p><a class="p_ident" id="p_naDO+Q689g" href="#p_naDO+Q689g" tabindex="-1" role="presentation"></a>La buena noticia es que JavaScript te permite escribir código pseudo-sincrónico. Una función <code>async</code> es una función que retorna implícitamente una promesa y que puede, en su cuerpo, <code>await</code> (“esperar”) otras promesas de una manera que <em>se ve</em> sincrónica.</p>
+
+<p><a class="p_ident" id="p_gGiOvNm8i5" href="#p_gGiOvNm8i5" tabindex="-1" role="presentation"></a>Podemos reescribir <code>encontrarEnAlmacenamiento</code> de esta manera:</p>
+
+<pre class="snippet cm-s-default" data-language="javascript" ><a class="c_ident" id="c_yKv9rR4OQK" href="#c_yKv9rR4OQK" tabindex="-1" role="presentation"></a><span class="cm-keyword">async</span> <span class="cm-keyword">function</span> <span class="cm-def">encontrarEnAlmacenamiento</span>(<span class="cm-def">nido</span>, <span class="cm-def">nombre</span>) {
+  <span class="cm-keyword">let</span> <span class="cm-def">local</span> <span class="cm-operator">=</span> <span class="cm-keyword">await</span> <span class="cm-variable">almacenamiento</span>(<span class="cm-variable-2">nido</span>, <span class="cm-variable-2">nombre</span>);
+  <span class="cm-keyword">if</span> (<span class="cm-variable-2">local</span> <span class="cm-operator">!=</span> <span class="cm-atom">null</span>) <span class="cm-keyword">return</span> <span class="cm-variable-2">local</span>;
+
+  <span class="cm-keyword">let</span> <span class="cm-def">fuentes</span> <span class="cm-operator">=</span> <span class="cm-variable">red</span>(<span class="cm-variable-2">nido</span>).<span class="cm-property">filter</span>(<span class="cm-def">n</span> <span class="cm-operator">=&gt;</span> <span class="cm-variable-2">n</span> <span class="cm-operator">!=</span> <span class="cm-variable-2">nido</span>.<span class="cm-property">nombre</span>);
+  <span class="cm-keyword">while</span> (<span class="cm-variable-2">fuentes</span>.<span class="cm-property">length</span> <span class="cm-operator">&gt;</span> <span class="cm-number">0</span>) {
+    <span class="cm-keyword">let</span> <span class="cm-def">fuente</span> <span class="cm-operator">=</span> <span class="cm-variable-2">fuentes</span>[<span class="cm-variable">Math</span>.<span class="cm-property">floor</span>(<span class="cm-variable">Math</span>.<span class="cm-property">random</span>() <span class="cm-operator">*</span>
+                                    <span class="cm-variable-2">fuentes</span>.<span class="cm-property">length</span>)];
+    <span class="cm-variable-2">fuentes</span> <span class="cm-operator">=</span> <span class="cm-variable-2">fuentes</span>.<span class="cm-property">filter</span>(<span class="cm-def">n</span> <span class="cm-operator">=&gt;</span> <span class="cm-variable-2">n</span> <span class="cm-operator">!=</span> <span class="cm-variable-2">fuente</span>);
+    <span class="cm-keyword">try</span> {
+      <span class="cm-keyword">let</span> <span class="cm-def">encontrado</span> <span class="cm-operator">=</span> <span class="cm-keyword">await</span> <span class="cm-variable">solicitudRuta</span>(<span class="cm-variable-2">nido</span>, <span class="cm-variable-2">fuente</span>, <span class="cm-string">&quot;almacenamiento&quot;</span>,
+                                     <span class="cm-variable-2">nombre</span>);
+      <span class="cm-keyword">if</span> (<span class="cm-variable-2">encontrado</span> <span class="cm-operator">!=</span> <span class="cm-atom">null</span>) <span class="cm-keyword">return</span> <span class="cm-variable-2">encontrado</span>;
+    } <span class="cm-keyword">catch</span> (<span class="cm-def">_</span>) {}
+  }
+  <span class="cm-keyword">throw</span> <span class="cm-keyword">new</span> <span class="cm-variable">Error</span>(<span class="cm-string">&quot;No encontrado&quot;</span>);
+}</pre>
+
+<p><a class="p_ident" id="p_MHiEBPHcq0" href="#p_MHiEBPHcq0" tabindex="-1" role="presentation"></a>Una función <code>async</code> está marcada por la palabra <code>async</code> antes de la palabra clave <code>function</code>. Los métodos también pueden hacerse <code>async</code> al escribir <code>async</code> antes de su nombre. Cuando se llame a dicha función o método, este retorna una promesa. Tan pronto como el cuerpo retorne algo, esa promesa es resuelta Si arroja una excepción, la promesa es rechazada.</p>
+
+<pre class="snippet cm-s-default" data-language="javascript" ><a class="c_ident" id="c_6QupC+UI+O" href="#c_6QupC+UI+O" tabindex="-1" role="presentation"></a><span class="cm-variable">encontrarEnAlmacenamiento</span>(<span class="cm-variable">granRoble</span>, <span class="cm-string">&quot;eventos del 2017-12-21&quot;</span>)
+  .<span class="cm-property">then</span>(<span class="cm-variable">console</span>.<span class="cm-property">log</span>);</pre>
+
+<p><a class="p_ident" id="p_xe+2mYKtHe" href="#p_xe+2mYKtHe" tabindex="-1" role="presentation"></a>Dentro de una función <code>async</code>, la palabra <code>await</code> se puede poner delante de una expresión para esperar a que se resuelva una promesa, y solo entonces continua la ejecución de la función.</p>
+
+<p><a class="p_ident" id="p_4QxWwjPy0o" href="#p_4QxWwjPy0o" tabindex="-1" role="presentation"></a>Tal función ya no se ejecuta, como una función regular de JavaScript de principio a fin de una sola vez. En su lugar, puede ser <em>congelada</em> en cualquier punto que tenga un <code>await</code>, y se reanuda en un momento posterior.</p>
+
+<p><a class="p_ident" id="p_XLyTn2ekPo" href="#p_XLyTn2ekPo" tabindex="-1" role="presentation"></a>Para código asincrónico no-trivial, esta notación suele ser más conveniente que usar promesas directamente. Incluso si necesitas hacer algo que no se ajuste al modelo síncrono, como realizar múltiples acciones al mismo tiempo, es fácil combinar <code>await</code> con el uso directo de promesas.</p>
+
+<h2><a class="h_ident" id="h_LGLwBM7N7Q" href="#h_LGLwBM7N7Q" tabindex="-1" role="presentation"></a>Generadores</h2>
+
+<p><a class="p_ident" id="p_dM7BxA7dgQ" href="#p_dM7BxA7dgQ" tabindex="-1" role="presentation"></a>Esta capacidad de las funciones para pausar y luego reanudarse nuevamente no es exclusiva para las funciones <code>async</code>. JavaScript también tiene una caracteristica llamada funciones <em>generador</em>. Estss son similares, pero sin las promesas.</p>
+
+<p><a class="p_ident" id="p_yqNuWdd44C" href="#p_yqNuWdd44C" tabindex="-1" role="presentation"></a>Cuando defines una función con <code>function*</code> (colocando un asterisco después de la palabra <code>function</code>), se convierte en un generador. Cuando llamas un generador, este retorna un iterador, que ya vimos en el <a href="06_objeto.html">Capítulo 6</a>.</p>
+
+<pre class="snippet cm-s-default" data-language="javascript" ><a class="c_ident" id="c_/8RYRuiP0Y" href="#c_/8RYRuiP0Y" tabindex="-1" role="presentation"></a><span class="cm-keyword">function</span><span class="cm-keyword">*</span> <span class="cm-def">potenciacion</span>(<span class="cm-def">n</span>) {
+  <span class="cm-keyword">for</span> (<span class="cm-keyword">let</span> <span class="cm-def">actual</span> <span class="cm-operator">=</span> <span class="cm-variable-2">n</span>;; <span class="cm-variable-2">actual</span> <span class="cm-operator">*=</span> <span class="cm-variable-2">n</span>) {
+    <span class="cm-keyword">yield</span> <span class="cm-variable-2">actual</span>;
+  }
+}
+
+<span class="cm-keyword">for</span> (<span class="cm-keyword">let</span> <span class="cm-def">potencia</span> <span class="cm-keyword">of</span> <span class="cm-variable">potenciacion</span>(<span class="cm-number">3</span>)) {
+  <span class="cm-keyword">if</span> (<span class="cm-variable">potencia</span> <span class="cm-operator">&gt;</span> <span class="cm-number">50</span>) <span class="cm-keyword">break</span>;
+  <span class="cm-variable">console</span>.<span class="cm-property">log</span>(<span class="cm-variable">potencia</span>);
+}
+<span class="cm-comment">// → 3</span>
+<span class="cm-comment">// → 9</span>
+<span class="cm-comment">// → 27</span></pre>
+
+<p><a class="p_ident" id="p_im5f75q4M0" href="#p_im5f75q4M0" tabindex="-1" role="presentation"></a>Inicialmente, cuando llamas a <code>potenciacion</code>, la función se congela en su comienzo. Cada vez que llames <code>next</code> en el iterador, la función se ejecuta hasta que encuentre una expresión <code>yield</code> (“arrojar”), que la pausa y causa que el valor arrojado se convierta en el siguiente valor producido por el iterador. Cuando la función retorne (la del ejemplo nunca lo hace), el iterador está completo.</p>
+
+<p><a class="p_ident" id="p_DoN0dG9nAM" href="#p_DoN0dG9nAM" tabindex="-1" role="presentation"></a>Escribir iteradores es a menudo mucho más fácil cuando usas funciones generadoras. El iterador para la clase grupal (del ejercicio en el <a href="Objeto#group_iterator">Capítulo 6</a>) se puede escribir con este generador:</p>
+
+<pre class="snippet cm-s-default" data-language="javascript" ><a class="c_ident" id="c_XQFmfsUum/" href="#c_XQFmfsUum/" tabindex="-1" role="presentation"></a><span class="cm-variable">Conjunto</span>.<span class="cm-property">prototype</span>[<span class="cm-variable">Symbol</span>.<span class="cm-property">iterator</span>] <span class="cm-operator">=</span> <span class="cm-keyword">function</span><span class="cm-keyword">*</span>() {
+  <span class="cm-keyword">for</span> (<span class="cm-keyword">let</span> <span class="cm-def">i</span> <span class="cm-operator">=</span> <span class="cm-number">0</span>; <span class="cm-variable-2">i</span> <span class="cm-operator">&lt;</span> <span class="cm-keyword">this</span>.<span class="cm-property">miembros</span>.<span class="cm-property">length</span>; <span class="cm-variable-2">i</span><span class="cm-operator">++</span>) {
+    <span class="cm-keyword">yield</span> <span class="cm-keyword">this</span>.<span class="cm-property">miembros</span>[<span class="cm-variable-2">i</span>];
+  }
+};</pre>
+
+<p><a class="p_ident" id="p_vzwY7A7EWN" href="#p_vzwY7A7EWN" tabindex="-1" role="presentation"></a>Ya no es necesario crear un objeto para mantener el estado de la iteración—los generadores guardan automáticamente su estado local cada vez ellos arrojen.</p>
+
+<p><a class="p_ident" id="p_Wnn08lABGQ" href="#p_Wnn08lABGQ" tabindex="-1" role="presentation"></a>Dichas expresiones <code>yield</code> solo pueden ocurrir directamente en la función generadora en sí y no en una función interna que definas dentro de ella. El estado que ahorra un generador, cuando arroja, es solo su entorno <em>local</em> y la posición en la que fue arrojada.</p>
+
+<p><a class="p_ident" id="p_+kfgMm93qQ" href="#p_+kfgMm93qQ" tabindex="-1" role="presentation"></a>Una función <code>async</code> es un tipo especial de generador. Produce una promesa cuando se llama, que se resuelve cuando vuelve (termina) y rechaza cuando arroja una excepción. Cuando cede (espera) por una promesa, el resultado de esa promesa (valor o excepción lanzada) es el resultado de la expresión <code>await</code>.</p>
+
+<h2><a class="h_ident" id="h_OUYsaydaFl" href="#h_OUYsaydaFl" tabindex="-1" role="presentation"></a>El ciclo de evento</h2>
+
+<p><a class="p_ident" id="p_/VJuulZkDZ" href="#p_/VJuulZkDZ" tabindex="-1" role="presentation"></a>Los programas asincrónicos son ejecutados pieza por pieza. Cada pieza puede iniciar algunas acciones y programar código para que se ejecute cuando la acción termine o falle. Entre estas piezas, el programa permanece inactivo, esperando por la siguiente acción.</p>
+
+<p><a class="p_ident" id="p_cm8WsYtO48" href="#p_cm8WsYtO48" tabindex="-1" role="presentation"></a>Por lo tanto, las devoluciones de llamada no son llamadas directamente por el código que las programó. Si llamo a <code>setTimeout</code> desde adentro de una función, esa función habra retornado para el momento en que se llame a la función de devolución de llamada. Y cuando la devolución de llamada retorne, el control no volvera a la función que la programo.</p>
+
+<p><a class="p_ident" id="p_ekUlWC/PZ3" href="#p_ekUlWC/PZ3" tabindex="-1" role="presentation"></a>El comportamiento asincrónico ocurre en su propia función de llamada de
+pila vacía. Esta es una de las razones por las cuales, sin promesas, la gestión de excepciones en el código asincrónico es dificil. Como cada devolución de llamada comienza con una pila en su mayoría vacía, tus manejadores <code>catch</code> no estarán en la pila cuando lanzen una excepción.</p>
+
+<pre class="snippet cm-s-default" data-language="javascript" ><a class="c_ident" id="c_/XFSAAn55b" href="#c_/XFSAAn55b" tabindex="-1" role="presentation"></a><span class="cm-keyword">try</span> {
+  <span class="cm-variable">setTimeout</span>(() <span class="cm-operator">=&gt;</span> {
+    <span class="cm-keyword">throw</span> <span class="cm-keyword">new</span> <span class="cm-variable">Error</span>(<span class="cm-string">&quot;Woosh&quot;</span>);
+  }, <span class="cm-number">20</span>);
+} <span class="cm-keyword">catch</span> (<span class="cm-def">_</span>) {
+  <span class="cm-comment">// Esto no se va a ejecutar</span>
+  <span class="cm-variable">console</span>.<span class="cm-property">log</span>(<span class="cm-string">&quot;Atrapado!&quot;</span>);
+}</pre>
+
+<p><a class="p_ident" id="p_UxS9PeRpJZ" href="#p_UxS9PeRpJZ" tabindex="-1" role="presentation"></a>No importa que tan cerca los eventos—como tiempos de espera o solicitudes entrantes—sucedan, un entorno de JavaScript solo ejecutará un programa a la vez. Puedes pensar en esto como un gran ciclo <em>alrededor</em> de tu programa, llamado <em>ciclo de evento</em>. Cuando no hay nada que hacer, ese bucle está detenido. Pero a medida que los eventos entran, se agregan a una cola, y su código se ejecuta uno después del otro. Porque no hay dos cosas que se ejecuten al mismo tiempo, código de ejecución lenta puede retrasar el manejo de otros eventos.</p>
+
+<p><a class="p_ident" id="p_Gn163bVSIT" href="#p_Gn163bVSIT" tabindex="-1" role="presentation"></a>Este ejemplo establece un tiempo de espera, pero luego se retrasa hasta después del tiempo de espera previsto, lo que hace que el tiempo de espera este tarde.</p>
+
+<pre class="snippet cm-s-default" data-language="javascript" ><a class="c_ident" id="c_+2oojRRAgs" href="#c_+2oojRRAgs" tabindex="-1" role="presentation"></a><span class="cm-keyword">let</span> <span class="cm-def">comienzo</span> <span class="cm-operator">=</span> <span class="cm-variable">Date</span>.<span class="cm-property">now</span>();
+<span class="cm-variable">setTimeout</span>(() <span class="cm-operator">=&gt;</span> {
+  <span class="cm-variable">console</span>.<span class="cm-property">log</span>(<span class="cm-string">&quot;Tiempo de espera corrio al &quot;</span>, <span class="cm-variable">Date</span>.<span class="cm-property">now</span>() <span class="cm-operator">-</span> <span class="cm-variable">comienzo</span>);
+}, <span class="cm-number">20</span>);
+<span class="cm-keyword">while</span> (<span class="cm-variable">Date</span>.<span class="cm-property">now</span>() <span class="cm-operator">&lt;</span> <span class="cm-variable">comienzo</span> <span class="cm-operator">+</span> <span class="cm-number">50</span>) {}
+<span class="cm-variable">console</span>.<span class="cm-property">log</span>(<span class="cm-string">&quot;Se desperdicio tiempo hasta el &quot;</span>, <span class="cm-variable">Date</span>.<span class="cm-property">now</span>() <span class="cm-operator">-</span> <span class="cm-variable">comienzo</span>);
+<span class="cm-comment">// → Se desperdicio tiempo hasta el 50</span>
+<span class="cm-comment">// → Tiempo de espera corrio al 55</span></pre>
+
+<p><a class="p_ident" id="p_pmW3dwGzIo" href="#p_pmW3dwGzIo" tabindex="-1" role="presentation"></a>Las promesas siempre se resuelven o rechazan como un nuevo evento. Incluso si una promesa ya ha sido resuelta, esperar por ella hará que la devolución de llamada se ejecute después de que el script actual termine, en lugar de hacerlo inmediatamente.</p>
+
+<pre class="snippet cm-s-default" data-language="javascript" ><a class="c_ident" id="c_9OS6W7k6Vt" href="#c_9OS6W7k6Vt" tabindex="-1" role="presentation"></a><span class="cm-variable">Promise</span>.<span class="cm-property">resolve</span>(<span class="cm-string">&quot;Listo&quot;</span>).<span class="cm-property">then</span>(<span class="cm-variable">console</span>.<span class="cm-property">log</span>);
+<span class="cm-variable">console</span>.<span class="cm-property">log</span>(<span class="cm-string">&quot;Yo primero!&quot;</span>);
+<span class="cm-comment">// → Yo primero!</span>
+<span class="cm-comment">// → Listo</span></pre>
+
+<p><a class="p_ident" id="p_X4/GgzLEm8" href="#p_X4/GgzLEm8" tabindex="-1" role="presentation"></a>En capítulos posteriores, veremos otros tipos de eventos que se ejecutan en el ciclo de eventos.</p>
+
+<h2><a class="h_ident" id="h_5F87Tj7sc7" href="#h_5F87Tj7sc7" tabindex="-1" role="presentation"></a>Errores asincrónicos</h2>
+
+<p><a class="p_ident" id="p_B4U7mEP08Z" href="#p_B4U7mEP08Z" tabindex="-1" role="presentation"></a>Cuando tu programa se ejecuta de forma síncrona, de una sola vez, no hay cambios de estado sucediendo aparte de aquellos que el mismo programa realiza. Para los programas asíncronos, esto es diferente—estos pueden tener <em>brechas</em> en su ejecución durante las cuales se podria ejecutar otro código.</p>
+
+<p><a class="p_ident" id="p_GZDO0YIHKK" href="#p_GZDO0YIHKK" tabindex="-1" role="presentation"></a>Veamos un ejemplo. Uno de los pasatiempos de nuestros cuervos es contar la cantidad de polluelos que nacen en el pueblo cada año. Los nidos guardan este recuento en sus bulbos de almacenamiento. El siguiente código intenta enumerar los recuentos de todos los nidos para un año determinado.</p>
+
+<pre class="snippet cm-s-default" data-language="javascript" ><a class="c_ident" id="c_zh1HEq+ZJM" href="#c_zh1HEq+ZJM" tabindex="-1" role="presentation"></a><span class="cm-keyword">function</span> <span class="cm-def">cualquierAlmacenamiento</span>(<span class="cm-def">nido</span>, <span class="cm-def">fuente</span>, <span class="cm-def">nombre</span>) {
+  <span class="cm-keyword">if</span> (<span class="cm-variable-2">fuente</span> <span class="cm-operator">==</span> <span class="cm-variable-2">nido</span>.<span class="cm-property">nombre</span>) <span class="cm-keyword">return</span> <span class="cm-variable">almacenamiento</span>(<span class="cm-variable-2">nido</span>, <span class="cm-variable-2">nombre</span>);
+  <span class="cm-keyword">else</span> <span class="cm-keyword">return</span> <span class="cm-variable">solicitudRuta</span>(<span class="cm-variable-2">nido</span>, <span class="cm-variable-2">fuente</span>, <span class="cm-string">&quot;almacenamiento&quot;</span>, <span class="cm-variable-2">nombre</span>);
+}
+
+<span class="cm-keyword">async</span> <span class="cm-keyword">function</span> <span class="cm-def">polluelos</span>(<span class="cm-def">nido</span>, <span class="cm-def">años</span>) {
+  <span class="cm-keyword">let</span> <span class="cm-def">lista</span> <span class="cm-operator">=</span> <span class="cm-string">&quot;&quot;</span>;
+  <span class="cm-keyword">await</span> <span class="cm-variable">Promise</span>.<span class="cm-property">all</span>(<span class="cm-variable">red</span>(<span class="cm-variable-2">nido</span>).<span class="cm-property">map</span>(<span class="cm-keyword">async</span> <span class="cm-def">nombre</span> <span class="cm-operator">=&gt;</span> {
+    <span class="cm-variable-2">lista</span> <span class="cm-operator">+=</span> <span class="cm-string-2">`${</span><span class="cm-variable-2">nombre</span><span class="cm-string-2">}</span><span class="cm-string-2">: ${</span>
+      <span class="cm-keyword">await</span> <span class="cm-variable">cualquierAlmacenamiento</span>(<span class="cm-variable-2">nido</span>, <span class="cm-variable-2">nombre</span>, <span class="cm-string-2">`polluelos en ${</span><span class="cm-variable-2">años</span><span class="cm-string-2">}</span><span class="cm-string-2">`</span>)
+    <span class="cm-string-2">}</span><span class="cm-string-2">\n`</span>;
+  }));
+  <span class="cm-keyword">return</span> <span class="cm-variable-2">lista</span>;
+}</pre>
+
+<p><a class="p_ident" id="p_HiAwDFFOUL" href="#p_HiAwDFFOUL" tabindex="-1" role="presentation"></a>La parte <code>async nombre =&gt;</code> muestra que las funciones de flecha también pueden ser <code>async</code> al poner la palabra <code>async</code> delante de ellas.</p>
+
+<p><a class="p_ident" id="p_q115D8/byZ" href="#p_q115D8/byZ" tabindex="-1" role="presentation"></a>El código no parece sospechoso de inmediato... mapea la función de flecha <code>async</code> sobre el conjunto de nidos, creando una serie de promesas, y luego usa <code>Promise.all</code> para esperar a todos estas antes de retornar la lista que estas construyen.</p>
+
+<p><a class="p_ident" id="p_V7OvgztSM7" href="#p_V7OvgztSM7" tabindex="-1" role="presentation"></a>Pero está seriamente roto. Siempre devolverá solo una línea de salida, enumerando al nido que fue más lento en responder.</p>
+
+<pre class="snippet cm-s-default" data-language="javascript" ><a class="c_ident" id="c_yB/+iBibi+" href="#c_yB/+iBibi+" tabindex="-1" role="presentation"></a><span class="cm-variable">polluelos</span>(<span class="cm-variable">granRoble</span>, <span class="cm-number">2017</span>).<span class="cm-property">then</span>(<span class="cm-variable">console</span>.<span class="cm-property">log</span>);</pre>
+
+<p><a class="p_ident" id="p_ElQw+2G9XW" href="#p_ElQw+2G9XW" tabindex="-1" role="presentation"></a>Puedes averiguar por qué?</p>
+
+<p><a class="p_ident" id="p_pwjiTCcDQY" href="#p_pwjiTCcDQY" tabindex="-1" role="presentation"></a>El problema radica en el operador <code>+=</code>, que toma el valor <em>actual</em> de <code>lista</code> en el momento en que la instrucción comienza a ejecutarse, y luego, cuando el <code>await</code> termina, establece que la vinculaciòn <code>lista</code> sea ese valor más el string agregado.</p>
+
+<p><a class="p_ident" id="p_iLOmLw//5c" href="#p_iLOmLw//5c" tabindex="-1" role="presentation"></a>Pero entre el momento en el que la declaración comienza a ejecutarse y el momento donde termina hay una brecha asincrónica. La expresión <code>map</code> se ejecuta antes de que se haya agregado algo a la lista, por lo que cada uno de los operadores <code>+=</code> comienza desde un string vacío y termina cuando su recuperación de almacenamiento finaliza, estableciendo <code>lista</code> como una lista de una sola línea—el resultado de agregar su línea al string vacío.</p>
+
+<p><a class="p_ident" id="p_Q3mVeIBsyX" href="#p_Q3mVeIBsyX" tabindex="-1" role="presentation"></a>Esto podría haberse evitado fácilmente retornando las líneas de las promesas mapeadas y llamando a <code>join</code> en el resultado de <code>Promise.all</code>, en lugar de construir la lista cambiando una vinculación. Como siempre, calcular nuevos valores es menos propenso a errores que cambiar valores existentes.</p>
+
+<pre class="snippet cm-s-default" data-language="javascript" ><a class="c_ident" id="c_IypX7ZFY/c" href="#c_IypX7ZFY/c" tabindex="-1" role="presentation"></a><span class="cm-keyword">async</span> <span class="cm-keyword">function</span> <span class="cm-def">polluelos</span>(<span class="cm-def">nido</span>, <span class="cm-def">año</span>) {
+  <span class="cm-keyword">let</span> <span class="cm-def">lineas</span> <span class="cm-operator">=</span> <span class="cm-variable">red</span>(<span class="cm-variable-2">nido</span>).<span class="cm-property">map</span>(<span class="cm-keyword">async</span> <span class="cm-def">nombre</span> <span class="cm-operator">=&gt;</span> {
+    <span class="cm-keyword">return</span> <span class="cm-variable-2">nombre</span> <span class="cm-operator">+</span> <span class="cm-string">&quot;: &quot;</span> <span class="cm-operator">+</span>
+      <span class="cm-keyword">await</span> <span class="cm-variable">cualquierAlmacenamiento</span>(<span class="cm-variable-2">nido</span>, <span class="cm-variable-2">nombre</span>, <span class="cm-string-2">`polluelos en ${</span><span class="cm-variable-2">año</span><span class="cm-string-2">}</span><span class="cm-string-2">`</span>);
+  });
+  <span class="cm-keyword">return</span> (<span class="cm-keyword">await</span> <span class="cm-variable">Promise</span>.<span class="cm-property">all</span>(<span class="cm-variable-2">lineas</span>)).<span class="cm-property">join</span>(<span class="cm-string">&quot;\n&quot;</span>);
+}</pre>
+
+<p><a class="p_ident" id="p_+dHM33BArI" href="#p_+dHM33BArI" tabindex="-1" role="presentation"></a>Errores como este son fáciles de hacer, especialmente cuando se usa <code>await</code>, y debes tener en cuenta dónde se producen las brechas en tu código. Una ventaja de la asincronicidad <em>explicita</em> de JavaScript (ya sea a través de devoluciones de llamada, promesas, o <code>await</code>) es que detectar estas brechas es relativamente fácil.</p>
+
+<h2><a class="h_ident" id="h_NUFOUyK+lw" href="#h_NUFOUyK+lw" tabindex="-1" role="presentation"></a>Resumen</h2>
+
+<p><a class="p_ident" id="p_l5Ei5fO1JY" href="#p_l5Ei5fO1JY" tabindex="-1" role="presentation"></a>La programación asincrónica permite expresar la espera de acciones de larga duración sin congelar el programa durante estas acciones. Los entornos de JavaScript suelen implementar este estilo de programación usando devoluciones de llamada, funciones que son llaman cuando las acciones son completadas. Un ciclo de eventos planifica que dichas devoluciones de llamadas sean llamadas cuando sea apropiado, una después de la otra, para que sus ejecuciones no se superpongan.</p>
+
+<p><a class="p_ident" id="p_/tyI2XiFVY" href="#p_/tyI2XiFVY" tabindex="-1" role="presentation"></a>La programación asíncrona se hace más fácil mediante promesas, objetos que representar acciones que podrían completarse en el futuro, y funciones <code>async</code>, que te permiten escribir un programa asíncrono como si fuera sincrónico.</p>
+
+<h2><a class="h_ident" id="h_tkm7ntLto1" href="#h_tkm7ntLto1" tabindex="-1" role="presentation"></a>Ejercicios</h2>
+
+<h3><a class="i_ident" id="i_nGhlZwXS5X" href="#i_nGhlZwXS5X" tabindex="-1" role="presentation"></a>Siguiendo el bisturí</h3>
+
+<p><a class="p_ident" id="p_eHl2HRFpeE" href="#p_eHl2HRFpeE" tabindex="-1" role="presentation"></a>Los cuervos del pueblo poseen un viejo bisturí que ocasionalmente usan en misiones especiales—por ejemplo, para cortar puertas de malla o embalar cosas. Para ser capaces de rastrearlo rápidamente, cada vez que se mueve el bisturí a otro nido, una entrada se agrega al almacenamiento tanto del nido que lo tenía como al nido que lo tomó, bajo el nombre <code>&quot;bisturí&quot;</code>, con su nueva ubicación como su valor.</p>
+
+<p><a class="p_ident" id="p_y6AWH5CwCo" href="#p_y6AWH5CwCo" tabindex="-1" role="presentation"></a>Esto significa que encontrar el bisturí es una cuestión de seguir la ruta de navegación de las entradas de almacenamiento, hasta que encuentres un nido que apunte a el nido en si mismo.</p>
+
+<p><a class="p_ident" id="p_iYRXLv3AgE" href="#p_iYRXLv3AgE" tabindex="-1" role="presentation"></a>Escribe una función <code>async</code>, <code>localizarBisturi</code> que haga esto, comenzando en el nido en el que se ejecute. Puede usar la función <code>cualquierAlmacenamiento</code> definida anteriormente para acceder al almacenamiento en nidos arbitrarios. El bisturí ha estado dando vueltas el tiempo suficiente como para que puedas suponer que cada nido tiene una entrada <code>bisturí</code> en su almacenamiento de datos.</p>
+
+<p><a class="p_ident" id="p_DM4S2+DU0u" href="#p_DM4S2+DU0u" tabindex="-1" role="presentation"></a>Luego, vuelve a escribir la misma función sin usar <code>async</code> y <code>await</code>.</p>
+
+<p><a class="p_ident" id="p_BVQL9f25K/" href="#p_BVQL9f25K/" tabindex="-1" role="presentation"></a>Las fallas de solicitud se muestran correctamente como rechazos de la promesa devuelta en ambas versiones? Cómo?</p>
+
+<pre class="snippet cm-s-default" data-language="javascript" ><a class="c_ident" id="c_F5YP0AF3el" href="#c_F5YP0AF3el" tabindex="-1" role="presentation"></a><span class="cm-keyword">async</span> <span class="cm-keyword">function</span> <span class="cm-def">localizarBisturi</span>(<span class="cm-def">nido</span>) {
+  <span class="cm-comment">// Tu codigo aqui.</span>
+}
+
+<span class="cm-keyword">function</span> <span class="cm-def">localizarBisturi2</span>(<span class="cm-def">nido</span>) {
+  <span class="cm-comment">// Tu codigo aqui.</span>
+}
+
+<span class="cm-variable">localizarBisturi</span>(<span class="cm-variable">granRoble</span>).<span class="cm-property">then</span>(<span class="cm-variable">console</span>.<span class="cm-property">log</span>);
+<span class="cm-comment">// → Tienda del Carnicero</span></pre>
+
+<div class="solution"><div class="solution-text">
+
+<p><a class="p_ident" id="p_zxJFmPTR8W" href="#p_zxJFmPTR8W" tabindex="-1" role="presentation"></a>Esto se puede realizar con un solo ciclo que busca a través de los nidos, avanzando hacia el siguiente cuando encuentre un valor que no coincida con el nombre del nido actual, y retornando el nombre cuando esta encuentra un valor que coincida. En la función <code>async</code>, un ciclo regular <code>for</code> o <code>while</code> puede ser utilizado.</p>
+
+<p><a class="p_ident" id="p_9LnJtaVNZ/" href="#p_9LnJtaVNZ/" tabindex="-1" role="presentation"></a>Para hacer lo mismo con una función simple, tendrás que construir tu ciclo usando una función recursiva. La manera más fácil de hacer esto es hacer que esa función retorne una promesa al llamar a <code>then</code> en la promesa que recupera el valor de almacenamiento. Dependiendo de si ese valor coincide con el nombre del nido actual, el controlador devuelve ese valor o una promesa adicional creada llamando a la función de ciclo nuevamente.</p>
+
+<p><a class="p_ident" id="p_LQtgpLfjz9" href="#p_LQtgpLfjz9" tabindex="-1" role="presentation"></a>No olvides iniciar el ciclo llamando a la función recursiva una vez desde la función principal.</p>
+
+<p><a class="p_ident" id="p_TCrDpGk6g9" href="#p_TCrDpGk6g9" tabindex="-1" role="presentation"></a>En la función <code>async</code>, las promesas rechazadas se convierten en excepciones por <code>await</code> Cuando una función <code>async</code> arroja una excepción, su promesa es rechazada. Entonces eso funciona.</p>
+
+<p><a class="p_ident" id="p_gmPCo5oxQK" href="#p_gmPCo5oxQK" tabindex="-1" role="presentation"></a>Si implementaste la función no-<code>async</code> como se describe anteriormente, la forma en que <code>then</code> funciona también provoca automáticamente que una falla termine en la promesa devuelta. Si una solicitud falla, el manejador pasado a <code>then</code> no se llama, y ​​la promesa que devuelve se rechaza con la misma razón.</p>
+
+</div></div>
+
+<h3><a class="i_ident" id="i_pfc5Y5gAWn" href="#i_pfc5Y5gAWn" tabindex="-1" role="presentation"></a>Construyendo Promise.all</h3>
+
+<p><a class="p_ident" id="p_BSWTc+WFwV" href="#p_BSWTc+WFwV" tabindex="-1" role="presentation"></a>Dado un array de promesas, <code>Promise.all</code> retorna una promesa que espera a que finalicen todas las promesas del array. Entonces tiene éxito, produciendo un array de valores de resultados. Si una promesa en el array falla, la promesa retornada por <code>all</code> también falla, con la razón de la falla proveniente de la promesa fallida.</p>
+
+<p><a class="p_ident" id="p_TTogSRoglF" href="#p_TTogSRoglF" tabindex="-1" role="presentation"></a>Implemente algo como esto tu mismo como una función regular llamada <code>Promise_all</code>.</p>
+
+<p><a class="p_ident" id="p_MSVPRTzKiW" href="#p_MSVPRTzKiW" tabindex="-1" role="presentation"></a>Recuerda que una vez que una promesa ha tenido éxito o ha fallado, no puede tener éxito o fallar de nuevo, y llamadas subsecuentes a las funciones que resuelven son ignoradas. Esto puede simplificar la forma en que manejas la falla de tu promesa.</p>
+
+<pre class="snippet cm-s-default" data-language="javascript" ><a class="c_ident" id="c_51bp1lYYor" href="#c_51bp1lYYor" tabindex="-1" role="presentation"></a><span class="cm-keyword">function</span> <span class="cm-def">Promise_all</span>(<span class="cm-def">promesa</span>) {
+  <span class="cm-keyword">return</span> <span class="cm-keyword">new</span> <span class="cm-variable">Promise</span>((<span class="cm-def">resolve</span>, <span class="cm-def">reject</span>) <span class="cm-operator">=&gt;</span> {
+    <span class="cm-comment">// Tu codigo aqui.</span>
+  });
+}
+
+<span class="cm-comment">// Codigo de Prueba.</span>
+<span class="cm-variable">Promise_all</span>([]).<span class="cm-property">then</span>(<span class="cm-def">array</span> <span class="cm-operator">=&gt;</span> {
+  <span class="cm-variable">console</span>.<span class="cm-property">log</span>(<span class="cm-string">&quot;This should be []:&quot;</span>, <span class="cm-variable-2">array</span>);
+});
+<span class="cm-keyword">function</span> <span class="cm-def">soon</span>(<span class="cm-def">val</span>) {
+  <span class="cm-keyword">return</span> <span class="cm-keyword">new</span> <span class="cm-variable">Promise</span>(<span class="cm-def">resolve</span> <span class="cm-operator">=&gt;</span> {
+    <span class="cm-variable">setTimeout</span>(() <span class="cm-operator">=&gt;</span> <span class="cm-variable-2">resolve</span>(<span class="cm-variable-2">val</span>), <span class="cm-variable">Math</span>.<span class="cm-property">random</span>() <span class="cm-operator">*</span> <span class="cm-number">500</span>);
+  });
+}
+<span class="cm-variable">Promise_all</span>([<span class="cm-variable">soon</span>(<span class="cm-number">1</span>), <span class="cm-variable">soon</span>(<span class="cm-number">2</span>), <span class="cm-variable">soon</span>(<span class="cm-number">3</span>)]).<span class="cm-property">then</span>(<span class="cm-def">array</span> <span class="cm-operator">=&gt;</span> {
+  <span class="cm-variable">console</span>.<span class="cm-property">log</span>(<span class="cm-string">&quot;This should be [1, 2, 3]:&quot;</span>, <span class="cm-variable-2">array</span>);
+});
+<span class="cm-variable">Promise_all</span>([<span class="cm-variable">soon</span>(<span class="cm-number">1</span>), <span class="cm-variable">Promise</span>.<span class="cm-property">reject</span>(<span class="cm-string">&quot;X&quot;</span>), <span class="cm-variable">soon</span>(<span class="cm-number">3</span>)])
+  .<span class="cm-property">then</span>(<span class="cm-def">array</span> <span class="cm-operator">=&gt;</span> {
+    <span class="cm-variable">console</span>.<span class="cm-property">log</span>(<span class="cm-string">&quot;We should not get here&quot;</span>);
+  })
+  .<span class="cm-property">catch</span>(<span class="cm-def">error</span> <span class="cm-operator">=&gt;</span> {
+    <span class="cm-keyword">if</span> (<span class="cm-variable-2">error</span> <span class="cm-operator">!=</span> <span class="cm-string">&quot;X&quot;</span>) {
+      <span class="cm-variable">console</span>.<span class="cm-property">log</span>(<span class="cm-string">&quot;Unexpected failure:&quot;</span>, <span class="cm-variable-2">error</span>);
+    }
+  });</pre>
+
+<div class="solution"><div class="solution-text">
+
+<p><a class="p_ident" id="p_RbnWkx+2a4" href="#p_RbnWkx+2a4" tabindex="-1" role="presentation"></a>La función pasada al constructor <code>Promise</code> tendrá que llamar <code>then</code> en cada una de las promesas del array dado. Cuando una de ellas tenga éxito, dos cosas deben suceder. El valor resultante debe ser almacenado en la posición correcta de un array de resultados, y debemos verificar si esta fue la última promesa pendiente y terminar nuestra promesa si asi fue.</p>
+
+<p><a class="p_ident" id="p_fAdakM4lFv" href="#p_fAdakM4lFv" tabindex="-1" role="presentation"></a>Esto último se puede hacer con un contador que se inicializa con la longitud del array de entrada y del que restamos 1 cada vez que una promesa tenga éxito. Cuando llega a 0, hemos terminado. Asegúrate de tener en cuenta la situación en la que el array de entrada este vacío (y por lo tanto ninguna promesa nunca se resolverá).</p>
+
+<p><a class="p_ident" id="p_gVtcrlVjl1" href="#p_gVtcrlVjl1" tabindex="-1" role="presentation"></a>El manejo de la falla requiere pensar un poco, pero resulta ser extremadamente sencillo. Solo pasa la función <code>reject</code> de la promesa de envoltura a cada una de las promesas en el array como manejador <code>catch</code> o como segundo argumento a <code>then</code> para que una falla en una de ellos desencadene el rechazo de la promesa de envoltura completa.</p>
+
+</div></div><nav><a href="10_modulos.html" title="previous chapter">◀</a> <a href="index.html" title="cover">◆</a> <a href="12_language.html" title="next chapter">▶</a></nav>
+</article>

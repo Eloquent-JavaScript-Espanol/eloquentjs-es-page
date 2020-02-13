@@ -1,0 +1,383 @@
+<!doctype html>
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Proyecto: Un Robot :: Eloquent JavaScript</title>
+  <link rel=stylesheet href="js/node_modules/codemirror/lib/codemirror.css">
+  <script src="js/acorn_codemirror.js"></script>
+  <link rel=stylesheet href="css/ejs.css">
+  <script src="js/sandbox.js"></script>
+  <script src="js/ejs.js"></script><script>var chapNum = 7;var sandboxLoadFiles = ["code/chapter/07_robot.js","code/animatevillage.js"];</script></head>
+
+<article>
+<nav><a href="06_objeto.html" title="previous chapter">◀</a> <a href="index.html" title="cover">◆</a> <a href="08_error.html" title="next chapter">▶</a></nav>
+
+<h1><span class=chap_num>Chapter 7</span>Proyecto: Un Robot</h1>
+
+<blockquote>
+
+<p><a class="p_ident" id="p_/Oc+pQbX3S" href="#p_/Oc+pQbX3S" tabindex="-1" role="presentation"></a>[...] la pregunta de si las Maquinas Pueden Pensar [...] es tan relevante como la pregunta de si los Submarinos Pueden Nadar.</p>
+
+<footer>Edsger Dijkstra, <cite>The Threats to Computing Science</cite></footer>
+
+</blockquote><figure class="chapter framed"><img src="img/chapter_picture_7.jpg" alt="Picture of a package-delivery robot"></figure>
+
+<p><a class="p_ident" id="p_0PBWKq6GYO" href="#p_0PBWKq6GYO" tabindex="-1" role="presentation"></a>En los capítulos de “proyectos”, dejaré de golpearte con teoría nueva por un breve momento y en su lugar vamos a trabajar juntos en un programa. La teoría es necesaria para aprender a programar, pero leer y entender programas reales es igual de importante.</p>
+
+<p><a class="p_ident" id="p_1ftX4jVXFE" href="#p_1ftX4jVXFE" tabindex="-1" role="presentation"></a>Nuestro proyecto en este capítulo es construir un autómata, un pequeño programa que realiza una tarea en un mundo virtual. Nuestro autómata será un robot de entregas por correo que recoge y deja paquetes.</p>
+
+<h2><a class="h_ident" id="h_eYoPvgVhgZ" href="#h_eYoPvgVhgZ" tabindex="-1" role="presentation"></a>VillaPradera</h2>
+
+<p><a class="p_ident" id="p_3Spqb2g2dz" href="#p_3Spqb2g2dz" tabindex="-1" role="presentation"></a>El pueblo de VillaPradera no es muy grande. Este consiste de 11 lugares con 14 caminos entre ellos. Puede ser describido con este array de caminos:</p>
+
+<pre class="snippet cm-s-default" data-language="javascript" ><a class="c_ident" id="c_N3KMaUWi6d" href="#c_N3KMaUWi6d" tabindex="-1" role="presentation"></a><span class="cm-keyword">const</span> <span class="cm-def">caminos</span> <span class="cm-operator">=</span> [
+  <span class="cm-string">&quot;Casa de Alicia-Casa de Bob&quot;</span>,        <span class="cm-string">&quot;Casa de Alicia-Cabaña&quot;</span>,
+  <span class="cm-string">&quot;Casa de Alicia-Oficina de Correos&quot;</span>, <span class="cm-string">&quot;Casa de Bob-Ayuntamiento&quot;</span>,
+  <span class="cm-string">&quot;Casa de Daria-Casa de Ernie&quot;</span>,       <span class="cm-string">&quot;Casa de Daria-Ayuntamiento&quot;</span>,
+  <span class="cm-string">&quot;Casa de Ernie-Casa de Grete&quot;</span>,       <span class="cm-string">&quot;Casa de Grete-Granja&quot;</span>,
+  <span class="cm-string">&quot;Casa de Grete-Tienda&quot;</span>,              <span class="cm-string">&quot;Mercado-Granja&quot;</span>,
+  <span class="cm-string">&quot;Mercado-Oficina de Correos&quot;</span>,        <span class="cm-string">&quot;Mercado-Tienda&quot;</span>,
+  <span class="cm-string">&quot;Mercado-Ayuntamiento&quot;</span>,              <span class="cm-string">&quot;Tienda-Ayuntamiento&quot;</span>
+];</pre><figure><img src="img/village2x.png" alt="The village of Meadowfield"></figure>
+
+<p><a class="p_ident" id="p_Ux5sBjOgKg" href="#p_Ux5sBjOgKg" tabindex="-1" role="presentation"></a>La red de caminos en el pueblo forma un <em>grafo</em>. Un grafo es una colección de puntos (lugares en el pueblo) con líneas entre ellos (caminos). Este grafo será el mundo por el que nuestro robot se movera.</p>
+
+<p><a class="p_ident" id="p_76fvfqlaN9" href="#p_76fvfqlaN9" tabindex="-1" role="presentation"></a>El array de strings no es muy fácil de trabajar. En lo que estamos interesados es en los destinos a los que podemos llegar desde un lugar determinado. Vamos a convertir la lista de caminos en una estructura de datos que, para cada lugar, nos diga a donde se pueda llegar desde allí.</p>
+
+<pre class="snippet cm-s-default" data-language="javascript" ><a class="c_ident" id="c_YsGBPaskzo" href="#c_YsGBPaskzo" tabindex="-1" role="presentation"></a><span class="cm-keyword">function</span> <span class="cm-def">construirGrafo</span>(<span class="cm-def">bordes</span>) {
+  <span class="cm-keyword">let</span> <span class="cm-def">grafo</span> <span class="cm-operator">=</span> <span class="cm-variable">Object</span>.<span class="cm-property">create</span>(<span class="cm-atom">null</span>);
+  <span class="cm-keyword">function</span> <span class="cm-def">añadirBorde</span>(<span class="cm-def">desde</span>, <span class="cm-def">hasta</span>) {
+    <span class="cm-keyword">if</span> (<span class="cm-variable-2">grafo</span>[<span class="cm-variable-2">desde</span>] <span class="cm-operator">==</span> <span class="cm-atom">null</span>) {
+      <span class="cm-variable-2">grafo</span>[<span class="cm-variable-2">desde</span>] <span class="cm-operator">=</span> [<span class="cm-variable-2">hasta</span>];
+    } <span class="cm-keyword">else</span> {
+      <span class="cm-variable-2">grafo</span>[<span class="cm-variable-2">desde</span>].<span class="cm-property">push</span>(<span class="cm-variable-2">hasta</span>);
+    }
+  }
+  <span class="cm-keyword">for</span> (<span class="cm-keyword">let</span> [<span class="cm-def">desde</span>, <span class="cm-def">hasta</span>] <span class="cm-keyword">of</span> <span class="cm-variable-2">bordes</span>.<span class="cm-property">map</span>(<span class="cm-def">c</span> <span class="cm-operator">=&gt;</span> <span class="cm-variable-2">c</span>.<span class="cm-property">split</span>(<span class="cm-string">&quot;-&quot;</span>))) {
+    <span class="cm-variable-2">añadirBorde</span>(<span class="cm-variable-2">desde</span>, <span class="cm-variable-2">hasta</span>);
+    <span class="cm-variable-2">añadirBorde</span>(<span class="cm-variable-2">hasta</span>, <span class="cm-variable-2">desde</span>);
+  }
+  <span class="cm-keyword">return</span> <span class="cm-variable-2">grafo</span>;
+}
+
+<span class="cm-keyword">const</span> <span class="cm-def">grafoCamino</span> <span class="cm-operator">=</span> <span class="cm-variable">construirGrafo</span>(<span class="cm-variable">roads</span>);</pre>
+
+<p><a class="p_ident" id="p_0QqXzwzGIU" href="#p_0QqXzwzGIU" tabindex="-1" role="presentation"></a>Dado un conjunto de bordes, <code>construirGrafo</code> crea un objeto de mapa que, para cada nodo, almacena un array de nodos conectados.</p>
+
+<p><a class="p_ident" id="p_AfbbzRjwB7" href="#p_AfbbzRjwB7" tabindex="-1" role="presentation"></a>Utiliza el método <code>split</code> para ir de los strings de caminos, que tienen la forma <code>&quot;Comienzo-Final&quot;</code>, a arrays de dos elementos que contienen el inicio y el final como strings separados.</p>
+
+<h2><a class="h_ident" id="h_ZcNPR9BKaF" href="#h_ZcNPR9BKaF" tabindex="-1" role="presentation"></a>La tarea</h2>
+
+<p><a class="p_ident" id="p_kiglRVknew" href="#p_kiglRVknew" tabindex="-1" role="presentation"></a>Nuestro robot se moverá por el pueblo. Hay paquetes en varios lugares, cada uno dirigido a otro lugar. El robot tomara paquetes cuando los encuentre y los entregara cuando llegue a sus destinos.</p>
+
+<p><a class="p_ident" id="p_sjKgmx3CMx" href="#p_sjKgmx3CMx" tabindex="-1" role="presentation"></a>El autómata debe decidir, en cada punto, a dónde ir después. Ha finalizado su tarea cuando se han entregado todos los paquetes.</p>
+
+<p><a class="p_ident" id="p_KwKhwC7IzT" href="#p_KwKhwC7IzT" tabindex="-1" role="presentation"></a>Para poder simular este proceso, debemos definir un mundo virtual que pueda describirlo. Este modelo nos dice dónde está el robot y dónde estan los paquetes. Cuando el robot ha decidido moverse a alguna parte, necesitamos actualizar el modelo para reflejar la nueva situación.</p>
+
+<p><a class="p_ident" id="p_ImUqv6bngP" href="#p_ImUqv6bngP" tabindex="-1" role="presentation"></a>Si estás pensando en términos de programación orientada a objetos, tu primer impulso podría ser comenzar a definir objetos para los diversos elementos en el mundo. Una clase para el robot, una para un paquete, tal vez una para los lugares. Estas podrían tener propiedades que describen su estado actual, como la pila de paquetes en un lugar, que podríamos cambiar al actualizar el mundo.</p>
+
+<p><a class="p_ident" id="p_IfRivg5bo6" href="#p_IfRivg5bo6" tabindex="-1" role="presentation"></a>Esto está mal.</p>
+
+<p><a class="p_ident" id="p_VuzF6jZ1y9" href="#p_VuzF6jZ1y9" tabindex="-1" role="presentation"></a>Al menos, usualmente lo esta. El hecho de que algo suena como un objeto no significa automáticamente que debe ser un objeto en tu programa. Escribir por reflejo las clases para cada concepto en tu aplicación tiende a dejarte con una colección de objetos interconectados donde cada uno tiene su propio estado interno y cambiante. Tales programas a menudo son difíciles de entender y, por lo tanto, fáciles de romper.</p>
+
+<p><a class="p_ident" id="p_5099+VupJV" href="#p_5099+VupJV" tabindex="-1" role="presentation"></a>En lugar de eso, condensemos el estado del pueblo hasta el mínimo conjunto de valores que lo definan. Está la ubicación actual del robot y la colección de paquetes no entregados, cada uno de los cuales tiene una ubicación actual y una dirección de destino. Eso es todo.</p>
+
+<p><a class="p_ident" id="p_rnYsxsuyW8" href="#p_rnYsxsuyW8" tabindex="-1" role="presentation"></a>Y mientras estamos en ello, hagámoslo de manera que no <em>cambiemos</em> este estado cuándo se mueva el robot, sino calcular un <em>nuevo</em> estado para la situación después del movimiento.</p>
+
+<pre class="snippet cm-s-default" data-language="javascript" ><a class="c_ident" id="c_chYBHOOj3r" href="#c_chYBHOOj3r" tabindex="-1" role="presentation"></a><span class="cm-keyword">class</span> <span class="cm-def">EstadoPueblo</span> {
+  <span class="cm-property">constructor</span>(<span class="cm-def">lugar</span>, <span class="cm-def">paquetes</span>) {
+    <span class="cm-keyword">this</span>.<span class="cm-property">lugar</span> <span class="cm-operator">=</span> <span class="cm-variable-2">lugar</span>;
+    <span class="cm-keyword">this</span>.<span class="cm-property">paquetes</span> <span class="cm-operator">=</span> <span class="cm-variable-2">paquetes</span>;
+  }
+
+  <span class="cm-property">mover</span>(<span class="cm-def">destino</span>) {
+    <span class="cm-keyword">if</span> (<span class="cm-operator">!</span><span class="cm-variable">grafoCamino</span>[<span class="cm-keyword">this</span>.<span class="cm-property">lugar</span>].<span class="cm-property">includes</span>(<span class="cm-variable-2">destino</span>)) {
+      <span class="cm-keyword">return</span> <span class="cm-keyword">this</span>;
+    } <span class="cm-keyword">else</span> {
+      <span class="cm-keyword">let</span> <span class="cm-def">paquetes</span> <span class="cm-operator">=</span> <span class="cm-keyword">this</span>.<span class="cm-property">paquetes</span>.<span class="cm-property">map</span>(<span class="cm-def">p</span> <span class="cm-operator">=&gt;</span> {
+        <span class="cm-keyword">if</span> (<span class="cm-variable-2">p</span>.<span class="cm-property">lugar</span> <span class="cm-operator">!=</span> <span class="cm-keyword">this</span>.<span class="cm-property">lugar</span>) <span class="cm-keyword">return</span> <span class="cm-variable-2">p</span>;
+        <span class="cm-keyword">return</span> {<span class="cm-property">lugar</span>: <span class="cm-variable-2">destino</span>, <span class="cm-property">direccion</span>: <span class="cm-variable-2">p</span>.<span class="cm-property">direccion</span>};
+      }).<span class="cm-property">filter</span>(<span class="cm-def">p</span> <span class="cm-operator">=&gt;</span> <span class="cm-variable-2">p</span>.<span class="cm-property">lugar</span> <span class="cm-operator">!=</span> <span class="cm-variable-2">p</span>.<span class="cm-property">direccion</span>);
+      <span class="cm-keyword">return</span> <span class="cm-keyword">new</span> <span class="cm-variable">EstadoPueblo</span>(<span class="cm-variable-2">destino</span>, <span class="cm-variable-2">paquetes</span>);
+    }
+  }
+}</pre>
+
+<p><a class="p_ident" id="p_md6szS5BFn" href="#p_md6szS5BFn" tabindex="-1" role="presentation"></a>En el método <code>mover</code> es donde ocurre la acción. Este primero verifica si hay un camino que va del lugar actual al destino, y si no, retorna el estado anterior, ya que este no es un movimiento válido.</p>
+
+<p><a class="p_ident" id="p_DFhDOOtGe3" href="#p_DFhDOOtGe3" tabindex="-1" role="presentation"></a>Luego crea un nuevo estado con el destino como el nuevo lugar del robot. Pero también necesita crear un nuevo conjunto de paquetes—los paquetes que el robot esta llevando (que están en el lugar actual del robot) necesitan de moverse tambien al nuevo lugar. Y paquetes que están dirigidos al nuevo lugar donde deben de ser entregados—es decir, deben de eliminarse del conjunto de paquetes no entregados. La llamada a <code>map</code> se encarga de mover los paquetes, y la llamada a <code>filter</code> hace la entrega.</p>
+
+<p><a class="p_ident" id="p_vSf5Hqkx+k" href="#p_vSf5Hqkx+k" tabindex="-1" role="presentation"></a>Los objetos de paquete no se modifican cuando se mueven, sino que se vuelven a crear. El método <code>movee</code> nos da un nuevo estado de aldea, pero deja el viejo completamente intacto</p>
+
+<pre class="snippet cm-s-default" data-language="javascript" ><a class="c_ident" id="c_/IPesCSL23" href="#c_/IPesCSL23" tabindex="-1" role="presentation"></a><span class="cm-keyword">let</span> <span class="cm-def">primero</span> <span class="cm-operator">=</span> <span class="cm-keyword">new</span> <span class="cm-variable">EstadoPueblo</span>(
+  <span class="cm-string">&quot;Oficina de Correos&quot;</span>,
+  [{<span class="cm-property">lugar</span>: <span class="cm-string">&quot;Oficina de Correos&quot;</span>, <span class="cm-property">direccion</span>: <span class="cm-string">&quot;Casa de Alicia&quot;</span>}]
+);
+<span class="cm-keyword">let</span> <span class="cm-def">siguiente</span> <span class="cm-operator">=</span> <span class="cm-variable">primero</span>.<span class="cm-property">mover</span>(<span class="cm-string">&quot;Casa de Alicia&quot;</span>);
+
+<span class="cm-variable">console</span>.<span class="cm-property">log</span>(<span class="cm-variable">siguiente</span>.<span class="cm-property">lugar</span>);
+<span class="cm-comment">// → Casa de Alicia</span>
+<span class="cm-variable">console</span>.<span class="cm-property">log</span>(<span class="cm-variable">siguiente</span>.<span class="cm-property">parcels</span>);
+<span class="cm-comment">// → []</span>
+<span class="cm-variable">console</span>.<span class="cm-property">log</span>(<span class="cm-variable">primero</span>.<span class="cm-property">lugar</span>);
+<span class="cm-comment">// → Oficina de Correos</span></pre>
+
+<p><a class="p_ident" id="p_3BwbAF4zd5" href="#p_3BwbAF4zd5" tabindex="-1" role="presentation"></a>Mover hace que se entregue el paquete, y esto se refleja en el próximo estado. Pero el estado inicial todavía describe la situación donde el robot está en la oficina de correos y el paquete aun no ha sido entregado.</p>
+
+<h2><a class="h_ident" id="h_TZqUeD/4Kg" href="#h_TZqUeD/4Kg" tabindex="-1" role="presentation"></a>Datos persistentes</h2>
+
+<p><a class="p_ident" id="p_qK9J3cAcZ+" href="#p_qK9J3cAcZ+" tabindex="-1" role="presentation"></a>Las estructuras de datos que no cambian se llaman <em>inmutables</em> o <em>persistentes</em>. Se comportan de manera muy similar a los strings y números en que son quienes son, y se quedan así, en lugar de contener diferentes cosas en diferentes momentos.</p>
+
+<p><a class="p_ident" id="p_jM2h5YhXld" href="#p_jM2h5YhXld" tabindex="-1" role="presentation"></a>En JavaScript, casi todo <em>puede</em> ser cambiado, así que trabajar con valores que se supone que sean persistentes requieren cierta restricción. Hay una función llamada <code>Object.freeze</code> (“Objeto.congelar”) que cambia un objeto de manera que escribir en sus propiedades sea ignorado. Podrías usar eso para asegurarte de que tus objetos no cambien, si quieres ser cuidadoso. La congelación requiere que la computadora haga un trabajo extra e ignorar actualizaciones es probable que confunda a alguien tanto como para que hagan lo incorrecto. Por lo general, prefiero simplemente decirle a la gente que un determinado objeto no debe ser molestado, y espero que lo recuerden.</p>
+
+<pre class="snippet cm-s-default" data-language="javascript" ><a class="c_ident" id="c_lqgh8yOuRg" href="#c_lqgh8yOuRg" tabindex="-1" role="presentation"></a><span class="cm-keyword">let</span> <span class="cm-def">objeto</span> <span class="cm-operator">=</span> <span class="cm-variable">Object</span>.<span class="cm-property">freeze</span>({<span class="cm-property">valor</span>: <span class="cm-number">5</span>});
+<span class="cm-variable">objeto</span>.<span class="cm-property">valor</span> <span class="cm-operator">=</span> <span class="cm-number">10</span>;
+<span class="cm-variable">console</span>.<span class="cm-property">log</span>(<span class="cm-variable">objeto</span>.<span class="cm-property">valor</span>);
+<span class="cm-comment">// → 5</span></pre>
+
+<p><a class="p_ident" id="p_3ZcXSzHegg" href="#p_3ZcXSzHegg" tabindex="-1" role="presentation"></a>Por qué me salgo de mi camino para no cambiar objetos cuando el lenguaje obviamente está esperando que lo haga?</p>
+
+<p><a class="p_ident" id="p_1ihsgYZ82c" href="#p_1ihsgYZ82c" tabindex="-1" role="presentation"></a>Porque me ayuda a entender mis programas. Esto es acerca de manejar la complejidad nuevamente. Cuando los objetos en mi sistema son cosas fijas y estables, puedo considerar las operaciones en ellos de forma aislada—moverse a la casa de Alicia desde un estado de inicio siempre produce el mismo nuevo estado. Cuando los objetos cambian con el tiempo, eso agrega una dimensión completamente nueva de complejidad a este tipo de razonamiento.</p>
+
+<p><a class="p_ident" id="p_FW5kl43Zwa" href="#p_FW5kl43Zwa" tabindex="-1" role="presentation"></a>Para un sistema pequeño como el que estamos construyendo en este capítulo, podriamos manejar ese poco de complejidad adicional. Pero el límite más importante sobre qué tipo de sistemas podemos construir es cuánto podemos entender. Cualquier cosa que haga que tu código sea más fácil de entender hace que sea posible construir un sistema más ambicioso.</p>
+
+<p><a class="p_ident" id="p_APtvULaaM4" href="#p_APtvULaaM4" tabindex="-1" role="presentation"></a>Lamentablemente, aunque entender un sistema basado en estructuras de datos persistentes es más fácil, <em>diseñar</em> uno, especialmente cuando tu lenguaje de programación no ayuda, puede ser un poco más difícil. Buscaremos oportunidades para usar estructuras de datos persistentes en este libro, pero también utilizaremos las modificables.</p>
+
+<h2><a class="h_ident" id="h_NngWObDYaj" href="#h_NngWObDYaj" tabindex="-1" role="presentation"></a>Simulación</h2>
+
+<p><a class="p_ident" id="p_a5gtnBAVmE" href="#p_a5gtnBAVmE" tabindex="-1" role="presentation"></a>Un robot de entregas mira al mundo y decide en qué dirección que quiere moverse. Como tal, podríamos decir que un robot es una función que toma un objeto <code>EstadoPueblo</code> y retorna el nombre de un lugar cercano.</p>
+
+<p><a class="p_ident" id="p_KkGLlMh2YZ" href="#p_KkGLlMh2YZ" tabindex="-1" role="presentation"></a>Ya que queremos que los robots sean capaces de recordar cosas, para que puedan hacer y ejecutar planes, también les pasamos su memoria y les permitimos retornar una nueva memoria. Por lo tanto, lo que retorna un robot es un objeto que contiene tanto la dirección en la que quiere moverse como un valor de memoria que se le sera regresado la próxima vez que se llame.</p>
+
+<pre class="snippet cm-s-default" data-language="javascript" ><a class="c_ident" id="c_bfNF7p2qgn" href="#c_bfNF7p2qgn" tabindex="-1" role="presentation"></a><span class="cm-keyword">function</span> <span class="cm-def">correrRobot</span>(<span class="cm-def">estado</span>, <span class="cm-def">robot</span>, <span class="cm-def">memoria</span>) {
+  <span class="cm-keyword">for</span> (<span class="cm-keyword">let</span> <span class="cm-def">turno</span> <span class="cm-operator">=</span> <span class="cm-number">0</span>;; <span class="cm-variable-2">turno</span><span class="cm-operator">++</span>) {
+    <span class="cm-keyword">if</span> (<span class="cm-variable-2">estado</span>.<span class="cm-property">paquetes</span>.<span class="cm-property">length</span> <span class="cm-operator">==</span> <span class="cm-number">0</span>) {
+      <span class="cm-variable">console</span>.<span class="cm-property">log</span>(<span class="cm-string-2">`Listo en ${</span><span class="cm-variable-2">turno</span><span class="cm-string-2">}</span> <span class="cm-string-2">turnos`</span>);
+      <span class="cm-keyword">break</span>;
+    }
+    <span class="cm-keyword">let</span> <span class="cm-def">accion</span> <span class="cm-operator">=</span> <span class="cm-variable-2">robot</span>(<span class="cm-variable-2">estado</span>, <span class="cm-variable-2">memoria</span>);
+    <span class="cm-variable-2">estado</span> <span class="cm-operator">=</span> <span class="cm-variable-2">estado</span>.<span class="cm-property">mover</span>(<span class="cm-variable-2">accion</span>.<span class="cm-property">direccion</span>);
+    <span class="cm-variable-2">memoria</span> <span class="cm-operator">=</span> <span class="cm-variable-2">accion</span>.<span class="cm-property">memoria</span>;
+    <span class="cm-variable">console</span>.<span class="cm-property">log</span>(<span class="cm-string-2">`Moverse a ${</span><span class="cm-variable-2">accion</span>.<span class="cm-property">direccion</span><span class="cm-string-2">}</span><span class="cm-string-2">`</span>);
+  }
+}</pre>
+
+<p><a class="p_ident" id="p_JH8yoHAhXA" href="#p_JH8yoHAhXA" tabindex="-1" role="presentation"></a>Considera lo que un robot tiene que hacer para “resolver” un estado dado. Debe recoger todos los paquetes visitando cada ubicación que tenga un paquete, y entregarlos visitando cada lugar al que se dirige un paquete, pero solo después de recoger el paquete.</p>
+
+<p><a class="p_ident" id="p_SvB7BbxvGV" href="#p_SvB7BbxvGV" tabindex="-1" role="presentation"></a>Cuál es la estrategia más estúpida que podría funcionar? El robot podría simplemente caminar hacia una dirección aleatoria en cada vuelta. Eso significa, con gran probabilidad, que eventualmente se encontrara con todos los paquetes, y luego también en algún momento llegara a todos los lugares donde estos deben ser entregados.</p>
+
+<p><a class="p_ident" id="p_xT5CAswrf2" href="#p_xT5CAswrf2" tabindex="-1" role="presentation"></a>Aqui esta como se podria ver eso:</p>
+
+<pre class="snippet cm-s-default" data-language="javascript" ><a class="c_ident" id="c_yDf1qlQH1i" href="#c_yDf1qlQH1i" tabindex="-1" role="presentation"></a><span class="cm-keyword">function</span> <span class="cm-def">eleccionAleatoria</span>(<span class="cm-def">array</span>) {
+  <span class="cm-keyword">let</span> <span class="cm-def">eleccion</span> <span class="cm-operator">=</span> <span class="cm-variable">Math</span>.<span class="cm-property">floor</span>(<span class="cm-variable">Math</span>.<span class="cm-property">random</span>() <span class="cm-operator">*</span> <span class="cm-variable-2">array</span>.<span class="cm-property">length</span>);
+  <span class="cm-keyword">return</span> <span class="cm-variable-2">array</span>[<span class="cm-variable-2">eleccion</span>];
+}
+
+<span class="cm-keyword">function</span> <span class="cm-def">robotAleatorio</span>(<span class="cm-def">estado</span>) {
+  <span class="cm-keyword">return</span> {<span class="cm-property">direccion</span>: <span class="cm-variable">eleccionAleatoria</span>(<span class="cm-variable">grafoCamino</span>[<span class="cm-variable-2">estado</span>.<span class="cm-property">lugar</span>])};
+}</pre>
+
+<p><a class="p_ident" id="p_C8sbRhIAac" href="#p_C8sbRhIAac" tabindex="-1" role="presentation"></a>Recuerda que <code>Math.random ()</code> retorna un número entre cero y uno, pero siempre debajo de uno. Multiplicar dicho número por la longitud de un array y luego aplicarle <code>Math.floor</code> nos da un índice aleatorio para el array.</p>
+
+<p><a class="p_ident" id="p_U0xo3Ikgu+" href="#p_U0xo3Ikgu+" tabindex="-1" role="presentation"></a>Como este robot no necesita recordar nada, ignora su segundo argumento (recuerda que puedes llamar a las funciones en JavaScript con argumentos adicionales sin efectos negativos) y omite la propiedad <code>memoria</code> en su objeto retornado.</p>
+
+<p><a class="p_ident" id="p_pgS7wxRBwR" href="#p_pgS7wxRBwR" tabindex="-1" role="presentation"></a>Para poner en funcionamiento este sofisticado robot, primero necesitaremos una forma de crear un nuevo estado con algunos paquetes. Un método estático (escrito aquí al agregar directamente una propiedad al constructor) es un buen lugar para poner esa funcionalidad.</p>
+
+<pre class="snippet cm-s-default" data-language="javascript" ><a class="c_ident" id="c_gHSedHgtPV" href="#c_gHSedHgtPV" tabindex="-1" role="presentation"></a><span class="cm-variable">EstadoPueblo</span>.<span class="cm-property">aleatorio</span> <span class="cm-operator">=</span> <span class="cm-keyword">function</span>(<span class="cm-def">numeroDePaquetes</span> <span class="cm-operator">=</span> <span class="cm-number">5</span>) {
+  <span class="cm-keyword">let</span> <span class="cm-def">paquetes</span> <span class="cm-operator">=</span> [];
+  <span class="cm-keyword">for</span> (<span class="cm-keyword">let</span> <span class="cm-def">i</span> <span class="cm-operator">=</span> <span class="cm-number">0</span>; <span class="cm-variable-2">i</span> <span class="cm-operator">&lt;</span> <span class="cm-variable-2">numeroDePaquetes</span>; <span class="cm-variable-2">i</span><span class="cm-operator">++</span>) {
+    <span class="cm-keyword">let</span> <span class="cm-def">direccion</span> <span class="cm-operator">=</span> <span class="cm-variable">eleccionAleatoria</span>(<span class="cm-variable">Object</span>.<span class="cm-property">keys</span>(<span class="cm-variable">grafoCamino</span>));
+    <span class="cm-keyword">let</span> <span class="cm-def">lugar</span>;
+    <span class="cm-keyword">do</span> {
+      <span class="cm-variable-2">lugar</span> <span class="cm-operator">=</span> <span class="cm-variable">eleccionAleatoria</span>(<span class="cm-variable">Object</span>.<span class="cm-property">keys</span>(<span class="cm-variable">grafoCamino</span>));
+    } <span class="cm-keyword">while</span> (<span class="cm-variable-2">lugar</span> <span class="cm-operator">==</span> <span class="cm-variable-2">direccion</span>);
+    <span class="cm-variable-2">paquetes</span>.<span class="cm-property">push</span>({<span class="cm-property">lugar</span>, <span class="cm-property">direccion</span>});
+  }
+  <span class="cm-keyword">return</span> <span class="cm-keyword">new</span> <span class="cm-variable">EstadoPueblo</span>(<span class="cm-string">&quot;Oficina de Correos&quot;</span>, <span class="cm-variable-2">paquetes</span>);
+};</pre>
+
+<p><a class="p_ident" id="p_hR//qxxijs" href="#p_hR//qxxijs" tabindex="-1" role="presentation"></a>No queremos paquetes que sean enviados desde el mismo lugar al que están dirigidos. Por esta razón, el bucle <code>do</code> sigue seleccionando nuevos lugares cuando obtenga uno que sea igual a la dirección.</p>
+
+<p><a class="p_ident" id="p_YIoIjVMfLd" href="#p_YIoIjVMfLd" tabindex="-1" role="presentation"></a>Comencemos un mundo virtual.</p>
+
+<pre class="snippet cm-s-default" data-language="javascript" ><a class="c_ident" id="c_miDAPcEI8o" href="#c_miDAPcEI8o" tabindex="-1" role="presentation"></a><span class="cm-variable">correrRobot</span>(<span class="cm-variable">EstadoPueblo</span>.<span class="cm-property">aleatorio</span>(), <span class="cm-variable">robotAleatorio</span>);
+<span class="cm-comment">// → Moverse a Mercado</span>
+<span class="cm-comment">// → Moverse a Ayuntamiento</span>
+<span class="cm-comment">// → …</span>
+<span class="cm-comment">// → Listo en 63 turnos</span></pre>
+
+<p><a class="p_ident" id="p_3LEUc3/Ozu" href="#p_3LEUc3/Ozu" tabindex="-1" role="presentation"></a>Le toma muchas vueltas al robot para entregar los paquetes, porque este no está planeando muy bien. Nos ocuparemos de eso pronto.</p>
+
+<p><a class="p_ident" id="p_zDEZ3l569E" href="#p_zDEZ3l569E" tabindex="-1" role="presentation"></a>Para una perspectiva más agradable de la simulación, puedes usar la función <code>runRobotAnimation</code> que está disponible en el entorno de programación de este capítulo. Esta ejecuta la simulación, pero en lugar de mostrar texto, muestra al robot moviéndose por el mapa del pueblo.</p>
+
+<pre class="snippet cm-s-default" data-language="javascript" ><a class="c_ident" id="c_a9mA+WETMT" href="#c_a9mA+WETMT" tabindex="-1" role="presentation"></a><span class="cm-variable">runRobotAnimation</span>(<span class="cm-variable">EstadoPueblo</span>.<span class="cm-property">aleatorio</span>(), <span class="cm-variable">robotAleatorio</span>);</pre>
+
+<p><a class="p_ident" id="p_WCRm+6gN8X" href="#p_WCRm+6gN8X" tabindex="-1" role="presentation"></a>La forma en la que <code>runRobotAnimation</code> esta implementada seguirá siendo un misterio por ahora, pero después de que hayas leído <a href="dom">capítulos mas avanzados</a> de este libro, que discuten la integración de JavaScript en los navegadores web, podrás adivinar cómo esta funciona.</p>
+
+<h2><a class="h_ident" id="h_c0nLBEEK9u" href="#h_c0nLBEEK9u" tabindex="-1" role="presentation"></a>La ruta del camión de correos</h2>
+
+<p><a class="p_ident" id="p_JUEV3xiFVO" href="#p_JUEV3xiFVO" tabindex="-1" role="presentation"></a>Deberíamos poder hacer algo mucho mejor que el robot aleatorio. Una mejora fácil sería tomar una pista de la forma en que como funciona la entrega de correos en el mundo real. Si encontramos una ruta que pasa por todos los lugares en el pueblo, el robot podría ejecutar esa ruta dos veces, y en ese punto esta garantizado que ha entregado todos los paquetes. Aquí hay una de esas rutas (comenzando desde la Oficina de Correos).</p>
+
+<pre class="snippet cm-s-default" data-language="javascript" ><a class="c_ident" id="c_QLHCE4ErBQ" href="#c_QLHCE4ErBQ" tabindex="-1" role="presentation"></a><span class="cm-keyword">const</span> <span class="cm-def">rutaCorreo</span> <span class="cm-operator">=</span> [
+  <span class="cm-string">&quot;Casa de Alicia&quot;</span>, <span class="cm-string">&quot;Cabaña&quot;</span>, <span class="cm-string">&quot;Casa de Alicia&quot;</span>, <span class="cm-string">&quot;Casa de Bob&quot;</span>,
+  <span class="cm-string">&quot;Ayuntamiento&quot;</span>, <span class="cm-string">&quot;Casa de Daria&quot;</span>, <span class="cm-string">&quot;Casa de Ernie&quot;</span>,
+  <span class="cm-string">&quot;GCasa de Grete&quot;</span>, <span class="cm-string">&quot;Tienda&quot;</span>, <span class="cm-string">&quot;Casa de Grete&quot;</span>, <span class="cm-string">&quot;Granja&quot;</span>,
+  <span class="cm-string">&quot;Mercado&quot;</span>, <span class="cm-string">&quot;Oficina de Correos&quot;</span>
+];</pre>
+
+<p><a class="p_ident" id="p_cqw5dOgDBe" href="#p_cqw5dOgDBe" tabindex="-1" role="presentation"></a>Para implementar el robot que siga la ruta, necesitaremos hacer uso de la memoria del robot. El robot mantiene el resto de su ruta en su memoria y deja caer el primer elemento en cada vuelta.</p>
+
+<pre class="snippet cm-s-default" data-language="javascript" ><a class="c_ident" id="c_Ii/FRu2Rtw" href="#c_Ii/FRu2Rtw" tabindex="-1" role="presentation"></a><span class="cm-keyword">function</span> <span class="cm-def">robotRuta</span>(<span class="cm-def">estado</span>, <span class="cm-def">memoria</span>) {
+  <span class="cm-keyword">if</span> (<span class="cm-variable-2">memoria</span>.<span class="cm-property">length</span> <span class="cm-operator">==</span> <span class="cm-number">0</span>) {
+    <span class="cm-variable-2">memoria</span> <span class="cm-operator">=</span> <span class="cm-variable">rutaCorreo</span>;
+  }
+  <span class="cm-keyword">return</span> {<span class="cm-property">direction</span>: <span class="cm-variable-2">memoria</span>[<span class="cm-number">0</span>], <span class="cm-property">memoria</span>: <span class="cm-variable-2">memoria</span>.<span class="cm-property">slice</span>(<span class="cm-number">1</span>)};
+}</pre>
+
+<p><a class="p_ident" id="p_WcbzmPSWX0" href="#p_WcbzmPSWX0" tabindex="-1" role="presentation"></a>Este robot ya es mucho más rápido. Tomará un máximo de 26 turnos (dos veces la ruta de 13 pasos), pero generalmente seran menos.</p>
+
+<pre class="snippet cm-s-default" data-language="javascript" ><a class="c_ident" id="c_U1Y8MRy2bD" href="#c_U1Y8MRy2bD" tabindex="-1" role="presentation"></a><span class="cm-variable">runRobotAnimation</span>(<span class="cm-variable">EstadoPueblo</span>.<span class="cm-property">aleatorio</span>(), <span class="cm-variable">robotRuta</span>, []);</pre>
+
+<h2><a class="h_ident" id="h_erNX2vuWU/" href="#h_erNX2vuWU/" tabindex="-1" role="presentation"></a>Búsqueda de rutas</h2>
+
+<p><a class="p_ident" id="p_UA0y5BjAMn" href="#p_UA0y5BjAMn" tabindex="-1" role="presentation"></a>Aún así, realmente no llamaría seguir ciegamente una ruta fija comportamiento inteligente. El robot podría funcionar más eficientemente si ajustara su comportamiento al trabajo real que necesita hacerse.</p>
+
+<p><a class="p_ident" id="p_Qq4JUaMcE0" href="#p_Qq4JUaMcE0" tabindex="-1" role="presentation"></a>Para hacer eso, tiene que ser capaz de avanzar deliberadamente hacia un determinado paquete, o hacia la ubicación donde se debe entregar un paquete. Al hacer eso, incluso cuando el objetivo esté a más de un movimiento de distancia, requiere algún tipo de función de búsqueda de ruta.</p>
+
+<p><a class="p_ident" id="p_PxJJwn/RDt" href="#p_PxJJwn/RDt" tabindex="-1" role="presentation"></a>El problema de encontrar una ruta a través de un grafo es un típico <em>problema de búsqueda</em>. Podemos decir si una solución dada (una ruta) es una solución válida, pero no podemos calcular directamente la solución de la misma manera que podríamos para 2 + 2. En cambio, tenemos que seguir creando soluciones potenciales hasta que encontremos una que funcione.</p>
+
+<p><a class="p_ident" id="p_2XyDK22iQA" href="#p_2XyDK22iQA" tabindex="-1" role="presentation"></a>El número de rutas posibles a través de un grafo es infinito. Pero cuando buscamos una ruta de <em>A</em> a <em>B</em>, solo estamos interesados ​​en aquellas que comienzan en <em>A</em>. Tampoco nos importan las rutas que visitan el mismo lugar dos veces, definitivamente esa no es la ruta más eficiente en cualquier sitio. Entonces eso reduce la cantidad de rutas que el buscador de rutas tiene que considerar.</p>
+
+<p><a class="p_ident" id="p_IQh00sZnKp" href="#p_IQh00sZnKp" tabindex="-1" role="presentation"></a>De hecho, estamos más interesados ​​en la ruta <em>mas corta</em>. Entonces queremos asegurarnos de mirar las rutas cortas antes de mirar las más largas. Un buen enfoque sería “crecer” las rutas desde el punto de partida, explorando cada lugar accesible que aún no ha sido visitado, hasta que una ruta alcanze la meta. De esa forma, solo exploraremos las rutas que son potencialmente interesantes, y encontremos la ruta más corta (o una de las rutas más cortas, si hay más de una) a la meta.</p>
+
+<p id="findRoute"><a class="p_ident" id="p_HzB02WYPFY" href="#p_HzB02WYPFY" tabindex="-1" role="presentation"></a>Aquí hay una función que hace esto:</p>
+
+<pre class="snippet cm-s-default" data-language="javascript" ><a class="c_ident" id="c_9EILMxqdaG" href="#c_9EILMxqdaG" tabindex="-1" role="presentation"></a><span class="cm-keyword">function</span> <span class="cm-def">encontrarRuta</span>(<span class="cm-def">grafo</span>, <span class="cm-def">desde</span>, <span class="cm-def">hasta</span>) {
+  <span class="cm-keyword">let</span> <span class="cm-def">trabajo</span> <span class="cm-operator">=</span> [{<span class="cm-property">donde</span>: <span class="cm-variable-2">desde</span>, <span class="cm-property">ruta</span>: []}];
+  <span class="cm-keyword">for</span> (<span class="cm-keyword">let</span> <span class="cm-def">i</span> <span class="cm-operator">=</span> <span class="cm-number">0</span>; <span class="cm-variable-2">i</span> <span class="cm-operator">&lt;</span> <span class="cm-variable-2">trabajo</span>.<span class="cm-property">length</span>; <span class="cm-variable-2">i</span><span class="cm-operator">++</span>) {
+    <span class="cm-keyword">let</span> {<span class="cm-def">donde</span>, <span class="cm-def">ruta</span>} <span class="cm-operator">=</span> <span class="cm-variable-2">trabajo</span>[<span class="cm-variable-2">i</span>];
+    <span class="cm-keyword">for</span> (<span class="cm-keyword">let</span> <span class="cm-def">lugar</span> <span class="cm-keyword">of</span> <span class="cm-variable-2">grafo</span>[<span class="cm-variable-2">donde</span>]) {
+      <span class="cm-keyword">if</span> (<span class="cm-variable-2">lugar</span> <span class="cm-operator">==</span> <span class="cm-variable-2">hasta</span>) <span class="cm-keyword">return</span> <span class="cm-variable-2">ruta</span>.<span class="cm-property">concat</span>(<span class="cm-variable-2">lugar</span>);
+      <span class="cm-keyword">if</span> (<span class="cm-operator">!</span><span class="cm-variable-2">trabajo</span>.<span class="cm-property">some</span>(<span class="cm-def">w</span> <span class="cm-operator">=&gt;</span> <span class="cm-variable-2">w</span>.<span class="cm-property">donde</span> <span class="cm-operator">==</span> <span class="cm-variable-2">lugar</span>)) {
+        <span class="cm-variable-2">trabajo</span>.<span class="cm-property">push</span>({<span class="cm-property">donde</span>: <span class="cm-variable-2">lugar</span>, <span class="cm-property">ruta</span>: <span class="cm-variable-2">ruta</span>.<span class="cm-property">concat</span>(<span class="cm-variable-2">lugar</span>)});
+      }
+    }
+  }
+}</pre>
+
+<p><a class="p_ident" id="p_6CaWNzFOwP" href="#p_6CaWNzFOwP" tabindex="-1" role="presentation"></a>La exploración tiene que hacerse en el orden correcto—los lugares que fueron alcanzados primero deben ser explorados primero. No podemos explorar de inmediato un lugar apenas lo alcanzamos, porque eso significaría que los lugares alcanzados <em>desde allí</em> también se explorarían de inmediato, y así sucesivamente, incluso aunque puedan haber otros caminos más cortos que aún no han sido explorados.</p>
+
+<p><a class="p_ident" id="p_9iy0XgVHaG" href="#p_9iy0XgVHaG" tabindex="-1" role="presentation"></a>Por lo tanto, la función mantiene una <em>lista de trabajo</em>. Esta es un array de lugares que deberían explorarse a continuación, junto con la ruta que nos llevó ahí. Esta comienza solo con la posición de inicio y una ruta vacía.</p>
+
+<p><a class="p_ident" id="p_5927zSYZfH" href="#p_5927zSYZfH" tabindex="-1" role="presentation"></a>La búsqueda luego opera tomando el siguiente elemento en la lista y explorando eso, lo que significa que todos los caminos que van desde ese lugar son mirados. Si uno de ellos es el objetivo, una ruta final puede ser retornada. De lo contrario, si no hemos visto este lugar antes, un nuevo elemento se agrega a la lista. Si lo hemos visto antes, ya que estamos buscando primero rutas cortas, hemos encontrado una ruta más larga a ese lugar o una precisamente tan larga como la existente, y no necesitamos explorarla.</p>
+
+<p><a class="p_ident" id="p_xE+CNBaoiQ" href="#p_xE+CNBaoiQ" tabindex="-1" role="presentation"></a>Puedes imaginar esto visualmente como una red de rutas conocidas que se arrastran desde el lugar de inicio, creciendo uniformemente hacia todos los lados (pero nunca enredándose de vuelta a si misma). Tan pronto como el primer hilo llegue a la ubicación objetivo, ese hilo se remonta al comienzo, dándonos asi nuestra ruta.</p>
+
+<p><a class="p_ident" id="p_8xtuFs30lw" href="#p_8xtuFs30lw" tabindex="-1" role="presentation"></a>Nuestro código no maneja la situación donde no hay más elementos de trabajo en la lista de trabajo, porque sabemos que nuestro gráfico está <em>conectado</em>, lo que significa que se puede llegar a todos los lugares desde todos los otros lugares. Siempre podremos encontrar una ruta entre dos puntos, y la búsqueda no puede fallar.</p>
+
+<pre class="snippet cm-s-default" data-language="javascript" ><a class="c_ident" id="c_36CpdfbF4o" href="#c_36CpdfbF4o" tabindex="-1" role="presentation"></a><span class="cm-keyword">function</span> <span class="cm-def">robotOrientadoAMetas</span>({<span class="cm-def">lugar</span>, <span class="cm-def">paquetes</span>}, <span class="cm-def">ruta</span>) {
+  <span class="cm-keyword">if</span> (<span class="cm-variable-2">ruta</span>.<span class="cm-property">length</span> <span class="cm-operator">==</span> <span class="cm-number">0</span>) {
+    <span class="cm-keyword">let</span> <span class="cm-def">paquete</span> <span class="cm-operator">=</span> <span class="cm-variable-2">paquetes</span>[<span class="cm-number">0</span>];
+    <span class="cm-keyword">if</span> (<span class="cm-variable-2">paquete</span>.<span class="cm-property">lugar</span> <span class="cm-operator">!=</span> <span class="cm-variable-2">lugar</span>) {
+      <span class="cm-variable-2">ruta</span> <span class="cm-operator">=</span> <span class="cm-variable">encontrarRuta</span>(<span class="cm-variable">grafoCamino</span>, <span class="cm-variable-2">lugar</span>, <span class="cm-variable-2">paquete</span>.<span class="cm-property">lugar</span>);
+    } <span class="cm-keyword">else</span> {
+      <span class="cm-variable-2">ruta</span> <span class="cm-operator">=</span> <span class="cm-variable">encontrarRuta</span>(<span class="cm-variable">grafoCamino</span>, <span class="cm-variable-2">lugar</span>, <span class="cm-variable-2">paquete</span>.<span class="cm-property">direccion</span>);
+    }
+  }
+  <span class="cm-keyword">return</span> {<span class="cm-property">direccion</span>: <span class="cm-variable-2">ruta</span>[<span class="cm-number">0</span>], <span class="cm-property">memoria</span>: <span class="cm-variable-2">ruta</span>.<span class="cm-property">slice</span>(<span class="cm-number">1</span>)};
+}</pre>
+
+<p><a class="p_ident" id="p_T80EJXFN/x" href="#p_T80EJXFN/x" tabindex="-1" role="presentation"></a>Este robot usa su valor de memoria como una lista de instrucciones para moverse, como el robot que sigue la ruta. Siempre que esa lista esté vacía, este tiene que descubrir qué hacer a continuación. Toma el primer paquete no entregado en el conjunto y, si ese paquete no se ha recogido aún, traza una ruta hacia el. Si el paquete <em>ha</em> sido recogido, todavía debe ser entregado, por lo que el robot crea una ruta hacia la dirección de entrega en su lugar.</p>
+
+<p><a class="p_ident" id="p_3q7RDx8/2q" href="#p_3q7RDx8/2q" tabindex="-1" role="presentation"></a>Veamos cómo le va.</p>
+
+<pre class="snippet cm-s-default" data-language="javascript" ><a class="c_ident" id="c_29bMDxgXza" href="#c_29bMDxgXza" tabindex="-1" role="presentation"></a><span class="cm-variable">runRobotAnimation</span>(<span class="cm-variable">EstadoPueblo</span>.<span class="cm-property">aleatorio</span>(),
+                  <span class="cm-variable">robotOrientadoAMetas</span>, []);</pre>
+
+<p><a class="p_ident" id="p_GL4TSYKOdB" href="#p_GL4TSYKOdB" tabindex="-1" role="presentation"></a>Este robot generalmente termina la tarea de entregar 5 paquetes en 16 turnos aproximadamente. Un poco mejor que <code>robotRuta</code>, pero definitivamente no es óptimo.</p>
+
+<h2><a class="h_ident" id="h_tkm7ntLto1" href="#h_tkm7ntLto1" tabindex="-1" role="presentation"></a>Ejercicios</h2>
+
+<h3><a class="i_ident" id="i_qw5TSPuirr" href="#i_qw5TSPuirr" tabindex="-1" role="presentation"></a>Midiendo un robot</h3>
+
+<p><a class="p_ident" id="p_lyukeUuD6v" href="#p_lyukeUuD6v" tabindex="-1" role="presentation"></a>Es difícil comparar objetivamente robots simplemente dejándolos resolver algunos escenarios. Tal vez un robot acaba de conseguir tareas más fáciles, o el tipo de tareas en las que es bueno, mientras que el otro no.</p>
+
+<p><a class="p_ident" id="p_kWeBanvfV9" href="#p_kWeBanvfV9" tabindex="-1" role="presentation"></a>Escribe una función <code>compararRobots</code> que toma dos robots (y su memoria de inicio). Debe generar 100 tareas y dejar que cada uno de los robots resuelvan cada una de estas tareas. Cuando terminen, debería generar el promedio de pasos que cada robot tomó por tarea.</p>
+
+<p><a class="p_ident" id="p_vw6cY+9qqA" href="#p_vw6cY+9qqA" tabindex="-1" role="presentation"></a>En favor de lo que es justo, asegúrate de la misma tarea a ambos robots, en lugar de generar diferentes tareas por robot.</p>
+
+<pre class="snippet cm-s-default" data-language="javascript" ><a class="c_ident" id="c_a6+0QvfKcD" href="#c_a6+0QvfKcD" tabindex="-1" role="presentation"></a><span class="cm-keyword">function</span> <span class="cm-def">compararRobots</span>(<span class="cm-def">robot1</span>, <span class="cm-def">memoria1</span>, <span class="cm-def">robot2</span>, <span class="cm-def">memoria2</span>) {
+  <span class="cm-comment">// Tu código aqui</span>
+}
+
+<span class="cm-variable">compararRobots</span>(<span class="cm-variable">robotRuta</span>, [], <span class="cm-variable">robotOrientadoAMetas</span>, []);</pre>
+
+<div class="solution"><div class="solution-text">
+
+<p><a class="p_ident" id="p_kcCXvCKFts" href="#p_kcCXvCKFts" tabindex="-1" role="presentation"></a>Tendrás que escribir una variante de la función <code>correrRobot</code> que, en lugar de registrar los eventos en la consola, retorne el número de pasos que le tomó al robot completar la tarea.</p>
+
+<p><a class="p_ident" id="p_Xr248zBbAN" href="#p_Xr248zBbAN" tabindex="-1" role="presentation"></a>Tu función de medición puede, en un ciclo, generar nuevos estados y contar los pasos que lleva cada uno de los robots. Cuando has generado suficientes mediciones, puedes usar <code>console.log</code> para mostrar el promedio de cada robot, que es la cantidad total de pasos tomados dividido por el número de mediciones</p>
+
+</div></div>
+
+<h3><a class="i_ident" id="i_XtZPo4zIj3" href="#i_XtZPo4zIj3" tabindex="-1" role="presentation"></a>Eficiencia del robot</h3>
+
+<p><a class="p_ident" id="p_ekiPq8jgZ7" href="#p_ekiPq8jgZ7" tabindex="-1" role="presentation"></a>Puedes escribir un robot que termine la tarea de entrega más rápido que <code>robotOrientadoAMetas</code>? Si observas el comportamiento de ese robot, qué obviamente cosas estúpidas este hace? Cómo podrían mejorarse?</p>
+
+<p><a class="p_ident" id="p_aXSqWUzNil" href="#p_aXSqWUzNil" tabindex="-1" role="presentation"></a>Si resolviste el ejercicio anterior, es posible que desees utilizar tu función <code>compararRobots</code> para verificar si has mejorado al robot.</p>
+
+<pre class="snippet cm-s-default" data-language="javascript" ><a class="c_ident" id="c_GnfJ9AkbIK" href="#c_GnfJ9AkbIK" tabindex="-1" role="presentation"></a><span class="cm-comment">// Tu código aqui</span>
+
+<span class="cm-variable">runRobotAnimation</span>(<span class="cm-variable">EstadoPueblo</span>.<span class="cm-property">aleatorio</span>(), <span class="cm-variable">tuRobot</span>, <span class="cm-variable">memoria</span>);</pre>
+
+<div class="solution"><div class="solution-text">
+
+<p><a class="p_ident" id="p_sRXTWyzdOx" href="#p_sRXTWyzdOx" tabindex="-1" role="presentation"></a>La principal limitación de <code>robotOrientadoAMetas</code> es que solo considera un paquete a la vez. A menudo caminará de ida y vuelta por el pueblo porque el paquete que resulta estar mirando sucede que esta en el otro lado del mapa, incluso si hay otros mucho más cerca.</p>
+
+<p><a class="p_ident" id="p_gsHKIVWDBE" href="#p_gsHKIVWDBE" tabindex="-1" role="presentation"></a>Una posible solución sería calcular rutas para todos los paquetes, y luego tomar la más corta. Se pueden obtener incluso mejores resultados, si hay múltiples rutas más cortas, al ir prefiriendo las que van a recoger un paquete en lugar de entregar un paquete.</p>
+
+</div></div>
+
+<h3><a class="i_ident" id="i_bE8CinQCzv" href="#i_bE8CinQCzv" tabindex="-1" role="presentation"></a>Conjunto persistente</h3>
+
+<p><a class="p_ident" id="p_OO19TRYx3U" href="#p_OO19TRYx3U" tabindex="-1" role="presentation"></a>La mayoría de las estructuras de datos proporcionadas en un entorno de JavaScript estándar no son muy adecuadas para usos persistentes. Los arrays tienen los métodos <code>slice</code> y <code>concat</code>, que nos permiten fácilmente crear nuevos arrays sin dañar al anterior. Pero <code>Set</code>, por ejemplo, no tiene métodos para crear un nuevo conjunto con un elemento agregado o eliminado.</p>
+
+<p><a class="p_ident" id="p_lEimz6RH5k" href="#p_lEimz6RH5k" tabindex="-1" role="presentation"></a>Escribe una nueva clase <code>ConjuntoP</code>, similar a la clase <code>Conjunto</code> del <a href="06_objeto.html#grupos">Capitulo 6</a>, que almacena un conjunto de valores. Como <code>Grupo</code>, tiene métodos <code>añadir</code>, <code>eliminar</code>, y <code>tiene</code>.</p>
+
+<p><a class="p_ident" id="p_dksBwz7QO/" href="#p_dksBwz7QO/" tabindex="-1" role="presentation"></a>Su método <code>añadir</code>, sin embargo, debería retornar una <em>nueva</em> instancia de <code>ConjuntoP</code> con el miembro dado agregado, y dejar la instancia anterior sin cambios. Del mismo modo, <code>eliminar</code> crea una nueva instancia sin un miembro dado.</p>
+
+<p><a class="p_ident" id="p_r9pv7BHT6h" href="#p_r9pv7BHT6h" tabindex="-1" role="presentation"></a>La clase debería funcionar para valores de cualquier tipo, no solo strings. Esta <em>no</em> tiene que ser eficiente cuando se usa con grandes cantidades de valores.</p>
+
+<p><a class="p_ident" id="p_OfC0B8J0Hf" href="#p_OfC0B8J0Hf" tabindex="-1" role="presentation"></a>El constructor no deberia ser parte de la interfaz de la clase (aunque definitivamente querrás usarlo internamente). En cambio, allí hay una instancia vacía, <code>ConjuntoP.vacio</code>, que se puede usar como un valor de inicio.</p>
+
+<p><a class="p_ident" id="p_bYNi2z+g05" href="#p_bYNi2z+g05" tabindex="-1" role="presentation"></a>Por qué solo necesitas un valor <code>ConjuntoP.vacio</code>, en lugar de tener una función que crea un nuevo mapa vacío cada vez?</p>
+
+<pre class="snippet cm-s-default" data-language="javascript" ><a class="c_ident" id="c_HmC858fyCX" href="#c_HmC858fyCX" tabindex="-1" role="presentation"></a><span class="cm-keyword">class</span> <span class="cm-def">ConjuntoP</span> {
+  <span class="cm-comment">// Tu código aqui</span>
+}
+
+<span class="cm-keyword">let</span> <span class="cm-def">a</span> <span class="cm-operator">=</span> <span class="cm-variable">ConjuntoP</span>.<span class="cm-property">vacio</span>.<span class="cm-property">añadir</span>(<span class="cm-string">&quot;a&quot;</span>);
+<span class="cm-keyword">let</span> <span class="cm-def">ab</span> <span class="cm-operator">=</span> <span class="cm-variable">a</span>.<span class="cm-property">añadir</span>(<span class="cm-string">&quot;b&quot;</span>);
+<span class="cm-keyword">let</span> <span class="cm-def">b</span> <span class="cm-operator">=</span> <span class="cm-variable">ab</span>.<span class="cm-property">eliminar</span>(<span class="cm-string">&quot;a&quot;</span>);
+
+<span class="cm-variable">console</span>.<span class="cm-property">log</span>(<span class="cm-variable">b</span>.<span class="cm-property">tiene</span>(<span class="cm-string">&quot;b&quot;</span>));
+<span class="cm-comment">// → true</span>
+<span class="cm-variable">console</span>.<span class="cm-property">log</span>(<span class="cm-variable">a</span>.<span class="cm-property">tiene</span>(<span class="cm-string">&quot;b&quot;</span>));
+<span class="cm-comment">// → false</span>
+<span class="cm-variable">console</span>.<span class="cm-property">log</span>(<span class="cm-variable">b</span>.<span class="cm-property">tiene</span>(<span class="cm-string">&quot;a&quot;</span>));
+<span class="cm-comment">// → false</span></pre>
+
+<div class="solution"><div class="solution-text">
+
+<p><a class="p_ident" id="p_8KXK9HpVPD" href="#p_8KXK9HpVPD" tabindex="-1" role="presentation"></a>La forma más conveniente de representar el conjunto de valores de miembro sigue siendo un array, ya que son fáciles de copiar.</p>
+
+<p><a class="p_ident" id="p_QDRFiAXqMm" href="#p_QDRFiAXqMm" tabindex="-1" role="presentation"></a>Cuando se agrega un valor al grupo, puedes crear un nuevo grupo con una copia del array original que tiene el valor agregado (por ejemplo, usando <code>concat</code>). Cuando se borra un valor, lo filtra afuera del array.</p>
+
+<p><a class="p_ident" id="p_E+Vix2v/8X" href="#p_E+Vix2v/8X" tabindex="-1" role="presentation"></a>El constructor de la clase puede tomar un array como argumento, y almacenarlo como la (única) propiedad de la instancia. Este array nunca es actualizado.</p>
+
+<p><a class="p_ident" id="p_xr88KVVaP3" href="#p_xr88KVVaP3" tabindex="-1" role="presentation"></a>Para agregar una propiedad (<code>vacio</code>) a un constructor que no sea un método, tienes que agregarlo al constructor después de la definición de la clase, como una propiedad regular.</p>
+
+<p><a class="p_ident" id="p_HfYp/vY3mA" href="#p_HfYp/vY3mA" tabindex="-1" role="presentation"></a>Solo necesita una instancia <code>vacio</code> porque todos los conjuntos vacíos son iguales y las instancias de la clase no cambian. Puedes crear muchos conjuntos diferentes de ese único conjunto vacío sin afectarlo.</p>
+
+</div></div><nav><a href="06_objeto.html" title="previous chapter">◀</a> <a href="index.html" title="cover">◆</a> <a href="08_error.html" title="next chapter">▶</a></nav>
+</article>
