@@ -1,44 +1,44 @@
-function repeat(n, action) {
+function repetir(n, accion) {
   for (let i = 0; i < n; i++) {
-    action(i);
+    accion(i);
   }
 }
 
-function characterScript(code) {
-  for (let script of SCRIPTS) {
-    if (script.ranges.some(([from, to]) => {
-      return code >= from && code < to;
+function codigoCaracter(codigo_caracter) {
+  for (let codigo of SCRIPTS) {
+    if (codigo.ranges.some(([desde, hasta]) => {
+      return codigo_caracter >= desde && codigo_caracter < hasta;
     })) {
-      return script;
+      return codigo;
     }
   }
   return null;
 }
 
-function countBy(items, groupName) {
-  let counts = [];
-  for (let item of items) {
-    let name = groupName(item);
-    let known = counts.findIndex(c => c.name == name);
-    if (known == -1) {
-      counts.push({name, count: 1});
+function contarPor(elementos, nombreGrupo) {
+  let cuentas = [];
+  for (let elemento of elementos) {
+    let nombre = nombreGrupo(elemento);
+    let conocido = cuentas.findIndex(c => c.nombre == nombre);
+    if (conocido == -1) {
+      cuentas.push({nombre, cuenta: 1});
     } else {
-      counts[known].count++;
+      cuentas[conocido].cuenta++;
     }
   }
-  return counts;
+  return cuentas;
 }
 
-function textScripts(text) {
-  let scripts = countBy(text, char => {
-    let script = characterScript(char.codePointAt(0));
-    return script ? script.name : "none";
-  }).filter(({name}) => name != "none");
+function codigosTexto(texto) {
+  let codigos = contarPor(texto, caracter => {
+    let codigo = codigoCaracter(caracter.codePointAt(0));
+    return codigo ? codigo.name : "ninguno";
+  }).filter(({name}) => name != "ninguno");
 
-  let total = scripts.reduce((n, {count}) => n + count, 0);
-  if (total == 0) return "No scripts found";
+  let total = codigos.reduce((n, {count}) => n + count, 0);
+  if (total == 0) return "No se encontraron codigos";
 
-  return scripts.map(({name, count}) => {
+  return codigos.map(({name, count}) => {
     return `${Math.round(count * 100 / total)}% ${name}`;
   }).join(", ");
 }

@@ -1,64 +1,64 @@
-function speak(line) {
-  console.log(`The ${this.type} rabbit says '${line}'`);
+function hablar(linea) {
+  console.log(`El conejo ${this.tipo} dice '${linea}'`);
 }
-var whiteRabbit = {type: "white", speak};
-var hungryRabbit = {type: "hungry", speak};
+var conejoBlanco = {tipo: "blanco", hablar};
+var conejoHambriento = {tipo: "hambriento", hablar};
 
 
-var Rabbit = class Rabbit {
-  constructor(type) {
-    this.type = type;
+var Conejo = class Conejo {
+  constructor(tipo) {
+    this.tipo = tipo;
   }
-  speak(line) {
-    console.log(`The ${this.type} rabbit says '${line}'`);
+  hablar(linea) {
+    console.log(`El conejo ${this.tipo} dice '${linea}'`);
   }
 }
 
-var killerRabbit = new Rabbit("killer");
-var blackRabbit = new Rabbit("black");
+var conejoAsesino = new Conejo("asesino");
+var conejoNegro = new Conejo("negro");
 
-Rabbit.prototype.toString = function() {
-  return `a ${this.type} rabbit`;
+Conejo.prototype.toString = function() {
+  return `un conejo ${this.tipo}`;
 };
 
-var toStringSymbol = Symbol("toString");
+var simboloToString = Symbol("toString");
 
-var Matrix = class Matrix {
-  constructor(width, height, element = (x, y) => undefined) {
-    this.width = width;
-    this.height = height;
-    this.content = [];
+var Matriz = class Matriz {
+  constructor(ancho, altura, elemento = (x, y) => undefined) {
+    this.ancho = ancho;
+    this.altura = altura;
+    this.contenido = [];
 
-    for (let y = 0; y < height; y++) {
-      for (let x = 0; x < width; x++) {
-        this.content[y * width + x] = element(x, y);
+    for (let y = 0; y < altura; y++) {
+      for (let x = 0; x < ancho; x++) {
+        this.contenido[y * ancho + x] = elemento(x, y);
       }
     }
   }
 
-  get(x, y) {
-    return this.content[y * this.width + x];
+  obtener(x, y) {
+    return this.contenido[y * this.ancho + x];
   }
-  set(x, y, value) {
-    this.content[y * this.width + x] = value;
+  establecer(x, y, valor) {
+    this.contenido[y * this.ancho + x] = valor;
   }
 }
 
-var MatrixIterator = class MatrixIterator {
-  constructor(matrix) {
+var IteradorMatriz = class IteradorMatriz {
+  constructor(matriz) {
     this.x = 0;
     this.y = 0;
-    this.matrix = matrix;
+    this.matriz = matriz;
   }
 
   next() {
-    if (this.y == this.matrix.height) return {done: true};
+    if (this.y == this.matriz.altura) return {done: true};
 
     let value = {x: this.x,
                  y: this.y,
-                 value: this.matrix.get(this.x, this.y)};
+                 value: this.matriz.obtener(this.x, this.y)};
     this.x++;
-    if (this.x == this.matrix.width) {
+    if (this.x == this.matriz.ancho) {
       this.x = 0;
       this.y++;
     }
@@ -66,24 +66,24 @@ var MatrixIterator = class MatrixIterator {
   }
 }
 
-Matrix.prototype[Symbol.iterator] = function() {
-  return new MatrixIterator(this);
+Matriz.prototype[Symbol.iterator] = function() {
+  return new IteradorMatriz(this);
 };
 
-var SymmetricMatrix = class SymmetricMatrix extends Matrix {
-  constructor(size, element = (x, y) => undefined) {
-    super(size, size, (x, y) => {
-      if (x < y) return element(y, x);
-      else return element(x, y);
+var MatrizSimetrica = class MatrizSimetrica extends Matriz {
+  constructor(tamaño, elemento = (x, y) => undefined) {
+    super(tamaño, tamaño, (x, y) => {
+      if (x < y) return elemento(y, x);
+      else return elemento(x, y);
     });
   }
 
-  set(x, y, value) {
-    super.set(x, y, value);
+  set(x, y, valor) {
+    super.set(x, y, valor);
     if (x != y) {
-      super.set(y, x, value);
+      super.set(y, x, valor);
     }
   }
 }
 
-var matrix = new SymmetricMatrix(5, (x, y) => `${x},${y}`);
+var matriz = new MatrizSimetrica(5, (x, y) => `${x},${y}`);

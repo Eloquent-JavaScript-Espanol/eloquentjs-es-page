@@ -1,55 +1,54 @@
-var journal = [];
+var diario = [];
 
-function addEntry(events, squirrel) {
-  journal.push({events, squirrel});
+function añadirEntrada(eventos, ardilla) {
+  diario.push({eventos, ardilla});
 }
 
-function phi(table) {
-  return (table[3] * table[0] - table[2] * table[1]) /
-    Math.sqrt((table[2] + table[3]) *
-              (table[0] + table[1]) *
-              (table[1] + table[3]) *
-              (table[0] + table[2]));
+function phi(tabla) {
+  return (tabla[3] * tabla[0] - tabla[2] * tabla[1]) /
+    Math.sqrt((tabla[2] + tabla[3]) *
+              (tabla[0] + tabla[1]) *
+              (tabla[1] + tabla[3]) *
+              (tabla[0] + tabla[2]));
 }
 
-function tableFor(event, journal) {
-  let table = [0, 0, 0, 0];
-  for (let i = 0; i < journal.length; i++) {
-    let entry = journal[i], index = 0;
-    if (entry.events.includes(event)) index += 1;
-    if (entry.squirrel) index += 2;
-    table[index] += 1;
+function tablaPara(evento, diario) {
+  let tabla = [0, 0, 0, 0];
+  for (let i = 0; i < diario.length; i++) {
+    let entrada = diario[i], index = 0;
+    if (entrada.eventos.includes(evento)) index += 1;
+    if (entrada.ardilla) index += 2;
+    tabla[index] += 1;
   }
-  return table;
+  return tabla;
 }
 
-function journalEvents(journal) {
-  let events = [];
-  for (let entry of journal) {
-    for (let event of entry.events) {
-      if (!events.includes(event)) {
-        events.push(event);
+function eventosDiario(diario) {
+  let eventos = [];
+  for (let entrada of diario) {
+    for (let evento of entrada.eventos) {
+      if (!eventos.includes(evento)) {
+        eventos.push(evento);
       }
     }
   }
-  return events;
+  return eventos;
 }
 
-function max(...numbers) {
-  let result = -Infinity;
-  for (let number of numbers) {
-    if (number > result) result = number;
+for (let entrada of DIARIO) {
+  if (entrada.eventos.includes("nueces") &&
+     !entrada.eventos.includes("me cepille los dientes")) {
+    entrada.eventos.push("dientes con nueces");
   }
-  return result;
 }
 
-var list = {
-  value: 1,
-  rest: {
-    value: 2,
-    rest: {
-      value: 3,
-      rest: null
+var lista = {
+  valor: 1,
+  resto: {
+    valor: 2,
+    resto: {
+      valor: 3,
+      resto: null
     }
   }
 };

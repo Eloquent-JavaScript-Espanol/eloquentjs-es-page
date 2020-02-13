@@ -2,7 +2,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>The Secret Life of Objects :: Eloquent JavaScript</title>
+  <title>La Vida Secreta de los Objetos :: Eloquent JavaScript</title>
   <link rel=stylesheet href="js/node_modules/codemirror/lib/codemirror.css">
   <script src="js/acorn_codemirror.js"></script>
   <link rel=stylesheet href="css/ejs.css">
@@ -12,95 +12,95 @@
 <article>
 <nav><a href="05_higher_order.html" title="previous chapter">◀</a> <a href="index.html" title="cover">◆</a> <a href="07_robot.html" title="next chapter">▶</a></nav>
 
-<h1><span class=chap_num>Chapter 6</span>The Secret Life of Objects</h1>
+<h1><span class=chap_num>Chapter 6</span>La Vida Secreta de los Objetos</h1>
 
 <blockquote>
 
-<p><a class="p_ident" id="p_gDFRhOpA5B" href="#p_gDFRhOpA5B" tabindex="-1" role="presentation"></a>An abstract data type is realized by writing a special kind of program […] which defines the type in terms of the operations which can be performed on it.</p>
+<p><a class="p_ident" id="p_SaEEkL7JqF" href="#p_SaEEkL7JqF" tabindex="-1" role="presentation"></a>Un tipo de datos abstracto se realiza al escribir un tipo especial de programa [...] que define el tipo en base a las operaciones que puedan ser realizadas en él.</p>
 
 <footer>Barbara Liskov, <cite>Programming with Abstract Data Types</cite></footer>
 
 </blockquote><figure class="chapter framed"><img src="img/chapter_picture_6.jpg" alt="Picture of a rabbit with its proto-rabbit"></figure>
 
-<p><a class="p_ident" id="p_KkunxYMaeO" href="#p_KkunxYMaeO" tabindex="-1" role="presentation"></a><a href="04_data.html">Chapter 4</a> introduced JavaScript’s objects. In programming culture, we have a thing called <em>object-oriented programming</em>, a set of techniques that use objects (and related concepts) as the central principle of program organization.</p>
+<p><a class="p_ident" id="p_m/nBFg/Kvb" href="#p_m/nBFg/Kvb" tabindex="-1" role="presentation"></a>El <a href="datos">Capítulo 4</a> introdujo los objetos en JavaScript. En la cultura de la programación, tenemos una cosa llamada <em>programación orientada a objetos</em>, la cual es un conjunto de técnicas que usan objetos (y conceptos relacionados) como el principio central de la organización del programa.</p>
 
-<p><a class="p_ident" id="p_iS8mjYhuYY" href="#p_iS8mjYhuYY" tabindex="-1" role="presentation"></a>Though no one really agrees on its precise definition, object-oriented programming has shaped the design of many programming languages, including JavaScript. This chapter will describe the way these ideas can be applied in JavaScript.</p>
+<p><a class="p_ident" id="p_yONiQ7500k" href="#p_yONiQ7500k" tabindex="-1" role="presentation"></a>Aunque nadie realmente está de acuerdo con su definición exacta, la programación orientada a objetos ha contribuido al diseño de muchos lenguajes de programación, incluyendo JavaScript. Este capítulo describirá la forma en la que estas ideas pueden ser aplicadas en JavaScript.</p>
 
-<h2><a class="h_ident" id="h_hn18MBjoh2" href="#h_hn18MBjoh2" tabindex="-1" role="presentation"></a>Encapsulation</h2>
+<h2><a class="h_ident" id="h_zUbLI3jVNp" href="#h_zUbLI3jVNp" tabindex="-1" role="presentation"></a>Encapsulación</h2>
 
-<p><a class="p_ident" id="p_76wqEvwMj/" href="#p_76wqEvwMj/" tabindex="-1" role="presentation"></a>The core idea in object-oriented programming is to divide programs into smaller pieces and make each piece responsible for managing its own state.</p>
+<p><a class="p_ident" id="p_LHPZ6Hjx8I" href="#p_LHPZ6Hjx8I" tabindex="-1" role="presentation"></a>La idea central en la programación orientada a objetos es dividir a los programas en piezas más pequeñas y hacer que cada pieza sea responsable de gestionar su propio estado.</p>
 
-<p><a class="p_ident" id="p_Ww3ymqEfW3" href="#p_Ww3ymqEfW3" tabindex="-1" role="presentation"></a>This way, some knowledge about the way a piece of the program works can be kept <em>local</em> to that piece. Someone working on the rest of the program does not have to remember or even be aware of that knowledge. Whenever these local details change, only the code directly around it needs to be updated.</p>
+<p><a class="p_ident" id="p_NfYiIXfZQr" href="#p_NfYiIXfZQr" tabindex="-1" role="presentation"></a>De esta forma, los conocimientos acerca de como funciona una parte del programa pueden mantenerse <em>locales</em> a esa pieza. Alguien trabajando en otra parte del programa no tiene que recordar o ni siquiera tener una idea de ese conocimiento. Cada vez que los detalles locales cambien, solo el código directamente a su alrededor debe ser actualizado.</p>
 
-<p id="interface"><a class="p_ident" id="p_m1XIFUcUIg" href="#p_m1XIFUcUIg" tabindex="-1" role="presentation"></a>Different pieces of such a program interact with each other through <em>interfaces</em>, limited sets of functions or bindings that provide useful functionality at a more abstract level, hiding their precise implementation.</p>
+<p id="interface"><a class="p_ident" id="p_gXigu5H9dw" href="#p_gXigu5H9dw" tabindex="-1" role="presentation"></a>Las diferentes piezas de un programa como tal, interactúan entre sí a través de <em>interfaces</em>, las cuales son conjuntos limitados de funciones y vinculaciones que proporcionan funcionalidades útiles en un nivel más abstracto, ocultando asi su implementación interna.</p>
 
-<p><a class="p_ident" id="p_n3o8Ctd3cn" href="#p_n3o8Ctd3cn" tabindex="-1" role="presentation"></a>Such program pieces are modeled using objects. Their interface consists of a specific set of methods and properties. Properties that are part of the interface are called <em>public</em>. The others, which outside code should not be touching, are called <em>private</em>.</p>
+<p><a class="p_ident" id="p_KDqJhMZl0E" href="#p_KDqJhMZl0E" tabindex="-1" role="presentation"></a>Tales piezas del programa se modelan usando objetos. Sus interfaces consisten en un conjunto específico de métodos y propiedades. Las propiedades que son parte de la interfaz se llaman <em>publicas</em>. Las otras, las cuales no deberian ser tocadas por el código externo , se les llama <em>privadas</em>.</p>
 
-<p><a class="p_ident" id="p_RExXHtzJn1" href="#p_RExXHtzJn1" tabindex="-1" role="presentation"></a>Many languages provide a way to distinguish public and private properties and prevent outside code from accessing the private ones altogether. JavaScript, once again taking the minimalist approach, does not—not yet at least. There is work underway to add this to the language.</p>
+<p><a class="p_ident" id="p_hMHOzN7XfL" href="#p_hMHOzN7XfL" tabindex="-1" role="presentation"></a>Muchos lenguajes proporcionan una forma de distinguir entre propiedades publicas y privadas, y ademas evitarán que el código externo pueda acceder a las privadas por completo. JavaScript, una vez más tomando el enfoque minimalista, no hace esto. Todavía no, al menos—hay trabajo en camino para agregar esto al lenguaje.</p>
 
-<p><a class="p_ident" id="p_h9lEzfGlTT" href="#p_h9lEzfGlTT" tabindex="-1" role="presentation"></a>Even though the language doesn’t have this distinction built in, JavaScript programmers <em>are</em> successfully using this idea. Typically, the available interface is described in documentation or comments. It is also common to put an underscore (<code>_</code>) character at the start of property names to indicate that those properties are private.</p>
+<p><a class="p_ident" id="p_uB6cw3Jzrr" href="#p_uB6cw3Jzrr" tabindex="-1" role="presentation"></a>Aunque el lenguaje no tenga esta distinción incorporada, los programadores de JavaScript <em>estan</em> usando esta idea con éxito .Típicamente, la interfaz disponible se describe en la documentación o en los comentarios. También es común poner un carácter de guión bajo (<code>_</code>) al comienzo de los nombres de las propiedades para indicar que estas propiedades son privadas.</p>
 
-<p><a class="p_ident" id="p_ysFjuxKxY0" href="#p_ysFjuxKxY0" tabindex="-1" role="presentation"></a>Separating interface from implementation is a great idea. It is usually called <em>encapsulation</em>.</p>
+<p><a class="p_ident" id="p_LTAP9BH2IT" href="#p_LTAP9BH2IT" tabindex="-1" role="presentation"></a>Separar la interfaz de la implementación es una gran idea. Esto usualmente es llamado <em>encapsulación</em>.</p>
 
-<h2 id="obj_methods"><a class="h_ident" id="h_fkrGgDyRWc" href="#h_fkrGgDyRWc" tabindex="-1" role="presentation"></a>Methods</h2>
+<h2 id="obj_methods"><a class="h_ident" id="h_OYddlNFqr1" href="#h_OYddlNFqr1" tabindex="-1" role="presentation"></a>Métodos</h2>
 
-<p><a class="p_ident" id="p_DKj01h8Gzf" href="#p_DKj01h8Gzf" tabindex="-1" role="presentation"></a>Methods are nothing more than properties that hold function values. This is a simple method:</p>
+<p><a class="p_ident" id="p_lGzSYuxb/G" href="#p_lGzSYuxb/G" tabindex="-1" role="presentation"></a>Los métodos no son más que propiedades que tienen valores de función. Este es un método simple:</p>
 
-<pre class="snippet cm-s-default" data-language="javascript" ><a class="c_ident" id="c_BYfVVcFY2P" href="#c_BYfVVcFY2P" tabindex="-1" role="presentation"></a><span class="cm-keyword">let</span> <span class="cm-def">rabbit</span> <span class="cm-operator">=</span> {};
-<span class="cm-variable">rabbit</span>.<span class="cm-property">speak</span> <span class="cm-operator">=</span> <span class="cm-keyword">function</span>(<span class="cm-def">line</span>) {
-  <span class="cm-variable">console</span>.<span class="cm-property">log</span>(<span class="cm-string-2">`The rabbit says '${</span><span class="cm-variable-2">line</span><span class="cm-string-2">}</span><span class="cm-string-2">'`</span>);
+<pre class="snippet cm-s-default" data-language="javascript" ><a class="c_ident" id="c_nAl88C1dy0" href="#c_nAl88C1dy0" tabindex="-1" role="presentation"></a><span class="cm-keyword">let</span> <span class="cm-def">conejo</span> <span class="cm-operator">=</span> {};
+<span class="cm-variable">conejo</span>.<span class="cm-property">hablar</span> <span class="cm-operator">=</span> <span class="cm-keyword">function</span>(<span class="cm-def">linea</span>) {
+  <span class="cm-variable">console</span>.<span class="cm-property">log</span>(<span class="cm-string-2">`El conejo dice '${</span><span class="cm-variable-2">linea</span><span class="cm-string-2">}</span><span class="cm-string-2">'`</span>);
 };
 
-<span class="cm-variable">rabbit</span>.<span class="cm-property">speak</span>(<span class="cm-string">&quot;I'm alive.&quot;</span>);
-<span class="cm-comment">// → The rabbit says 'I'm alive.'</span></pre>
+<span class="cm-variable">conejo</span>.<span class="cm-property">hablar</span>(<span class="cm-string">&quot;Estoy vivo.&quot;</span>);
+<span class="cm-comment">// → El conejo dice 'Estoy vivo.'</span></pre>
 
-<p><a class="p_ident" id="p_N+6e0UGvFo" href="#p_N+6e0UGvFo" tabindex="-1" role="presentation"></a>Usually a method needs to do something with the object it was called on. When a function is called as a method—looked up as a property and immediately called, as in <code>object.method()</code>—the binding called <code>this</code> in its body automatically points at the object that it was called on.</p>
+<p><a class="p_ident" id="p_R+K0unBerq" href="#p_R+K0unBerq" tabindex="-1" role="presentation"></a>Por lo general, un método debe hacer algo en el objeto con que se llamó. Cuando una función es llamada como un método—buscada como una propiedad y llamada inmediatamente, como en <code>objeto.metodo()</code>—la vinculación llamada <code>this</code> (“este”) en su cuerpo apunta automáticamente al objeto en la cual fue llamada.</p>
 
-<pre class="snippet cm-s-default" data-language="javascript" ><a class="c_ident" id="c_cXuIwPt+3C" href="#c_cXuIwPt+3C" tabindex="-1" role="presentation"></a><span class="cm-keyword">function</span> <span class="cm-def">speak</span>(<span class="cm-def">line</span>) {
-  <span class="cm-variable">console</span>.<span class="cm-property">log</span>(<span class="cm-string-2">`The ${</span><span class="cm-keyword">this</span>.<span class="cm-property">type</span><span class="cm-string-2">}</span> <span class="cm-string-2">rabbit says '${</span><span class="cm-variable-2">line</span><span class="cm-string-2">}</span><span class="cm-string-2">'`</span>);
+<pre class="snippet cm-s-default" data-language="javascript" ><a class="c_ident" id="c_mewSstTX1V" href="#c_mewSstTX1V" tabindex="-1" role="presentation"></a><span class="cm-keyword">function</span> <span class="cm-def">hablar</span>(<span class="cm-def">linea</span>) {
+  <span class="cm-variable">console</span>.<span class="cm-property">log</span>(<span class="cm-string-2">`El conejo ${</span><span class="cm-keyword">this</span>.<span class="cm-property">tipo</span><span class="cm-string-2">}</span> <span class="cm-string-2">dice '${</span><span class="cm-variable-2">linea</span><span class="cm-string-2">}</span><span class="cm-string-2">'`</span>);
 }
-<span class="cm-keyword">let</span> <span class="cm-def">whiteRabbit</span> <span class="cm-operator">=</span> {<span class="cm-property">type</span>: <span class="cm-string">&quot;white&quot;</span>, <span class="cm-property">speak</span>};
-<span class="cm-keyword">let</span> <span class="cm-def">hungryRabbit</span> <span class="cm-operator">=</span> {<span class="cm-property">type</span>: <span class="cm-string">&quot;hungry&quot;</span>, <span class="cm-property">speak</span>};
+<span class="cm-keyword">let</span> <span class="cm-def">conejoBlanco</span> <span class="cm-operator">=</span> {<span class="cm-property">tipo</span>: <span class="cm-string">&quot;blanco&quot;</span>, <span class="cm-property">hablar</span>};
+<span class="cm-keyword">let</span> <span class="cm-def">conejoHambriento</span> <span class="cm-operator">=</span> {<span class="cm-property">tipo</span>: <span class="cm-string">&quot;hambriento&quot;</span>, <span class="cm-property">hablar</span>};
 
-<span class="cm-variable">whiteRabbit</span>.<span class="cm-property">speak</span>(<span class="cm-string">&quot;Oh my ears and whiskers, &quot;</span> <span class="cm-operator">+</span>
-                  <span class="cm-string">&quot;how late it's getting!&quot;</span>);
-<span class="cm-comment">// → The white rabbit says 'Oh my ears and whiskers, how</span>
-<span class="cm-comment">//   late it's getting!'</span>
-<span class="cm-variable">hungryRabbit</span>.<span class="cm-property">speak</span>(<span class="cm-string">&quot;I could use a carrot right now.&quot;</span>);
-<span class="cm-comment">// → The hungry rabbit says 'I could use a carrot right now.'</span></pre>
+<span class="cm-variable">conejoBlanco</span>.<span class="cm-property">hablar</span>(<span class="cm-string">&quot;Oh mis orejas y bigotes, &quot;</span> <span class="cm-operator">+</span>
+                  <span class="cm-string">&quot;que tarde se esta haciendo!&quot;</span>);
+<span class="cm-comment">// → El conejo blanco dice 'Oh mis orejas y bigotes, que</span>
+<span class="cm-comment">//   tarde se esta haciendo!'</span>
+<span class="cm-variable">conejoHambriento</span>.<span class="cm-property">hablar</span>(<span class="cm-string">&quot;Podria comerme una zanahoria ahora mismo.&quot;</span>);
+<span class="cm-comment">// → El conejo hambriento dice 'Podria comerme una zanahoria ahora mismo.'</span></pre>
 
-<p id="call_method"><a class="p_ident" id="p_llBwR5t6LB" href="#p_llBwR5t6LB" tabindex="-1" role="presentation"></a>You can think of <code>this</code> as an extra parameter that is passed in a different way. If you want to pass it explicitly, you can use a function’s <code>call</code> method, which takes the <code>this</code> value as its first argument and treats further arguments as normal parameters.</p>
+<p id="call_method"><a class="p_ident" id="p_+xyy3LF1LE" href="#p_+xyy3LF1LE" tabindex="-1" role="presentation"></a>Puedes pensar en <code>this</code> como un parámetro extra que es pasado en una manera diferente. Si quieres pasarlo explícitamente, puedes usar el método <code>call</code> (“llamar”) de una función, que toma el valor de <code>this</code> como primer argumento y trata a los argumentos adicionales como parámetros normales.</p>
 
-<pre class="snippet cm-s-default" data-language="javascript" ><a class="c_ident" id="c_9lDr0S2nEw" href="#c_9lDr0S2nEw" tabindex="-1" role="presentation"></a><span class="cm-variable">speak</span>.<span class="cm-property">call</span>(<span class="cm-variable">hungryRabbit</span>, <span class="cm-string">&quot;Burp!&quot;</span>);
-<span class="cm-comment">// → The hungry rabbit says 'Burp!'</span></pre>
+<pre class="snippet cm-s-default" data-language="javascript" ><a class="c_ident" id="c_RfK7XeyNNx" href="#c_RfK7XeyNNx" tabindex="-1" role="presentation"></a><span class="cm-variable">hablar</span>.<span class="cm-property">call</span>(<span class="cm-variable">conejoHambriento</span>, <span class="cm-string">&quot;Burp!&quot;</span>);
+<span class="cm-comment">// → El conejo hambriento dice 'Burp!'</span></pre>
 
-<p><a class="p_ident" id="p_8ZeOAlGKXe" href="#p_8ZeOAlGKXe" tabindex="-1" role="presentation"></a>Since each function has its own <code>this</code> binding, whose value depends on the way it is called, you cannot refer to the <code>this</code> of the wrapping scope in a regular function defined with the <code>function</code> keyword.</p>
+<p><a class="p_ident" id="p_pVD+/W0aaT" href="#p_pVD+/W0aaT" tabindex="-1" role="presentation"></a>Como cada función tiene su propia vinculación <code>this</code>, cuyo valor depende de la forma en como esta se llama, no puedes hacer referencia al <code>this</code> del alcance envolvente en una función regular definida con la palabra clave <code>function</code>.</p>
 
-<p><a class="p_ident" id="p_C4AqzW0fAV" href="#p_C4AqzW0fAV" tabindex="-1" role="presentation"></a>Arrow functions are different—they do not bind their own <code>this</code> but can see the <code>this</code> binding of the scope around them. Thus, you can do something like the following code, which references <code>this</code> from inside a local function:</p>
+<p><a class="p_ident" id="p_l1ogD+v1ky" href="#p_l1ogD+v1ky" tabindex="-1" role="presentation"></a>Las funciones de flecha son diferentes—no crean su propia vinculación <code>this</code>, pero pueden ver la vinculación<code>this</code> del alcance a su alrededor. Por lo tanto, puedes hacer algo como el siguiente código, que hace referencia a <code>this</code> desde adentro de una función local:</p>
 
-<pre class="snippet cm-s-default" data-language="javascript" ><a class="c_ident" id="c_wg++tcauWw" href="#c_wg++tcauWw" tabindex="-1" role="presentation"></a><span class="cm-keyword">function</span> <span class="cm-def">normalize</span>() {
-  <span class="cm-variable">console</span>.<span class="cm-property">log</span>(<span class="cm-keyword">this</span>.<span class="cm-property">coords</span>.<span class="cm-property">map</span>(<span class="cm-def">n</span> <span class="cm-operator">=&gt;</span> <span class="cm-variable-2">n</span> <span class="cm-operator">/</span> <span class="cm-keyword">this</span>.<span class="cm-property">length</span>));
+<pre class="snippet cm-s-default" data-language="javascript" ><a class="c_ident" id="c_1gr2sf0zCq" href="#c_1gr2sf0zCq" tabindex="-1" role="presentation"></a><span class="cm-keyword">function</span> <span class="cm-def">normalizar</span>() {
+  <span class="cm-variable">console</span>.<span class="cm-property">log</span>(<span class="cm-keyword">this</span>.<span class="cm-property">coordinadas</span>.<span class="cm-property">map</span>(<span class="cm-def">n</span> <span class="cm-operator">=&gt;</span> <span class="cm-variable-2">n</span> <span class="cm-operator">/</span> <span class="cm-keyword">this</span>.<span class="cm-property">length</span>));
 }
-<span class="cm-variable">normalize</span>.<span class="cm-property">call</span>({<span class="cm-property">coords</span>: [<span class="cm-number">0</span>, <span class="cm-number">2</span>, <span class="cm-number">3</span>], <span class="cm-property">length</span>: <span class="cm-number">5</span>});
+<span class="cm-variable">normalizar</span>.<span class="cm-property">call</span>({<span class="cm-property">coordinadas</span>: [<span class="cm-number">0</span>, <span class="cm-number">2</span>, <span class="cm-number">3</span>], <span class="cm-property">length</span>: <span class="cm-number">5</span>});
 <span class="cm-comment">// → [0, 0.4, 0.6]</span></pre>
 
-<p><a class="p_ident" id="p_YkWiHcMuVP" href="#p_YkWiHcMuVP" tabindex="-1" role="presentation"></a>If I had written the argument to <code>map</code> using the <code>function</code> keyword, the code wouldn’t work.</p>
+<p><a class="p_ident" id="p_umikhdFr++" href="#p_umikhdFr++" tabindex="-1" role="presentation"></a>Si hubieras escrito el argumento para <code>map</code> usando la palabra clave <code>function</code>, el código no funcionaría.</p>
 
-<h2 id="prototypes"><a class="h_ident" id="h_SumMlRB7yn" href="#h_SumMlRB7yn" tabindex="-1" role="presentation"></a>Prototypes</h2>
+<h2 id="prototypes"><a class="h_ident" id="h_8D3hGqC4Vb" href="#h_8D3hGqC4Vb" tabindex="-1" role="presentation"></a>Prototipos</h2>
 
-<p><a class="p_ident" id="p_hi1TWnD/2p" href="#p_hi1TWnD/2p" tabindex="-1" role="presentation"></a>Watch closely.</p>
+<p><a class="p_ident" id="p_0/2yPiFgc2" href="#p_0/2yPiFgc2" tabindex="-1" role="presentation"></a>Observa atentamente.</p>
 
-<pre class="snippet cm-s-default" data-language="javascript" ><a class="c_ident" id="c_P0GVdA5c8J" href="#c_P0GVdA5c8J" tabindex="-1" role="presentation"></a><span class="cm-keyword">let</span> <span class="cm-def">empty</span> <span class="cm-operator">=</span> {};
-<span class="cm-variable">console</span>.<span class="cm-property">log</span>(<span class="cm-variable">empty</span>.<span class="cm-property">toString</span>);
+<pre class="snippet cm-s-default" data-language="javascript" ><a class="c_ident" id="c_7Fi+XUmFxL" href="#c_7Fi+XUmFxL" tabindex="-1" role="presentation"></a><span class="cm-keyword">let</span> <span class="cm-def">vacio</span> <span class="cm-operator">=</span> {};
+<span class="cm-variable">console</span>.<span class="cm-property">log</span>(<span class="cm-variable">vacio</span>.<span class="cm-property">toString</span>);
 <span class="cm-comment">// → function toString(){…}</span>
-<span class="cm-variable">console</span>.<span class="cm-property">log</span>(<span class="cm-variable">empty</span>.<span class="cm-property">toString</span>());
+<span class="cm-variable">console</span>.<span class="cm-property">log</span>(<span class="cm-variable">vacio</span>.<span class="cm-property">toString</span>());
 <span class="cm-comment">// → [object Object]</span></pre>
 
-<p><a class="p_ident" id="p_NUxqIXvg/G" href="#p_NUxqIXvg/G" tabindex="-1" role="presentation"></a>I pulled a property out of an empty object. Magic!</p>
+<p><a class="p_ident" id="p_lW+FkUz3V1" href="#p_lW+FkUz3V1" tabindex="-1" role="presentation"></a>Saqué una propiedad de un objeto vacío. Magia!</p>
 
-<p><a class="p_ident" id="p_bJubL+gx0p" href="#p_bJubL+gx0p" tabindex="-1" role="presentation"></a>Well, not really. I have simply been withholding information about the way JavaScript objects work. In addition to their set of properties, most objects also have a <em>prototype</em>. A prototype is another object that is used as a fallback source of properties. When an object gets a request for a property that it does not have, its prototype will be searched for the property, then the prototype’s prototype, and so on.</p>
+<p><a class="p_ident" id="p_0/vSFIVPfe" href="#p_0/vSFIVPfe" tabindex="-1" role="presentation"></a>Bueno, en realidad no. Simplemente he estado ocultando información acerca de como funcionan los objetos en JavaScript. En adición a su conjunto de propiedades, la mayoría de los objetos también tienen un <em>prototipo</em>. Un prototipo es otro objeto que se utiliza como una reserva de propiedades alternativa. Cuando un objeto recibe una solicitud por una propiedad que este no tiene, se buscará en su prototipo la propiedad, luego en el prototipo del prototipo y asi sucesivamente.</p>
 
-<p><a class="p_ident" id="p_XPuG8mFwbT" href="#p_XPuG8mFwbT" tabindex="-1" role="presentation"></a>So who is the prototype of that empty object? It is the great ancestral prototype, the entity behind almost all objects, <code>Object.prototype</code>.</p>
+<p><a class="p_ident" id="p_lgR+z8HtzU" href="#p_lgR+z8HtzU" tabindex="-1" role="presentation"></a>Asi que, quién es el prototipo de ese objeto vacío? Es el gran prototipo ancestral, la entidad detrás de casi todos los objetos, <code>Object.prototype</code> (“Objeto.prototipo”).</p>
 
 <pre class="snippet cm-s-default" data-language="javascript" ><a class="c_ident" id="c_7Q/HaNra3M" href="#c_7Q/HaNra3M" tabindex="-1" role="presentation"></a><span class="cm-variable">console</span>.<span class="cm-property">log</span>(<span class="cm-variable">Object</span>.<span class="cm-property">getPrototypeOf</span>({}) <span class="cm-operator">==</span>
             <span class="cm-variable">Object</span>.<span class="cm-property">prototype</span>);
@@ -108,11 +108,11 @@
 <span class="cm-variable">console</span>.<span class="cm-property">log</span>(<span class="cm-variable">Object</span>.<span class="cm-property">getPrototypeOf</span>(<span class="cm-variable">Object</span>.<span class="cm-property">prototype</span>));
 <span class="cm-comment">// → null</span></pre>
 
-<p><a class="p_ident" id="p_GfVMu4b4D+" href="#p_GfVMu4b4D+" tabindex="-1" role="presentation"></a>As you guess, <code>Object.<wbr>getPrototypeOf</code> returns the prototype of an object.</p>
+<p><a class="p_ident" id="p_XEYU9xEhLO" href="#p_XEYU9xEhLO" tabindex="-1" role="presentation"></a>Como puedes adivinar, <code>Object.<wbr>getPrototypeOf</code> (“Objeto.obtenerPrototipoDe”) retorna el prototipo de un objeto.</p>
 
-<p><a class="p_ident" id="p_4S0XbM8aBm" href="#p_4S0XbM8aBm" tabindex="-1" role="presentation"></a>The prototype relations of JavaScript objects form a tree-shaped structure, and at the root of this structure sits <code>Object.prototype</code>. It provides a few methods that show up in all objects, such as <code>toString</code>, which converts an object to a string representation.</p>
+<p><a class="p_ident" id="p_Ju58HgY/F+" href="#p_Ju58HgY/F+" tabindex="-1" role="presentation"></a>Las relaciones prototipo de los objetos en JavaScript forman una estructura en forma de árbol, y en la raíz de esta estructura se encuentra <code>Object.prototype</code>. Este proporciona algunos métodos que pueden ser accedidos por todos los objetos, como <code>toString</code>, que convierte un objeto en una representación de tipo string.</p>
 
-<p><a class="p_ident" id="p_j+MLWf3JXr" href="#p_j+MLWf3JXr" tabindex="-1" role="presentation"></a>Many objects don’t directly have <code>Object.prototype</code> as their prototype but instead have another object that provides a different set of default properties. Functions derive from <code>Function.<wbr>prototype</code>, and arrays derive from <code>Array.prototype</code>.</p>
+<p><a class="p_ident" id="p_BkFNdnUKm/" href="#p_BkFNdnUKm/" tabindex="-1" role="presentation"></a>Muchos objetos no tienen <code>Object.prototype</code> directamente como su prototipo, pero en su lugar tienen otro objeto que proporciona un conjunto diferente de propiedades predeterminadas. Las funciones derivan de <code>Function.<wbr>prototype</code>, y los arrays derivan de <code>Array.prototype</code>.</p>
 
 <pre class="snippet cm-s-default" data-language="javascript" ><a class="c_ident" id="c_NgntUaXZ1S" href="#c_NgntUaXZ1S" tabindex="-1" role="presentation"></a><span class="cm-variable">console</span>.<span class="cm-property">log</span>(<span class="cm-variable">Object</span>.<span class="cm-property">getPrototypeOf</span>(<span class="cm-variable">Math</span>.<span class="cm-property">max</span>) <span class="cm-operator">==</span>
             <span class="cm-variable">Function</span>.<span class="cm-property">prototype</span>);
@@ -121,110 +121,110 @@
             <span class="cm-variable">Array</span>.<span class="cm-property">prototype</span>);
 <span class="cm-comment">// → true</span></pre>
 
-<p><a class="p_ident" id="p_1fIXMD62Nu" href="#p_1fIXMD62Nu" tabindex="-1" role="presentation"></a>Such a prototype object will itself have a prototype, often <code>Object.prototype</code>, so that it still indirectly provides methods like <code>toString</code>.</p>
+<p><a class="p_ident" id="p_tVWZUENZ7K" href="#p_tVWZUENZ7K" tabindex="-1" role="presentation"></a>Tal prototipo de objeto tendrá en si mismo un prototipo, a menudo <code>Object.prototype</code>, por lo que aún proporciona indirectamente métodos como <code>toString</code>.</p>
 
-<p><a class="p_ident" id="p_H2XhzSHHJP" href="#p_H2XhzSHHJP" tabindex="-1" role="presentation"></a>You can use <code>Object.create</code> to create an object with a specific prototype.</p>
+<p><a class="p_ident" id="p_c0jHeGXV7K" href="#p_c0jHeGXV7K" tabindex="-1" role="presentation"></a>Puede usar <code>Object.create</code> para crear un objeto con un prototipo especifico.</p>
 
-<pre class="snippet cm-s-default" data-language="javascript" ><a class="c_ident" id="c_gSGrvGTpkW" href="#c_gSGrvGTpkW" tabindex="-1" role="presentation"></a><span class="cm-keyword">let</span> <span class="cm-def">protoRabbit</span> <span class="cm-operator">=</span> {
-  <span class="cm-property">speak</span>(<span class="cm-def">line</span>) {
-    <span class="cm-variable">console</span>.<span class="cm-property">log</span>(<span class="cm-string-2">`The ${</span><span class="cm-keyword">this</span>.<span class="cm-property">type</span><span class="cm-string-2">}</span> <span class="cm-string-2">rabbit says '${</span><span class="cm-variable-2">line</span><span class="cm-string-2">}</span><span class="cm-string-2">'`</span>);
+<pre class="snippet cm-s-default" data-language="javascript" ><a class="c_ident" id="c_nrYD2yty6r" href="#c_nrYD2yty6r" tabindex="-1" role="presentation"></a><span class="cm-keyword">let</span> <span class="cm-def">conejoPrototipo</span> <span class="cm-operator">=</span> {
+  <span class="cm-property">hablar</span>(<span class="cm-def">linea</span>) {
+    <span class="cm-variable">console</span>.<span class="cm-property">log</span>(<span class="cm-string-2">`El conejo ${</span><span class="cm-keyword">this</span>.<span class="cm-property">tipo</span><span class="cm-string-2">}</span> <span class="cm-string-2">dice '${</span><span class="cm-variable-2">linea</span><span class="cm-string-2">}</span><span class="cm-string-2">'`</span>);
   }
 };
-<span class="cm-keyword">let</span> <span class="cm-def">killerRabbit</span> <span class="cm-operator">=</span> <span class="cm-variable">Object</span>.<span class="cm-property">create</span>(<span class="cm-variable">protoRabbit</span>);
-<span class="cm-variable">killerRabbit</span>.<span class="cm-property">type</span> <span class="cm-operator">=</span> <span class="cm-string">&quot;killer&quot;</span>;
-<span class="cm-variable">killerRabbit</span>.<span class="cm-property">speak</span>(<span class="cm-string">&quot;SKREEEE!&quot;</span>);
-<span class="cm-comment">// → The killer rabbit says 'SKREEEE!'</span></pre>
+<span class="cm-keyword">let</span> <span class="cm-def">conejoAsesino</span> <span class="cm-operator">=</span> <span class="cm-variable">Object</span>.<span class="cm-property">create</span>(<span class="cm-variable">conejoPrototipo</span>);
+<span class="cm-variable">conejoAsesino</span>.<span class="cm-property">tipo</span> <span class="cm-operator">=</span> <span class="cm-string">&quot;asesino&quot;</span>;
+<span class="cm-variable">conejoAsesino</span>.<span class="cm-property">hablar</span>(<span class="cm-string">&quot;SKREEEE!&quot;</span>);
+<span class="cm-comment">// → El conejo asesino dice 'SKREEEE!'</span></pre>
 
-<p><a class="p_ident" id="p_eBm7AuQUBb" href="#p_eBm7AuQUBb" tabindex="-1" role="presentation"></a>A property like <code>speak(line)</code> in an object expression is a shorthand way of defining a method. It creates a property called <code>speak</code> and gives it a function as its value.</p>
+<p><a class="p_ident" id="p_GbEqZ6yrdl" href="#p_GbEqZ6yrdl" tabindex="-1" role="presentation"></a>Una propiedad como <code>hablar(linea)</code> en una expresión de objeto es un atajo para definir un método. Esta crea una propiedad llamada <code>hablar</code> y le da una función como su valor.</p>
 
-<p><a class="p_ident" id="p_y8kzFoQw1W" href="#p_y8kzFoQw1W" tabindex="-1" role="presentation"></a>The “proto” rabbit acts as a container for the properties that are shared by all rabbits. An individual rabbit object, like the killer rabbit, contains properties that apply only to itself—in this case its type—and derives shared properties from its prototype.</p>
+<p><a class="p_ident" id="p_yqSY3u+AQm" href="#p_yqSY3u+AQm" tabindex="-1" role="presentation"></a>El conejo “prototipo” actúa como un contenedor para las propiedades que son compartidas por todos los conejos. Un objeto de conejo individual, como el conejo asesino, contiene propiedades que aplican solo a sí mismo—en este caso su tipo—y deriva propiedades compartidas desde su prototipo.</p>
 
-<h2 id="classes"><a class="h_ident" id="h_7RhGr+474h" href="#h_7RhGr+474h" tabindex="-1" role="presentation"></a>Classes</h2>
+<h2 id="classes"><a class="h_ident" id="h_KLZW7aPxR5" href="#h_KLZW7aPxR5" tabindex="-1" role="presentation"></a>Clases</h2>
 
-<p><a class="p_ident" id="p_iYbDLfqSFW" href="#p_iYbDLfqSFW" tabindex="-1" role="presentation"></a>JavaScript’s prototype system can be interpreted as a somewhat informal take on an object-oriented concept called <em>classes</em>. A class defines the shape of a type of object—what methods and properties it has. Such an object is called an <em>instance</em> of the class.</p>
+<p><a class="p_ident" id="p_L3AmX2Gemu" href="#p_L3AmX2Gemu" tabindex="-1" role="presentation"></a>El sistema de prototipos en JavaScript se puede interpretar como un enfoque informal de un concepto orientado a objetos llamado <em>clasees</em>. Una clase define la forma de un tipo de objeto—qué métodos y propiedades tiene este. Tal objeto es llamado una <em>instancia</em> de la clase.</p>
 
-<p><a class="p_ident" id="p_GhnffIpINq" href="#p_GhnffIpINq" tabindex="-1" role="presentation"></a>Prototypes are useful for defining properties for which all instances of a class share the same value, such as methods. Properties that differ per instance, such as our rabbits’ <code>type</code> property, need to be stored directly in the objects themselves.</p>
+<p><a class="p_ident" id="p_zz4nhYtJgu" href="#p_zz4nhYtJgu" tabindex="-1" role="presentation"></a>Los prototipos son útiles para definir propiedades en las cuales todas las instancias de una clase compartan el mismo valor, como métodos. Las propiedades que difieren por instancia, como la propiedad <code>tipo</code> en nuestros conejos, necesitan almacenarse directamente en los objetos mismos.</p>
 
-<p id="constructors"><a class="p_ident" id="p_hflVCtYTKN" href="#p_hflVCtYTKN" tabindex="-1" role="presentation"></a>So to create an instance of a given class, you have to make an object that derives from the proper prototype, but you <em>also</em> have to make sure it, itself, has the properties that instances of this class are supposed to have. This is what a <em>constructor</em> function does.</p>
+<p id="constructors"><a class="p_ident" id="p_lMpaLg4+B+" href="#p_lMpaLg4+B+" tabindex="-1" role="presentation"></a>Entonces, para crear una instancia de una clase dada, debes crear un objeto que derive del prototipo adecuado, pero <em>también</em> debes asegurarte de que, en sí mismo, este objeto tenga las propiedades que las instancias de esta clase se supone que tengan. Esto es lo que una función <em>constructora</em> hace.</p>
 
-<pre class="snippet cm-s-default" data-language="javascript" ><a class="c_ident" id="c_oOKUeIzSVa" href="#c_oOKUeIzSVa" tabindex="-1" role="presentation"></a><span class="cm-keyword">function</span> <span class="cm-def">makeRabbit</span>(<span class="cm-def">type</span>) {
-  <span class="cm-keyword">let</span> <span class="cm-def">rabbit</span> <span class="cm-operator">=</span> <span class="cm-variable">Object</span>.<span class="cm-property">create</span>(<span class="cm-variable">protoRabbit</span>);
-  <span class="cm-variable-2">rabbit</span>.<span class="cm-property">type</span> <span class="cm-operator">=</span> <span class="cm-variable-2">type</span>;
-  <span class="cm-keyword">return</span> <span class="cm-variable-2">rabbit</span>;
+<pre class="snippet cm-s-default" data-language="javascript" ><a class="c_ident" id="c_XG5z3rm/0s" href="#c_XG5z3rm/0s" tabindex="-1" role="presentation"></a><span class="cm-keyword">function</span> <span class="cm-def">crearConejo</span>(<span class="cm-def">tipo</span>) {
+  <span class="cm-keyword">let</span> <span class="cm-def">conejo</span> <span class="cm-operator">=</span> <span class="cm-variable">Object</span>.<span class="cm-property">create</span>(<span class="cm-variable">conejoPrototipo</span>);
+  <span class="cm-variable-2">conejo</span>.<span class="cm-property">tipo</span> <span class="cm-operator">=</span> <span class="cm-variable-2">tipo</span>;
+  <span class="cm-keyword">return</span> <span class="cm-variable-2">conejo</span>;
 }</pre>
 
-<p><a class="p_ident" id="p_j8irpNziDb" href="#p_j8irpNziDb" tabindex="-1" role="presentation"></a>JavaScript provides a way to make defining this type of function easier. If you put the keyword <code>new</code> in front of a function call, the function is treated as a constructor. This means that an object with the right prototype is automatically created, bound to <code>this</code> in the function, and returned at the end of the function.</p>
+<p><a class="p_ident" id="p_z6wa+tlPC4" href="#p_z6wa+tlPC4" tabindex="-1" role="presentation"></a>JavaScript proporciona una manera de hacer que la definición de este tipo de funciones sea más fácil. Si colocas la palabra clave <code>new</code> (“new”) delante de una llamada de función, la función sera tratada como un constructor. Esto significa que un objeto con el prototipo adecuado es creado automáticamente, vinculado a <code>this</code> en la función, y retornado al final de la función.</p>
 
-<p><a class="p_ident" id="p_svyxVljkeg" href="#p_svyxVljkeg" tabindex="-1" role="presentation"></a>The prototype object used when constructing objects is found by taking the <code>prototype</code> property of the constructor function.</p>
+<p><a class="p_ident" id="p_gl+820Tmb5" href="#p_gl+820Tmb5" tabindex="-1" role="presentation"></a>El objeto prototipo utilizado al construir objetos se encuentra al tomar la propiedad <code>prototype</code> de la función constructora.</p>
 
-<pre class="snippet cm-s-default" data-language="javascript" ><a class="c_ident" id="c_p+u3OtMv8K" href="#c_p+u3OtMv8K" tabindex="-1" role="presentation"></a><span class="cm-keyword">function</span> <span class="cm-def">Rabbit</span>(<span class="cm-def">type</span>) {
-  <span class="cm-keyword">this</span>.<span class="cm-property">type</span> <span class="cm-operator">=</span> <span class="cm-variable-2">type</span>;
+<pre class="snippet cm-s-default" data-language="javascript" ><a class="c_ident" id="c_AcmqTCqSiO" href="#c_AcmqTCqSiO" tabindex="-1" role="presentation"></a><span class="cm-keyword">function</span> <span class="cm-def">Conejo</span>(<span class="cm-def">tipo</span>) {
+  <span class="cm-keyword">this</span>.<span class="cm-property">tipo</span> <span class="cm-operator">=</span> <span class="cm-variable-2">tipo</span>;
 }
-<span class="cm-variable">Rabbit</span>.<span class="cm-property">prototype</span>.<span class="cm-property">speak</span> <span class="cm-operator">=</span> <span class="cm-keyword">function</span>(<span class="cm-def">line</span>) {
-  <span class="cm-variable">console</span>.<span class="cm-property">log</span>(<span class="cm-string-2">`The ${</span><span class="cm-keyword">this</span>.<span class="cm-property">type</span><span class="cm-string-2">}</span> <span class="cm-string-2">rabbit says '${</span><span class="cm-variable-2">line</span><span class="cm-string-2">}</span><span class="cm-string-2">'`</span>);
+<span class="cm-variable">Conejo</span>.<span class="cm-property">prototype</span>.<span class="cm-property">hablar</span> <span class="cm-operator">=</span> <span class="cm-keyword">function</span>(<span class="cm-def">linea</span>) {
+  <span class="cm-variable">console</span>.<span class="cm-property">log</span>(<span class="cm-string-2">`El conejo ${</span><span class="cm-keyword">this</span>.<span class="cm-property">tipo</span><span class="cm-string-2">}</span> <span class="cm-string-2">dice '${</span><span class="cm-variable-2">linea</span><span class="cm-string-2">}</span><span class="cm-string-2">'`</span>);
 };
 
-<span class="cm-keyword">let</span> <span class="cm-def">weirdRabbit</span> <span class="cm-operator">=</span> <span class="cm-keyword">new</span> <span class="cm-variable">Rabbit</span>(<span class="cm-string">&quot;weird&quot;</span>);</pre>
+<span class="cm-keyword">let</span> <span class="cm-def">conejoRaro</span> <span class="cm-operator">=</span> <span class="cm-keyword">new</span> <span class="cm-variable">Conejo</span>(<span class="cm-string">&quot;raro&quot;</span>);</pre>
 
-<p><a class="p_ident" id="p_IZA8w6crnz" href="#p_IZA8w6crnz" tabindex="-1" role="presentation"></a>Constructors (all functions, in fact) automatically get a property named <code>prototype</code>, which by default holds a plain, empty object that derives from <code>Object.prototype</code>. You can overwrite it with a new object if you want. Or you can add properties to the existing object, as the example does.</p>
+<p><a class="p_ident" id="p_zZqlljoZRz" href="#p_zZqlljoZRz" tabindex="-1" role="presentation"></a>Los constructores (todas las funciones, de hecho) automáticamente obtienen una propiedad llamada <code>prototype</code>, que por defecto contiene un objeto simple y vacío, que deriva de <code>Object.prototype</code>. Puedes sobrescribirlo con un nuevo objeto si asi quieres. O puedes agregar propiedades al objeto ya existente, como lo hace el ejemplo.</p>
 
-<p><a class="p_ident" id="p_DJG7BO1oTU" href="#p_DJG7BO1oTU" tabindex="-1" role="presentation"></a>By convention, the names of constructors are capitalized so that they can easily be distinguished from other functions.</p>
+<p><a class="p_ident" id="p_TKZNbhUTqz" href="#p_TKZNbhUTqz" tabindex="-1" role="presentation"></a>Por convención, los nombres de los constructores tienen la primera letra en mayúscula para que se puedan distinguir fácilmente de otras funciones.</p>
 
-<p><a class="p_ident" id="p_9bg1buEAma" href="#p_9bg1buEAma" tabindex="-1" role="presentation"></a>It is important to understand the distinction between the way a prototype is associated with a constructor (through its <code>prototype</code> property) and the way objects <em>have</em> a prototype (which can be found with <code>Object.<wbr>getPrototypeOf</code>). The actual prototype of a constructor is <code>Function.<wbr>prototype</code> since constructors are functions. Its <code>prototype</code> <em>property</em> holds the prototype used for instances created through it.</p>
+<p><a class="p_ident" id="p_sAyTp6JrlA" href="#p_sAyTp6JrlA" tabindex="-1" role="presentation"></a>Es importante entender la distinción entre la forma en que un prototipo está asociado con un constructor (a través de su propiedad <code>prototype</code>) y la forma en que los objetos <em>tienen</em> un prototipo (que se puede encontrar con <code>Object.<wbr>getPrototypeOf</code>). El prototipo real de un constructor es <code>Function.<wbr>prototype</code>, ya que los constructores son funciones. Su <em>propiedad</em> <code>prototype</code> contiene el prototipo utilizado para las instancias creadas a traves de el.</p>
 
-<pre class="snippet cm-s-default" data-language="javascript" ><a class="c_ident" id="c_KDYP9dCWfS" href="#c_KDYP9dCWfS" tabindex="-1" role="presentation"></a><span class="cm-variable">console</span>.<span class="cm-property">log</span>(<span class="cm-variable">Object</span>.<span class="cm-property">getPrototypeOf</span>(<span class="cm-variable">Rabbit</span>) <span class="cm-operator">==</span>
+<pre class="snippet cm-s-default" data-language="javascript" ><a class="c_ident" id="c_swn0/6V/an" href="#c_swn0/6V/an" tabindex="-1" role="presentation"></a><span class="cm-variable">console</span>.<span class="cm-property">log</span>(<span class="cm-variable">Object</span>.<span class="cm-property">getPrototypeOf</span>(<span class="cm-variable">Conejo</span>) <span class="cm-operator">==</span>
             <span class="cm-variable">Function</span>.<span class="cm-property">prototype</span>);
 <span class="cm-comment">// → true</span>
-<span class="cm-variable">console</span>.<span class="cm-property">log</span>(<span class="cm-variable">Object</span>.<span class="cm-property">getPrototypeOf</span>(<span class="cm-variable">weirdRabbit</span>) <span class="cm-operator">==</span>
-            <span class="cm-variable">Rabbit</span>.<span class="cm-property">prototype</span>);
+<span class="cm-variable">console</span>.<span class="cm-property">log</span>(<span class="cm-variable">Object</span>.<span class="cm-property">getPrototypeOf</span>(<span class="cm-variable">conejoRaro</span>) <span class="cm-operator">==</span>
+            <span class="cm-variable">Conejo</span>.<span class="cm-property">prototype</span>);
 <span class="cm-comment">// → true</span></pre>
 
-<h2><a class="h_ident" id="h_hPv1gHC33s" href="#h_hPv1gHC33s" tabindex="-1" role="presentation"></a>Class notation</h2>
+<h2><a class="h_ident" id="h_TBzAWG86Tr" href="#h_TBzAWG86Tr" tabindex="-1" role="presentation"></a>Notación de clase</h2>
 
-<p><a class="p_ident" id="p_T5Ghz5me/w" href="#p_T5Ghz5me/w" tabindex="-1" role="presentation"></a>So JavaScript classes are constructor functions with a prototype property. That is how they work, and until 2015, that was how you had to write them. These days, we have a less awkward notation.</p>
+<p><a class="p_ident" id="p_sEb0xNwzne" href="#p_sEb0xNwzne" tabindex="-1" role="presentation"></a>Entonces, las clasees en JavaScript son funciones constructoras con una propiedad prototipo. Así es como funcionan, y hasta 2015, esa era la manera en como tenías que escribirlas. Estos días, tenemos una notación menos incómoda.</p>
 
-<pre class="snippet cm-s-default" data-language="javascript" ><a class="c_ident" id="c_kqKA+SZ6vS" href="#c_kqKA+SZ6vS" tabindex="-1" role="presentation"></a><span class="cm-keyword">class</span> <span class="cm-def">Rabbit</span> {
-  <span class="cm-property">constructor</span>(<span class="cm-def">type</span>) {
-    <span class="cm-keyword">this</span>.<span class="cm-property">type</span> <span class="cm-operator">=</span> <span class="cm-variable-2">type</span>;
+<pre class="snippet cm-s-default" data-language="javascript" ><a class="c_ident" id="c_iiIRE9bqwE" href="#c_iiIRE9bqwE" tabindex="-1" role="presentation"></a><span class="cm-keyword">class</span> <span class="cm-def">Conejo</span> {
+  <span class="cm-property">constructor</span>(<span class="cm-def">tipo</span>) {
+    <span class="cm-keyword">this</span>.<span class="cm-property">tipo</span> <span class="cm-operator">=</span> <span class="cm-variable-2">tipo</span>;
   }
-  <span class="cm-property">speak</span>(<span class="cm-def">line</span>) {
-    <span class="cm-variable">console</span>.<span class="cm-property">log</span>(<span class="cm-string-2">`The ${</span><span class="cm-keyword">this</span>.<span class="cm-property">type</span><span class="cm-string-2">}</span> <span class="cm-string-2">rabbit says '${</span><span class="cm-variable-2">line</span><span class="cm-string-2">}</span><span class="cm-string-2">'`</span>);
+  <span class="cm-property">hablar</span>(<span class="cm-def">linea</span>) {
+    <span class="cm-variable">console</span>.<span class="cm-property">log</span>(<span class="cm-string-2">`El conejo ${</span><span class="cm-keyword">this</span>.<span class="cm-property">tipo</span><span class="cm-string-2">}</span> <span class="cm-string-2">dice '${</span><span class="cm-variable-2">linea</span><span class="cm-string-2">}</span><span class="cm-string-2">'`</span>);
   }
 }
 
-<span class="cm-keyword">let</span> <span class="cm-def">killerRabbit</span> <span class="cm-operator">=</span> <span class="cm-keyword">new</span> <span class="cm-variable">Rabbit</span>(<span class="cm-string">&quot;killer&quot;</span>);
-<span class="cm-keyword">let</span> <span class="cm-def">blackRabbit</span> <span class="cm-operator">=</span> <span class="cm-keyword">new</span> <span class="cm-variable">Rabbit</span>(<span class="cm-string">&quot;black&quot;</span>);</pre>
+<span class="cm-keyword">let</span> <span class="cm-def">conejoAsesino</span> <span class="cm-operator">=</span> <span class="cm-keyword">new</span> <span class="cm-variable">Conejo</span>(<span class="cm-string">&quot;asesino&quot;</span>);
+<span class="cm-keyword">let</span> <span class="cm-def">conejoNegro</span> <span class="cm-operator">=</span> <span class="cm-keyword">new</span> <span class="cm-variable">Conejo</span>(<span class="cm-string">&quot;negro&quot;</span>);</pre>
 
-<p><a class="p_ident" id="p_wpM2aH78Jp" href="#p_wpM2aH78Jp" tabindex="-1" role="presentation"></a>The <code>class</code> keyword starts a class declaration, which allows us to define a constructor and a set of methods all in a single place. Any number of methods may be written inside the declaration’s braces. The one named <code>constructor</code> is treated specially. It provides the actual constructor function, which will be bound to the name <code>Rabbit</code>. The others are packaged into that constructor’s prototype. Thus, the earlier class declaration is equivalent to the constructor definition from the previous section. It just looks nicer.</p>
+<p><a class="p_ident" id="p_vK1olY08MM" href="#p_vK1olY08MM" tabindex="-1" role="presentation"></a>La palabra clave <code>class</code> (“clase”) comienza una declaración de clase, que nos permite definir un constructor y un conjunto de métodos, todo en un solo lugar. Cualquier número de métodos se pueden escribir dentro de las llaves de la declaración. El metodo llamado <code>constructor</code> es tratado de una manera especial. Este proporciona la función constructora real, que estará vinculada al nombre <code>Conejo</code>. Los otros metodos estaran empacados en el prototipo de ese constructor. Por lo tanto, la declaración de clase anterior es equivalente a la definición de constructor en la sección anterior. Solo que se ve mejor.</p>
 
-<p><a class="p_ident" id="p_rJ0WbDXCuo" href="#p_rJ0WbDXCuo" tabindex="-1" role="presentation"></a>Class declarations currently allow only <em>methods</em>—properties that hold functions—to be added to the prototype. This can be somewhat inconvenient when you want to save a non-function value in there. The next version of the language will probably improve this. For now, you can create such properties by directly manipulating the prototype after you’ve defined the class.</p>
+<p><a class="p_ident" id="p_GCE4jHwuQ9" href="#p_GCE4jHwuQ9" tabindex="-1" role="presentation"></a>Actualmente las declaraciones de clase solo permiten que los <em>metodos</em>—propiedades que contengan funciones—puedan ser agregados al prototipo. Esto puede ser algo inconveniente para cuando quieras guardar un valor no-funcional allí. La próxima versión del lenguaje probablemente mejore esto. Por ahora, tú puedes crear tales propiedades al manipular directamente el prototipo después de haber definido la clase.</p>
 
-<p><a class="p_ident" id="p_pp17mMu8If" href="#p_pp17mMu8If" tabindex="-1" role="presentation"></a>Like <code>function</code>, <code>class</code> can be used both in statements and in expressions. When used as an expression, it doesn’t define a binding but just produces the constructor as a value. You are allowed to omit the class name in a class expression.</p>
+<p><a class="p_ident" id="p_IsMykN2X0p" href="#p_IsMykN2X0p" tabindex="-1" role="presentation"></a>Al igual que <code>function</code>, <code>class</code> se puede usar tanto en posiciones de declaración como de expresión. Cuando se usa como una expresión, no define una vinculación, pero solo produce el constructor como un valor. Tienes permitido omitir el nombre de clase en una expresión de clase.</p>
 
-<pre class="snippet cm-s-default" data-language="javascript" ><a class="c_ident" id="c_79re+GWcTJ" href="#c_79re+GWcTJ" tabindex="-1" role="presentation"></a><span class="cm-keyword">let</span> <span class="cm-def">object</span> <span class="cm-operator">=</span> <span class="cm-keyword">new</span> <span class="cm-keyword">class</span> { <span class="cm-property">getWord</span>() { <span class="cm-keyword">return</span> <span class="cm-string">&quot;hello&quot;</span>; } };
-<span class="cm-variable">console</span>.<span class="cm-property">log</span>(<span class="cm-variable">object</span>.<span class="cm-property">getWord</span>());
-<span class="cm-comment">// → hello</span></pre>
+<pre class="snippet cm-s-default" data-language="javascript" ><a class="c_ident" id="c_9g1toPBzZT" href="#c_9g1toPBzZT" tabindex="-1" role="presentation"></a><span class="cm-keyword">let</span> <span class="cm-def">objeto</span> <span class="cm-operator">=</span> <span class="cm-keyword">new</span> <span class="cm-keyword">class</span> { <span class="cm-property">obtenerPalabra</span>() { <span class="cm-keyword">return</span> <span class="cm-string">&quot;hola&quot;</span>; } };
+<span class="cm-variable">console</span>.<span class="cm-property">log</span>(<span class="cm-variable">objeto</span>.<span class="cm-property">obtenerPalabra</span>());
+<span class="cm-comment">// → hola</span></pre>
 
-<h2><a class="h_ident" id="h_oUlUep3Os8" href="#h_oUlUep3Os8" tabindex="-1" role="presentation"></a>Overriding derived properties</h2>
+<h2><a class="h_ident" id="h_YvSJ+y7bwL" href="#h_YvSJ+y7bwL" tabindex="-1" role="presentation"></a>Sobreescribiendo propiedades derivadas</h2>
 
-<p><a class="p_ident" id="p_Xbxf2Ooo0z" href="#p_Xbxf2Ooo0z" tabindex="-1" role="presentation"></a>When you add a property to an object, whether it is present in the prototype or not, the property is added to the object <em>itself</em>. If there was already a property with the same name in the prototype, this property will no longer affect the object, as it is now hidden behind the object’s own property.</p>
+<p><a class="p_ident" id="p_Kzh2NLUN42" href="#p_Kzh2NLUN42" tabindex="-1" role="presentation"></a>Cuando le agregas una propiedad a un objeto, ya sea que esté presente en el prototipo o no, la propiedad es agregada al objeto <em>en si mismo</em>. Si ya había una propiedad con el mismo nombre en el prototipo, esta propiedad ya no afectará al objeto, ya que ahora está oculta detrás de la propiedad del propio objeto.</p>
 
-<pre class="snippet cm-s-default" data-language="javascript" ><a class="c_ident" id="c_vja6JbO0si" href="#c_vja6JbO0si" tabindex="-1" role="presentation"></a><span class="cm-variable">Rabbit</span>.<span class="cm-property">prototype</span>.<span class="cm-property">teeth</span> <span class="cm-operator">=</span> <span class="cm-string">&quot;small&quot;</span>;
-<span class="cm-variable">console</span>.<span class="cm-property">log</span>(<span class="cm-variable">killerRabbit</span>.<span class="cm-property">teeth</span>);
-<span class="cm-comment">// → small</span>
-<span class="cm-variable">killerRabbit</span>.<span class="cm-property">teeth</span> <span class="cm-operator">=</span> <span class="cm-string">&quot;long, sharp, and bloody&quot;</span>;
-<span class="cm-variable">console</span>.<span class="cm-property">log</span>(<span class="cm-variable">killerRabbit</span>.<span class="cm-property">teeth</span>);
-<span class="cm-comment">// → long, sharp, and bloody</span>
-<span class="cm-variable">console</span>.<span class="cm-property">log</span>(<span class="cm-variable">blackRabbit</span>.<span class="cm-property">teeth</span>);
-<span class="cm-comment">// → small</span>
-<span class="cm-variable">console</span>.<span class="cm-property">log</span>(<span class="cm-variable">Rabbit</span>.<span class="cm-property">prototype</span>.<span class="cm-property">teeth</span>);
-<span class="cm-comment">// → small</span></pre>
+<pre class="snippet cm-s-default" data-language="javascript" ><a class="c_ident" id="c_lkQGNRhwSL" href="#c_lkQGNRhwSL" tabindex="-1" role="presentation"></a><span class="cm-variable">Rabbit</span>.<span class="cm-property">prototype</span>.<span class="cm-property">dientes</span> <span class="cm-operator">=</span> <span class="cm-string">&quot;pequeños&quot;</span>;
+<span class="cm-variable">console</span>.<span class="cm-property">log</span>(<span class="cm-variable">conejoAsesino</span>.<span class="cm-property">dientes</span>);
+<span class="cm-comment">// → pequeños</span>
+<span class="cm-variable">conejoAsesino</span>.<span class="cm-property">dientes</span> <span class="cm-operator">=</span> <span class="cm-string">&quot;largos, filosos, y sangrientos&quot;</span>;
+<span class="cm-variable">console</span>.<span class="cm-property">log</span>(<span class="cm-variable">conejoAsesino</span>.<span class="cm-property">dientes</span>);
+<span class="cm-comment">// → largos, filosos, y sangrientos</span>
+<span class="cm-variable">console</span>.<span class="cm-property">log</span>(<span class="cm-variable">conejoNegro</span>.<span class="cm-property">dientes</span>);
+<span class="cm-comment">// → pequeños</span>
+<span class="cm-variable">console</span>.<span class="cm-property">log</span>(<span class="cm-variable">Rabbit</span>.<span class="cm-property">prototype</span>.<span class="cm-property">dientes</span>);
+<span class="cm-comment">// → pequeños</span></pre>
 
-<p><a class="p_ident" id="p_HM5YtS3KgJ" href="#p_HM5YtS3KgJ" tabindex="-1" role="presentation"></a>The following diagram sketches the situation after this code has run. The <code>Rabbit</code> and <code>Object</code> prototypes lie behind <code>killerRabbit</code> as a kind of backdrop, where properties that are not found in the object itself can be looked up.</p><figure><img src="img/rabbits.svg" alt="Rabbit object prototype schema"></figure>
+<p><a class="p_ident" id="p_jO+w4muHP7" href="#p_jO+w4muHP7" tabindex="-1" role="presentation"></a>El siguiente diagrama esboza la situación después de que este código ha sido ejecutado. Los prototipos de <code>Conejo</code> y <code>Object</code> se encuentran detrás de <code>conejoAsesino</code> como una especie de telón de fondo, donde las propiedades que no se encuentren en el objeto en sí mismo puedan ser buscadas.</p><figure><img src="img/rabbits.svg" alt="Rabbit object prototype schema"></figure>
 
-<p><a class="p_ident" id="p_or3/lz1DV8" href="#p_or3/lz1DV8" tabindex="-1" role="presentation"></a>Overriding properties that exist in a prototype can be a useful thing to do. As the rabbit teeth example shows, overriding can be used to express exceptional properties in instances of a more generic class of objects, while letting the nonexceptional objects take a standard value from their prototype.</p>
+<p><a class="p_ident" id="p_7NNFoh/2CL" href="#p_7NNFoh/2CL" tabindex="-1" role="presentation"></a>Sobreescribir propiedades que existen en un prototipo puede ser algo útil que hacer. Como muestra el ejemplo de los dientes de conejo, esto se puede usar para expresar propiedades excepcionales en instancias de una clase más genérica de objetos, dejando que los objetos no-excepcionales tomen un valor estándar desde su prototipo.</p>
 
-<p><a class="p_ident" id="p_GIhnbh3MdO" href="#p_GIhnbh3MdO" tabindex="-1" role="presentation"></a>Overriding is also used to give the standard function and array prototypes a different <code>toString</code> method than the basic object prototype.</p>
+<p><a class="p_ident" id="p_9Q0URUZafp" href="#p_9Q0URUZafp" tabindex="-1" role="presentation"></a>También puedes sobreescribir para darle a los prototipos estándar de función y array un método diferente <code>toString</code> al del objeto prototipo básico.</p>
 
 <pre class="snippet cm-s-default" data-language="javascript" ><a class="c_ident" id="c_DrIRvUgeOD" href="#c_DrIRvUgeOD" tabindex="-1" role="presentation"></a><span class="cm-variable">console</span>.<span class="cm-property">log</span>(<span class="cm-variable">Array</span>.<span class="cm-property">prototype</span>.<span class="cm-property">toString</span> <span class="cm-operator">==</span>
             <span class="cm-variable">Object</span>.<span class="cm-property">prototype</span>.<span class="cm-property">toString</span>);
@@ -232,178 +232,178 @@
 <span class="cm-variable">console</span>.<span class="cm-property">log</span>([<span class="cm-number">1</span>, <span class="cm-number">2</span>].<span class="cm-property">toString</span>());
 <span class="cm-comment">// → 1,2</span></pre>
 
-<p><a class="p_ident" id="p_FYf2A2jS65" href="#p_FYf2A2jS65" tabindex="-1" role="presentation"></a>Calling <code>toString</code> on an array gives a result similar to calling <code>.<wbr>join(&quot;,&quot;)</code> on it—it puts commas between the values in the array. Directly calling <code>Object.<wbr>prototype.<wbr>toString</code> with an array produces a different string. That function doesn’t know about arrays, so it simply puts the word <em>object</em> and the name of the type between square brackets.</p>
+<p><a class="p_ident" id="p_QW4LQ+6i3T" href="#p_QW4LQ+6i3T" tabindex="-1" role="presentation"></a>Llamar a <code>toString</code> en un array da un resultado similar al de una llamada <code>.<wbr>join(&quot;,&quot;)</code> en él—pone comas entre los valores del array. Llamar directamente a <code>Object.<wbr>prototype.<wbr>toString</code> con un array produce un string diferente. Esa función no sabe acerca de los arrays, por lo que simplemente pone la palabra <em>object</em> y el nombre del tipo entre corchetes.</p>
 
 <pre class="snippet cm-s-default" data-language="javascript" ><a class="c_ident" id="c_XpqFUrDFJE" href="#c_XpqFUrDFJE" tabindex="-1" role="presentation"></a><span class="cm-variable">console</span>.<span class="cm-property">log</span>(<span class="cm-variable">Object</span>.<span class="cm-property">prototype</span>.<span class="cm-property">toString</span>.<span class="cm-property">call</span>([<span class="cm-number">1</span>, <span class="cm-number">2</span>]));
 <span class="cm-comment">// → [object Array]</span></pre>
 
-<h2><a class="h_ident" id="h_gAcc11EHzV" href="#h_gAcc11EHzV" tabindex="-1" role="presentation"></a>Maps</h2>
+<h2><a class="h_ident" id="h_UekXwIlliC" href="#h_UekXwIlliC" tabindex="-1" role="presentation"></a>Mapas</h2>
 
-<p><a class="p_ident" id="p_5v6QzULS7C" href="#p_5v6QzULS7C" tabindex="-1" role="presentation"></a>We saw the word <em>map</em> used in the <a href="05_higher_order.html#map">previous chapter</a> for an operation that transforms a data structure by applying a function to its elements. Confusing as it is, in programming the same word is also used for a related but rather different thing.</p>
+<p><a class="p_ident" id="p_+15luRvtkV" href="#p_+15luRvtkV" tabindex="-1" role="presentation"></a>Vimos a la palabra <em>map</em> usada en el <a href="orden_superior#map">capítulo anterior</a> para una operación que transforma una estructura de datos al aplicar una función en sus elementos.</p>
 
-<p><a class="p_ident" id="p_++bw9zDmtH" href="#p_++bw9zDmtH" tabindex="-1" role="presentation"></a>A <em>map</em> (noun) is a data structure that associates values (the keys) with other values. For example, you might want to map names to ages. It is possible to use objects for this.</p>
+<p><a class="p_ident" id="p_r8/g2LZ4R4" href="#p_r8/g2LZ4R4" tabindex="-1" role="presentation"></a>Un <em>mapa</em> (sustantivo) es una estructura de datos que asocia valores (las llaves) con otros valores. Por ejemplo, es posible que desees mapear nombres a edades. Es posible usar objetos para esto.</p>
 
-<pre class="snippet cm-s-default" data-language="javascript" ><a class="c_ident" id="c_Wu6a8ObZI0" href="#c_Wu6a8ObZI0" tabindex="-1" role="presentation"></a><span class="cm-keyword">let</span> <span class="cm-def">ages</span> <span class="cm-operator">=</span> {
+<pre class="snippet cm-s-default" data-language="javascript" ><a class="c_ident" id="c_4GBSm2Zfh1" href="#c_4GBSm2Zfh1" tabindex="-1" role="presentation"></a><span class="cm-keyword">let</span> <span class="cm-def">edades</span> <span class="cm-operator">=</span> {
   <span class="cm-property">Boris</span>: <span class="cm-number">39</span>,
   <span class="cm-property">Liang</span>: <span class="cm-number">22</span>,
   <span class="cm-property">Júlia</span>: <span class="cm-number">62</span>
 };
 
-<span class="cm-variable">console</span>.<span class="cm-property">log</span>(<span class="cm-string-2">`Júlia is ${</span><span class="cm-variable">ages</span>[<span class="cm-string">&quot;Júlia&quot;</span>]<span class="cm-string-2">}</span><span class="cm-string-2">`</span>);
-<span class="cm-comment">// → Júlia is 62</span>
-<span class="cm-variable">console</span>.<span class="cm-property">log</span>(<span class="cm-string">&quot;Is Jack's age known?&quot;</span>, <span class="cm-string">&quot;Jack&quot;</span> <span class="cm-keyword">in</span> <span class="cm-variable">ages</span>);
-<span class="cm-comment">// → Is Jack's age known? false</span>
-<span class="cm-variable">console</span>.<span class="cm-property">log</span>(<span class="cm-string">&quot;Is toString's age known?&quot;</span>, <span class="cm-string">&quot;toString&quot;</span> <span class="cm-keyword">in</span> <span class="cm-variable">ages</span>);
-<span class="cm-comment">// → Is toString's age known? true</span></pre>
+<span class="cm-variable">console</span>.<span class="cm-property">log</span>(<span class="cm-string-2">`Júlia tiene ${</span><span class="cm-variable">edades</span>[<span class="cm-string">&quot;Júlia&quot;</span>]<span class="cm-string-2">}</span><span class="cm-string-2">`</span>);
+<span class="cm-comment">// → Júlia tiene 62</span>
+<span class="cm-variable">console</span>.<span class="cm-property">log</span>(<span class="cm-string">&quot;Se conoce la edad de Jack?&quot;</span>, <span class="cm-string">&quot;Jack&quot;</span> <span class="cm-keyword">in</span> <span class="cm-variable">edades</span>);
+<span class="cm-comment">// → Se conoce la edad de Jack? false</span>
+<span class="cm-variable">console</span>.<span class="cm-property">log</span>(<span class="cm-string">&quot;Se conoce la edad de toString?&quot;</span>, <span class="cm-string">&quot;toString&quot;</span> <span class="cm-keyword">in</span> <span class="cm-variable">edades</span>);
+<span class="cm-comment">// → Se conoce la edad de toString? true</span></pre>
 
-<p><a class="p_ident" id="p_EQqc7pcOKT" href="#p_EQqc7pcOKT" tabindex="-1" role="presentation"></a>Here, the object’s property names are the people’s names, and the property values are their ages. But we certainly didn’t list anybody named toString in our map. Yet, because plain objects derive from <code>Object.prototype</code>, it looks like the property is there.</p>
+<p><a class="p_ident" id="p_vwxHrSZ3Bl" href="#p_vwxHrSZ3Bl" tabindex="-1" role="presentation"></a>Aquí, los nombres de las propiedades del objeto son los nombres de las personas, y los valores de las propiedades sus edades. Pero ciertamente no incluimos a nadie llamado toString en nuestro mapa. Sin embargo, debido a que los  objetos simples se derivan de <code>Object.prototype</code>, parece que la propiedad está ahí.</p>
 
-<p><a class="p_ident" id="p_enf1/9ItBM" href="#p_enf1/9ItBM" tabindex="-1" role="presentation"></a>As such, using plain objects as maps is dangerous. There are several possible ways to avoid this problem. First, it is possible to create objects with <em>no</em> prototype. If you pass <code>null</code> to <code>Object.create</code>, the resulting object will not derive from <code>Object.prototype</code> and can safely be used as a map.</p>
+<p><a class="p_ident" id="p_s+hHEUZJyI" href="#p_s+hHEUZJyI" tabindex="-1" role="presentation"></a>Como tal, usar objetos simples como mapas es peligroso. Hay varias formas posibles de evitar este problema. Primero, es posible crear objetos sin <em>ningun</em> prototipo. Si pasas <code>null</code> a <code>Object.create</code>, el objeto resultante no se derivará de <code>Object.prototype</code> y podra ser usado de forma segura como un mapa.</p>
 
 <pre class="snippet cm-s-default" data-language="javascript" ><a class="c_ident" id="c_AkRQLQc4AG" href="#c_AkRQLQc4AG" tabindex="-1" role="presentation"></a><span class="cm-variable">console</span>.<span class="cm-property">log</span>(<span class="cm-string">&quot;toString&quot;</span> <span class="cm-keyword">in</span> <span class="cm-variable">Object</span>.<span class="cm-property">create</span>(<span class="cm-atom">null</span>));
 <span class="cm-comment">// → false</span></pre>
 
-<p><a class="p_ident" id="p_jGC2iO9E1x" href="#p_jGC2iO9E1x" tabindex="-1" role="presentation"></a>Object property names must be strings. If you need a map whose keys can’t easily be converted to strings—such as objects—you cannot use an object as your map.</p>
+<p><a class="p_ident" id="p_pzAIVt130A" href="#p_pzAIVt130A" tabindex="-1" role="presentation"></a>Los nombres de las propiedades de los objetos deben ser strings. Si necesitas un mapa cuyas claves no puedan ser convertidas fácilmente a strings—como objetos—no puedes usar un objeto como tu mapa.</p>
 
-<p><a class="p_ident" id="p_nIsq9E5wmZ" href="#p_nIsq9E5wmZ" tabindex="-1" role="presentation"></a>Fortunately, JavaScript comes with a class called <code>Map</code> that is written for this exact purpose. It stores a mapping and allows any type of keys.</p>
+<p><a class="p_ident" id="p_DFHlkoJJDM" href="#p_DFHlkoJJDM" tabindex="-1" role="presentation"></a>Afortunadamente, JavaScript viene con una clase llamada <code>Map</code> que esta escrita para este propósito exacto. Esta almacena un mapeo y permite cualquier tipo de llaves.</p>
 
-<pre class="snippet cm-s-default" data-language="javascript" ><a class="c_ident" id="c_dd6KsGgAGP" href="#c_dd6KsGgAGP" tabindex="-1" role="presentation"></a><span class="cm-keyword">let</span> <span class="cm-def">ages</span> <span class="cm-operator">=</span> <span class="cm-keyword">new</span> <span class="cm-variable">Map</span>();
-<span class="cm-variable">ages</span>.<span class="cm-property">set</span>(<span class="cm-string">&quot;Boris&quot;</span>, <span class="cm-number">39</span>);
-<span class="cm-variable">ages</span>.<span class="cm-property">set</span>(<span class="cm-string">&quot;Liang&quot;</span>, <span class="cm-number">22</span>);
-<span class="cm-variable">ages</span>.<span class="cm-property">set</span>(<span class="cm-string">&quot;Júlia&quot;</span>, <span class="cm-number">62</span>);
+<pre class="snippet cm-s-default" data-language="javascript" ><a class="c_ident" id="c_HxmOmrk6nR" href="#c_HxmOmrk6nR" tabindex="-1" role="presentation"></a><span class="cm-keyword">let</span> <span class="cm-def">edades</span> <span class="cm-operator">=</span> <span class="cm-keyword">new</span> <span class="cm-variable">Map</span>();
+<span class="cm-variable">edades</span>.<span class="cm-property">set</span>(<span class="cm-string">&quot;Boris&quot;</span>, <span class="cm-number">39</span>);
+<span class="cm-variable">edades</span>.<span class="cm-property">set</span>(<span class="cm-string">&quot;Liang&quot;</span>, <span class="cm-number">22</span>);
+<span class="cm-variable">edades</span>.<span class="cm-property">set</span>(<span class="cm-string">&quot;Júlia&quot;</span>, <span class="cm-number">62</span>);
 
-<span class="cm-variable">console</span>.<span class="cm-property">log</span>(<span class="cm-string-2">`Júlia is ${</span><span class="cm-variable">ages</span>.<span class="cm-property">get</span>(<span class="cm-string">&quot;Júlia&quot;</span>)<span class="cm-string-2">}</span><span class="cm-string-2">`</span>);
-<span class="cm-comment">// → Júlia is 62</span>
-<span class="cm-variable">console</span>.<span class="cm-property">log</span>(<span class="cm-string">&quot;Is Jack's age known?&quot;</span>, <span class="cm-variable">ages</span>.<span class="cm-property">has</span>(<span class="cm-string">&quot;Jack&quot;</span>));
-<span class="cm-comment">// → Is Jack's age known? false</span>
-<span class="cm-variable">console</span>.<span class="cm-property">log</span>(<span class="cm-variable">ages</span>.<span class="cm-property">has</span>(<span class="cm-string">&quot;toString&quot;</span>));
+<span class="cm-variable">console</span>.<span class="cm-property">log</span>(<span class="cm-string-2">`Júlia tiene ${</span><span class="cm-variable">edades</span>.<span class="cm-property">get</span>(<span class="cm-string">&quot;Júlia&quot;</span>)<span class="cm-string-2">}</span><span class="cm-string-2">`</span>);
+<span class="cm-comment">// → Júlia tiene 62</span>
+<span class="cm-variable">console</span>.<span class="cm-property">log</span>(<span class="cm-string">&quot;Se conoce la edad de Jack?&quot;</span>, <span class="cm-variable">edades</span>.<span class="cm-property">has</span>(<span class="cm-string">&quot;Jack&quot;</span>));
+<span class="cm-comment">// → Se conoce la edad de Jack? false</span>
+<span class="cm-variable">console</span>.<span class="cm-property">log</span>(<span class="cm-variable">edades</span>.<span class="cm-property">has</span>(<span class="cm-string">&quot;toString&quot;</span>));
 <span class="cm-comment">// → false</span></pre>
 
-<p><a class="p_ident" id="p_iIdp+mGl3Y" href="#p_iIdp+mGl3Y" tabindex="-1" role="presentation"></a>The methods <code>set</code>, <code>get</code>, and <code>has</code> are part of the interface of the <code>Map</code> object. Writing a data structure that can quickly update and search a large set of values isn’t easy, but we don’t have to worry about that. Someone else did it for us, and we can go through this simple interface to use their work.</p>
+<p><a class="p_ident" id="p_vkx4AO6hkJ" href="#p_vkx4AO6hkJ" tabindex="-1" role="presentation"></a>Los métodos <code>set</code> (“establecer”),<code>get</code> (“obtener”), y <code>has</code> (“tiene”) son parte de la interfaz del objeto <code>Map</code>. Escribir una estructura de datos que pueda actualizarse rápidamente y buscar en un gran conjunto de valores no es fácil, pero no tenemos que preocuparnos acerca de eso. Alguien más lo hizo por nosotros, y podemos utilizar esta simple interfaz para usar su trabajo.</p>
 
-<p><a class="p_ident" id="p_tx3xnowcEp" href="#p_tx3xnowcEp" tabindex="-1" role="presentation"></a>If you do have a plain object that you need to treat as a map for some reason, it is useful to know that <code>Object.keys</code> returns only an object’s <em>own</em> keys, not those in the prototype. As an alternative to the <code>in</code> operator, you can use the <code>hasOwnProperty</code> method, which ignores the object’s prototype.</p>
+<p><a class="p_ident" id="p_ImkM3PaOoc" href="#p_ImkM3PaOoc" tabindex="-1" role="presentation"></a>Si tienes un objeto simple que necesitas tratar como un mapa por alguna razón, es útil saber que <code>Object.keys</code> solo retorna las llaves propias del objeto, no las que estan en el prototipo. Como alternativa al operador <code>in</code>, puedes usar el método<code>hasOwnProperty</code> (“tienePropiaPropiedad”), el cual ignora el prototipo del objeto.</p>
 
 <pre class="snippet cm-s-default" data-language="javascript" ><a class="c_ident" id="c_qBrd35Qiln" href="#c_qBrd35Qiln" tabindex="-1" role="presentation"></a><span class="cm-variable">console</span>.<span class="cm-property">log</span>({<span class="cm-property">x</span>: <span class="cm-number">1</span>}.<span class="cm-property">hasOwnProperty</span>(<span class="cm-string">&quot;x&quot;</span>));
 <span class="cm-comment">// → true</span>
 <span class="cm-variable">console</span>.<span class="cm-property">log</span>({<span class="cm-property">x</span>: <span class="cm-number">1</span>}.<span class="cm-property">hasOwnProperty</span>(<span class="cm-string">&quot;toString&quot;</span>));
 <span class="cm-comment">// → false</span></pre>
 
-<h2><a class="h_ident" id="h_mJ/JHQRHg9" href="#h_mJ/JHQRHg9" tabindex="-1" role="presentation"></a>Polymorphism</h2>
+<h2><a class="h_ident" id="h_D9SQL+5hu2" href="#h_D9SQL+5hu2" tabindex="-1" role="presentation"></a>Polimorfismo</h2>
 
-<p><a class="p_ident" id="p_ozkqUookhO" href="#p_ozkqUookhO" tabindex="-1" role="presentation"></a>When you call the <code>String</code> function (which converts a value to a string) on an object, it will call the <code>toString</code> method on that object to try to create a meaningful string from it. I mentioned that some of the standard prototypes define their own version of <code>toString</code> so they can create a string that contains more useful information than <code>&quot;[object Object]&quot;</code>. You can also do that yourself.</p>
+<p><a class="p_ident" id="p_0RlMXKLPjx" href="#p_0RlMXKLPjx" tabindex="-1" role="presentation"></a>Cuando llamas a la función <code>String</code> (que convierte un valor a un string) en un objeto, llamará al método <code>toString</code> en ese objeto para tratar de crear un string significativo a partir de el. Mencioné que algunos de los prototipos estándar definen su propia versión de <code>toString</code> para que puedan crear un string que contenga información más útil que <code>&quot;[object Object]&quot;</code>. También puedes hacer eso tú mismo.</p>
 
-<pre class="snippet cm-s-default" data-language="javascript" ><a class="c_ident" id="c_V+CBn0VJnW" href="#c_V+CBn0VJnW" tabindex="-1" role="presentation"></a><span class="cm-variable">Rabbit</span>.<span class="cm-property">prototype</span>.<span class="cm-property">toString</span> <span class="cm-operator">=</span> <span class="cm-keyword">function</span>() {
-  <span class="cm-keyword">return</span> <span class="cm-string-2">`a ${</span><span class="cm-keyword">this</span>.<span class="cm-property">type</span><span class="cm-string-2">}</span> <span class="cm-string-2">rabbit`</span>;
+<pre class="snippet cm-s-default" data-language="javascript" ><a class="c_ident" id="c_62p/e7vQN6" href="#c_62p/e7vQN6" tabindex="-1" role="presentation"></a><span class="cm-variable">Conejo</span>.<span class="cm-property">prototype</span>.<span class="cm-property">toString</span> <span class="cm-operator">=</span> <span class="cm-keyword">function</span>() {
+  <span class="cm-keyword">return</span> <span class="cm-string-2">`un conejo ${</span><span class="cm-keyword">this</span>.<span class="cm-property">tipo</span><span class="cm-string-2">}</span><span class="cm-string-2">`</span>;
 };
 
-<span class="cm-variable">console</span>.<span class="cm-property">log</span>(<span class="cm-variable">String</span>(<span class="cm-variable">blackRabbit</span>));
-<span class="cm-comment">// → a black rabbit</span></pre>
+<span class="cm-variable">console</span>.<span class="cm-property">log</span>(<span class="cm-variable">String</span>(<span class="cm-variable">conejoNegro</span>));
+<span class="cm-comment">// → un conejo negro</span></pre>
 
-<p><a class="p_ident" id="p_HgUFdFB6vM" href="#p_HgUFdFB6vM" tabindex="-1" role="presentation"></a>This is a simple instance of a powerful idea. When a piece of code is written to work with objects that have a certain interface—in this case, a <code>toString</code> method—any kind of object that happens to support this interface can be plugged into the code, and it will just work.</p>
+<p><a class="p_ident" id="p_q3Gwr1ZTGB" href="#p_q3Gwr1ZTGB" tabindex="-1" role="presentation"></a>Esta es una instancia simple de una idea poderosa. Cuando un pedazo de código es escrito para funcionar con objetos que tienen una cierta interfaz—en este caso, un método <code>toString</code>—cualquier tipo de objeto que soporte esta interfaz se puede conectar al código, y simplemente funcionará.</p>
 
-<p><a class="p_ident" id="p_qNZih5k+vu" href="#p_qNZih5k+vu" tabindex="-1" role="presentation"></a>This technique is called <em>polymorphism</em>. Polymorphic code can work with values of different shapes, as long as they support the interface it expects.</p>
+<p><a class="p_ident" id="p_lj72JyvRZ3" href="#p_lj72JyvRZ3" tabindex="-1" role="presentation"></a>Esta técnica se llama <em>polimorfismo</em>. El código polimórfico puede funcionar con valores de diferentes formas, siempre y cuando soporten la interfaz que este espera.</p>
 
-<p><a class="p_ident" id="p_g9W26O8p4+" href="#p_g9W26O8p4+" tabindex="-1" role="presentation"></a>I mentioned in <a href="04_data.html#for_of_loop">Chapter 4</a> that a <code>for</code>/<code>of</code> loop can loop over several kinds of data structures. This is another case of polymorphism—such loops expect the data structure to expose a specific interface, which arrays and strings do. And we can also add this interface to your own objects! But before we can do that, we need to know what symbols are.</p>
+<p><a class="p_ident" id="p_YL2aDVlxBp" href="#p_YL2aDVlxBp" tabindex="-1" role="presentation"></a>Mencioné en el <a href="datos#for_of_loop">Capítulo 4</a> que un ciclo <code>for</code>/<code>of</code> puede recorrer varios tipos de estructuras de datos. Este es otro caso de polimorfismo—tales ciclos esperan que la estructura de datos exponga una interfaz específica, lo que hacen los arrays y strings. Y también puedes agregar esta interfaz a tus propios objetos! Pero antes de que podamos hacer eso, necesitamos saber qué son los símbolos.</p>
 
-<h2><a class="h_ident" id="h_Iq1mTp65i3" href="#h_Iq1mTp65i3" tabindex="-1" role="presentation"></a>Symbols</h2>
+<h2><a class="h_ident" id="h_aB1RPFkM8u" href="#h_aB1RPFkM8u" tabindex="-1" role="presentation"></a>Símbolos</h2>
 
-<p><a class="p_ident" id="p_9VjlXGAIAM" href="#p_9VjlXGAIAM" tabindex="-1" role="presentation"></a>It is possible for multiple interfaces to use the same property name for different things. For example, I could define an interface in which the <code>toString</code> method is supposed to convert the object into a piece of yarn. It would not be possible for an object to conform to both that interface and the standard use of <code>toString</code>.</p>
+<p><a class="p_ident" id="p_Y7jYC+2kHu" href="#p_Y7jYC+2kHu" tabindex="-1" role="presentation"></a>Es posible que múltiples interfaces usen el mismo nombre de propiedad para diferentes cosas. Por ejemplo, podría definir una interfaz en la que se suponga que el método <code>toString</code> convierte el objeto a una pieza de hilo. No sería posible para un objeto ajustarse a esa interfaz y al uso estándar de <code>toString</code>.</p>
 
-<p><a class="p_ident" id="p_v6ZgtFDNeP" href="#p_v6ZgtFDNeP" tabindex="-1" role="presentation"></a>That would be a bad idea, and this problem isn’t that common. Most JavaScript programmers simply don’t think about it. But the language designers, whose <em>job</em> it is to think about this stuff, have provided us with a solution anyway.</p>
+<p><a class="p_ident" id="p_ynIp8WxYMu" href="#p_ynIp8WxYMu" tabindex="-1" role="presentation"></a>Esa sería una mala idea, y este problema no es muy común. La mayoria de los programadores de JavaScript simplemente no piensan en eso. Pero los diseñadores del lenguaje, cuyo <em>trabajo</em> es pensar acerca de estas cosas, nos han proporcionado una solución de todos modos.</p>
 
-<p><a class="p_ident" id="p_7p+O+Qr4bN" href="#p_7p+O+Qr4bN" tabindex="-1" role="presentation"></a>When I claimed that property names are strings, that wasn’t entirely accurate. They usually are, but they can also be <em>symbols</em>. Symbols are values created with the <code>Symbol</code> function. Unlike strings, newly created symbols are unique—you cannot create the same symbol twice.</p>
+<p><a class="p_ident" id="p_LoYoYUBZjb" href="#p_LoYoYUBZjb" tabindex="-1" role="presentation"></a>Cuando afirmé que los nombres de propiedad son strings, eso no fue del todo preciso. Usualmente lo son, pero también pueden ser <em>símbolos</em>. Los símbolos son valores creados con la función <code>Symbol</code>. A diferencia de los strings, los símbolos recién creados son únicos—no puedes crear el mismo símbolo dos veces.</p>
 
-<pre class="snippet cm-s-default" data-language="javascript" ><a class="c_ident" id="c_/KAipM77Y+" href="#c_/KAipM77Y+" tabindex="-1" role="presentation"></a><span class="cm-keyword">let</span> <span class="cm-def">sym</span> <span class="cm-operator">=</span> <span class="cm-variable">Symbol</span>(<span class="cm-string">&quot;name&quot;</span>);
-<span class="cm-variable">console</span>.<span class="cm-property">log</span>(<span class="cm-variable">sym</span> <span class="cm-operator">==</span> <span class="cm-variable">Symbol</span>(<span class="cm-string">&quot;name&quot;</span>));
+<pre class="snippet cm-s-default" data-language="javascript" ><a class="c_ident" id="c_thaQ6jg/+h" href="#c_thaQ6jg/+h" tabindex="-1" role="presentation"></a><span class="cm-keyword">let</span> <span class="cm-def">simbolo</span> <span class="cm-operator">=</span> <span class="cm-variable">Symbol</span>(<span class="cm-string">&quot;nombre&quot;</span>);
+<span class="cm-variable">console</span>.<span class="cm-property">log</span>(<span class="cm-variable">simbolo</span> <span class="cm-operator">==</span> <span class="cm-variable">Symbol</span>(<span class="cm-string">&quot;nombre&quot;</span>));
 <span class="cm-comment">// → false</span>
-<span class="cm-variable">Rabbit</span>.<span class="cm-property">prototype</span>[<span class="cm-variable">sym</span>] <span class="cm-operator">=</span> <span class="cm-number">55</span>;
-<span class="cm-variable">console</span>.<span class="cm-property">log</span>(<span class="cm-variable">blackRabbit</span>[<span class="cm-variable">sym</span>]);
+<span class="cm-variable">Conejo</span>.<span class="cm-property">prototype</span>[<span class="cm-variable">simbolo</span>] <span class="cm-operator">=</span> <span class="cm-number">55</span>;
+<span class="cm-variable">console</span>.<span class="cm-property">log</span>(<span class="cm-variable">conejoNegro</span>[<span class="cm-variable">simbolo</span>]);
 <span class="cm-comment">// → 55</span></pre>
 
-<p><a class="p_ident" id="p_PBxnKMHKqV" href="#p_PBxnKMHKqV" tabindex="-1" role="presentation"></a>The string you pass to <code>Symbol</code> is included when you convert it to a string and can make it easier to recognize a symbol when, for example, showing it in the console. But it has no meaning beyond that—multiple symbols may have the same name.</p>
+<p><a class="p_ident" id="p_zfPw5X9Nt7" href="#p_zfPw5X9Nt7" tabindex="-1" role="presentation"></a>El string que pases a <code>Symbol</code> es incluido cuando lo conviertas a string, y puede hacer que sea más fácil reconocer un símbolo cuando, por ejemplo, lo muestres en la consola. Pero no tiene sentido más allá de eso—múltiples símbolos pueden tener el mismo nombre.</p>
 
-<p><a class="p_ident" id="p_n90pM44NAN" href="#p_n90pM44NAN" tabindex="-1" role="presentation"></a>Being both unique and usable as property names makes symbols suitable for defining interfaces that can peacefully live alongside other properties, no matter what their names are.</p>
+<p><a class="p_ident" id="p_6ceQTZ6Yql" href="#p_6ceQTZ6Yql" tabindex="-1" role="presentation"></a>Al ser únicos y utilizables como nombres de propiedad, los símbolos son adecuados para definir interfaces que pueden vivir pacíficamente junto a otras propiedades, sin importar cuáles sean sus nombres.</p>
 
-<pre class="snippet cm-s-default" data-language="javascript" ><a class="c_ident" id="c_I6uO/ojWit" href="#c_I6uO/ojWit" tabindex="-1" role="presentation"></a><span class="cm-keyword">const</span> <span class="cm-def">toStringSymbol</span> <span class="cm-operator">=</span> <span class="cm-variable">Symbol</span>(<span class="cm-string">&quot;toString&quot;</span>);
-<span class="cm-variable">Array</span>.<span class="cm-property">prototype</span>[<span class="cm-variable">toStringSymbol</span>] <span class="cm-operator">=</span> <span class="cm-keyword">function</span>() {
-  <span class="cm-keyword">return</span> <span class="cm-string-2">`${</span><span class="cm-keyword">this</span>.<span class="cm-property">length</span><span class="cm-string-2">}</span> <span class="cm-string-2">cm of blue yarn`</span>;
+<pre class="snippet cm-s-default" data-language="javascript" ><a class="c_ident" id="c_FjVPOJib4E" href="#c_FjVPOJib4E" tabindex="-1" role="presentation"></a><span class="cm-keyword">const</span> <span class="cm-def">simboloToString</span> <span class="cm-operator">=</span> <span class="cm-variable">Symbol</span>(<span class="cm-string">&quot;toString&quot;</span>);
+<span class="cm-variable">Array</span>.<span class="cm-property">prototype</span>[<span class="cm-variable">simboloToString</span>] <span class="cm-operator">=</span> <span class="cm-keyword">function</span>() {
+  <span class="cm-keyword">return</span> <span class="cm-string-2">`${</span><span class="cm-keyword">this</span>.<span class="cm-property">length</span><span class="cm-string-2">}</span> <span class="cm-string-2">cm de hilo azul`</span>;
 };
 
 <span class="cm-variable">console</span>.<span class="cm-property">log</span>([<span class="cm-number">1</span>, <span class="cm-number">2</span>].<span class="cm-property">toString</span>());
 <span class="cm-comment">// → 1,2</span>
-<span class="cm-variable">console</span>.<span class="cm-property">log</span>([<span class="cm-number">1</span>, <span class="cm-number">2</span>][<span class="cm-variable">toStringSymbol</span>]());
-<span class="cm-comment">// → 2 cm of blue yarn</span></pre>
+<span class="cm-variable">console</span>.<span class="cm-property">log</span>([<span class="cm-number">1</span>, <span class="cm-number">2</span>][<span class="cm-variable">simboloToString</span>]());
+<span class="cm-comment">// → 2 cm de hilo azul</span></pre>
 
-<p><a class="p_ident" id="p_VJSo/GYvCc" href="#p_VJSo/GYvCc" tabindex="-1" role="presentation"></a>It is possible to include symbol properties in object expressions and classes by using square brackets around the property name. That causes the property name to be evaluated, much like the square bracket property access notation, which allows us to refer to a binding that holds the symbol.</p>
+<p><a class="p_ident" id="p_Sd9m69lVZ9" href="#p_Sd9m69lVZ9" tabindex="-1" role="presentation"></a>Es posible incluir propiedades de símbolos en expresiones de objetos y clases usando corchetes alrededor del nombre de la propiedad. Eso hace que se evalúe el nombre de la propiedad, al igual que la notación de corchetes para acceder propiedades, lo cual nos permite hacer referencia a una vinculación que contiene el símbolo.</p>
 
-<pre class="snippet cm-s-default" data-language="javascript" ><a class="c_ident" id="c_aZAdJfdSRz" href="#c_aZAdJfdSRz" tabindex="-1" role="presentation"></a><span class="cm-keyword">let</span> <span class="cm-def">stringObject</span> <span class="cm-operator">=</span> {
-  [<span class="cm-variable">toStringSymbol</span>]() { <span class="cm-keyword">return</span> <span class="cm-string">&quot;a jute rope&quot;</span>; }
+<pre class="snippet cm-s-default" data-language="javascript" ><a class="c_ident" id="c_cZla/tQXit" href="#c_cZla/tQXit" tabindex="-1" role="presentation"></a><span class="cm-keyword">let</span> <span class="cm-def">objetoString</span> <span class="cm-operator">=</span> {
+  [<span class="cm-variable">simboloToString</span>]() { <span class="cm-keyword">return</span> <span class="cm-string">&quot;una cuerda de cañamo&quot;</span>; }
 };
-<span class="cm-variable">console</span>.<span class="cm-property">log</span>(<span class="cm-variable">stringObject</span>[<span class="cm-variable">toStringSymbol</span>]());
-<span class="cm-comment">// → a jute rope</span></pre>
+<span class="cm-variable">console</span>.<span class="cm-property">log</span>(<span class="cm-variable">objetoString</span>[<span class="cm-variable">simboloToString</span>]());
+<span class="cm-comment">// → una cuerda de cañamo</span></pre>
 
-<h2><a class="h_ident" id="h_z2tOOXM8qO" href="#h_z2tOOXM8qO" tabindex="-1" role="presentation"></a>The iterator interface</h2>
+<h2><a class="h_ident" id="h_1HFT8N/oH7" href="#h_1HFT8N/oH7" tabindex="-1" role="presentation"></a>La interfaz de iterador</h2>
 
-<p><a class="p_ident" id="p_gtFNFSvSrt" href="#p_gtFNFSvSrt" tabindex="-1" role="presentation"></a>The object given to a <code>for</code>/<code>of</code> loop is expected to be <em>iterable</em>. This means it has a method named with the <code>Symbol.iterator</code> symbol (a symbol value defined by the language, stored as a property of the <code>Symbol</code> function).</p>
+<p><a class="p_ident" id="p_y5CYRUDQhn" href="#p_y5CYRUDQhn" tabindex="-1" role="presentation"></a>Se espera que el objeto dado a un ciclo <code>for</code>/<code>of</code> sea <em>iterable</em>. Esto significa que tenga un método llamado con el símbolo <code>Symbol.iterator</code> (un valor de símbolo definido por el idioma, almacenado como una propiedad de la función <code>Symbol</code>).</p>
 
-<p><a class="p_ident" id="p_gs0GMX9PA7" href="#p_gs0GMX9PA7" tabindex="-1" role="presentation"></a>When called, that method should return an object that provides a second interface, <em>iterator</em>. This is the actual thing that iterates. It has a <code>next</code> method that returns the next result. That result should be an object with a <code>value</code> property that provides the next value, if there is one, and a <code>done</code> property, which should be true when there are no more results and false otherwise.</p>
+<p><a class="p_ident" id="p_6+F+iQsbYS" href="#p_6+F+iQsbYS" tabindex="-1" role="presentation"></a>Cuando sea llamado, ese método debe retornar un objeto que proporcione una segunda interfaz, <em>iteradora</em>. Esta es la cosa real que realiza la iteración. Tiene un método <code>next</code> (“siguiente”) que retorna el siguiente resultado. Ese resultado debería ser un objeto con una propiedad <code>value</code> (“valor”), que proporciona el siguiente valor, si hay uno, y una propiedad <code>done</code> (“listo”) que debería ser cierta cuando no haya más resultados y falso de lo contrario.</p>
 
-<p><a class="p_ident" id="p_a9jQxjOo3t" href="#p_a9jQxjOo3t" tabindex="-1" role="presentation"></a>Note that the <code>next</code>, <code>value</code>, and <code>done</code> property names are plain strings, not symbols. Only <code>Symbol.iterator</code>, which is likely to be added to a <em>lot</em> of different objects, is an actual symbol.</p>
+<p><a class="p_ident" id="p_UNu4gEH21W" href="#p_UNu4gEH21W" tabindex="-1" role="presentation"></a>Ten en cuenta que los nombres de las propiedades <code>next</code>, <code>value</code> y <code>done</code> son simples strings, no símbolos. Solo <code>Symbol.iterator</code>, que probablemente sea agregado a un <em>monton</em> de objetos diferentes, es un símbolo real.</p>
 
-<p><a class="p_ident" id="p_wSWGcm7dId" href="#p_wSWGcm7dId" tabindex="-1" role="presentation"></a>We can directly use this interface ourselves.</p>
+<p><a class="p_ident" id="p_egeC+dr8KU" href="#p_egeC+dr8KU" tabindex="-1" role="presentation"></a>Podemos usar directamente esta interfaz nosotros mismos.</p>
 
-<pre class="snippet cm-s-default" data-language="javascript" ><a class="c_ident" id="c_CKTaBW3WjJ" href="#c_CKTaBW3WjJ" tabindex="-1" role="presentation"></a><span class="cm-keyword">let</span> <span class="cm-def">okIterator</span> <span class="cm-operator">=</span> <span class="cm-string">&quot;OK&quot;</span>[<span class="cm-variable">Symbol</span>.<span class="cm-property">iterator</span>]();
-<span class="cm-variable">console</span>.<span class="cm-property">log</span>(<span class="cm-variable">okIterator</span>.<span class="cm-property">next</span>());
+<pre class="snippet cm-s-default" data-language="javascript" ><a class="c_ident" id="c_CUVHgvLuC3" href="#c_CUVHgvLuC3" tabindex="-1" role="presentation"></a><span class="cm-keyword">let</span> <span class="cm-def">iteradorOK</span> <span class="cm-operator">=</span> <span class="cm-string">&quot;OK&quot;</span>[<span class="cm-variable">Symbol</span>.<span class="cm-property">iterator</span>]();
+<span class="cm-variable">console</span>.<span class="cm-property">log</span>(<span class="cm-variable">iteradorOK</span>.<span class="cm-property">next</span>());
 <span class="cm-comment">// → {value: &quot;O&quot;, done: false}</span>
-<span class="cm-variable">console</span>.<span class="cm-property">log</span>(<span class="cm-variable">okIterator</span>.<span class="cm-property">next</span>());
+<span class="cm-variable">console</span>.<span class="cm-property">log</span>(<span class="cm-variable">iteradorOK</span>.<span class="cm-property">next</span>());
 <span class="cm-comment">// → {value: &quot;K&quot;, done: false}</span>
-<span class="cm-variable">console</span>.<span class="cm-property">log</span>(<span class="cm-variable">okIterator</span>.<span class="cm-property">next</span>());
+<span class="cm-variable">console</span>.<span class="cm-property">log</span>(<span class="cm-variable">iteradorOK</span>.<span class="cm-property">next</span>());
 <span class="cm-comment">// → {value: undefined, done: true}</span></pre>
 
-<p id="matrix"><a class="p_ident" id="p_rqXAzunzIi" href="#p_rqXAzunzIi" tabindex="-1" role="presentation"></a>Let’s implement an iterable data structure. We’ll build a <em>matrix</em> class, acting as a two-dimensional array.</p>
+<p id="matrix"><a class="p_ident" id="p_hrginJpCrQ" href="#p_hrginJpCrQ" tabindex="-1" role="presentation"></a>Implementemos una estructura de datos iterable. Construiremos una clase <em>matriz</em>, que actuara como un array bidimensional.</p>
 
-<pre class="snippet cm-s-default" data-language="javascript" ><a class="c_ident" id="c_Q128qlROKi" href="#c_Q128qlROKi" tabindex="-1" role="presentation"></a><span class="cm-keyword">class</span> <span class="cm-def">Matrix</span> {
-  <span class="cm-property">constructor</span>(<span class="cm-def">width</span>, <span class="cm-def">height</span>, <span class="cm-def">element</span> <span class="cm-operator">=</span> (<span class="cm-def">x</span>, <span class="cm-def">y</span>) <span class="cm-operator">=&gt;</span> <span class="cm-atom">undefined</span>) {
-    <span class="cm-keyword">this</span>.<span class="cm-property">width</span> <span class="cm-operator">=</span> <span class="cm-variable-2">width</span>;
-    <span class="cm-keyword">this</span>.<span class="cm-property">height</span> <span class="cm-operator">=</span> <span class="cm-variable-2">height</span>;
-    <span class="cm-keyword">this</span>.<span class="cm-property">content</span> <span class="cm-operator">=</span> [];
+<pre class="snippet cm-s-default" data-language="javascript" ><a class="c_ident" id="c_KGOGlR8QUh" href="#c_KGOGlR8QUh" tabindex="-1" role="presentation"></a><span class="cm-keyword">class</span> <span class="cm-def">Matriz</span> {
+  <span class="cm-property">constructor</span>(<span class="cm-def">ancho</span>, <span class="cm-def">altura</span>, <span class="cm-def">elemento</span> <span class="cm-operator">=</span> (<span class="cm-def">x</span>, <span class="cm-def">y</span>) <span class="cm-operator">=&gt;</span> <span class="cm-atom">undefined</span>) {
+    <span class="cm-keyword">this</span>.<span class="cm-property">ancho</span> <span class="cm-operator">=</span> <span class="cm-variable-2">ancho</span>;
+    <span class="cm-keyword">this</span>.<span class="cm-property">altura</span> <span class="cm-operator">=</span> <span class="cm-variable-2">altura</span>;
+    <span class="cm-keyword">this</span>.<span class="cm-property">contenido</span> <span class="cm-operator">=</span> [];
 
-    <span class="cm-keyword">for</span> (<span class="cm-keyword">let</span> <span class="cm-def">y</span> <span class="cm-operator">=</span> <span class="cm-number">0</span>; <span class="cm-variable-2">y</span> <span class="cm-operator">&lt;</span> <span class="cm-variable-2">height</span>; <span class="cm-variable-2">y</span><span class="cm-operator">++</span>) {
-      <span class="cm-keyword">for</span> (<span class="cm-keyword">let</span> <span class="cm-def">x</span> <span class="cm-operator">=</span> <span class="cm-number">0</span>; <span class="cm-variable-2">x</span> <span class="cm-operator">&lt;</span> <span class="cm-variable-2">width</span>; <span class="cm-variable-2">x</span><span class="cm-operator">++</span>) {
-        <span class="cm-keyword">this</span>.<span class="cm-property">content</span>[<span class="cm-variable-2">y</span> <span class="cm-operator">*</span> <span class="cm-variable-2">width</span> <span class="cm-operator">+</span> <span class="cm-variable-2">x</span>] <span class="cm-operator">=</span> <span class="cm-variable-2">element</span>(<span class="cm-variable-2">x</span>, <span class="cm-variable-2">y</span>);
+    <span class="cm-keyword">for</span> (<span class="cm-keyword">let</span> <span class="cm-def">y</span> <span class="cm-operator">=</span> <span class="cm-number">0</span>; <span class="cm-variable-2">y</span> <span class="cm-operator">&lt;</span> <span class="cm-variable-2">altura</span>; <span class="cm-variable-2">y</span><span class="cm-operator">++</span>) {
+      <span class="cm-keyword">for</span> (<span class="cm-keyword">let</span> <span class="cm-def">x</span> <span class="cm-operator">=</span> <span class="cm-number">0</span>; <span class="cm-variable-2">x</span> <span class="cm-operator">&lt;</span> <span class="cm-variable-2">ancho</span>; <span class="cm-variable-2">x</span><span class="cm-operator">++</span>) {
+        <span class="cm-keyword">this</span>.<span class="cm-property">contenido</span>[<span class="cm-variable-2">y</span> <span class="cm-operator">*</span> <span class="cm-variable-2">ancho</span> <span class="cm-operator">+</span> <span class="cm-variable-2">x</span>] <span class="cm-operator">=</span> <span class="cm-variable-2">elemento</span>(<span class="cm-variable-2">x</span>, <span class="cm-variable-2">y</span>);
       }
     }
   }
 
-  <span class="cm-property">get</span>(<span class="cm-def">x</span>, <span class="cm-def">y</span>) {
-    <span class="cm-keyword">return</span> <span class="cm-keyword">this</span>.<span class="cm-property">content</span>[<span class="cm-variable-2">y</span> <span class="cm-operator">*</span> <span class="cm-keyword">this</span>.<span class="cm-property">width</span> <span class="cm-operator">+</span> <span class="cm-variable-2">x</span>];
+  <span class="cm-property">obtener</span>(<span class="cm-def">x</span>, <span class="cm-def">y</span>) {
+    <span class="cm-keyword">return</span> <span class="cm-keyword">this</span>.<span class="cm-property">contenido</span>[<span class="cm-variable-2">y</span> <span class="cm-operator">*</span> <span class="cm-keyword">this</span>.<span class="cm-property">ancho</span> <span class="cm-operator">+</span> <span class="cm-variable-2">x</span>];
   }
-  <span class="cm-property">set</span>(<span class="cm-def">x</span>, <span class="cm-def">y</span>, <span class="cm-def">value</span>) {
-    <span class="cm-keyword">this</span>.<span class="cm-property">content</span>[<span class="cm-variable-2">y</span> <span class="cm-operator">*</span> <span class="cm-keyword">this</span>.<span class="cm-property">width</span> <span class="cm-operator">+</span> <span class="cm-variable-2">x</span>] <span class="cm-operator">=</span> <span class="cm-variable-2">value</span>;
+  <span class="cm-property">establecer</span>(<span class="cm-def">x</span>, <span class="cm-def">y</span>, <span class="cm-def">valor</span>) {
+    <span class="cm-keyword">this</span>.<span class="cm-property">contenido</span>[<span class="cm-variable-2">y</span> <span class="cm-operator">*</span> <span class="cm-keyword">this</span>.<span class="cm-property">ancho</span> <span class="cm-operator">+</span> <span class="cm-variable-2">x</span>] <span class="cm-operator">=</span> <span class="cm-variable-2">valor</span>;
   }
 }</pre>
 
-<p><a class="p_ident" id="p_I/q+okK5mh" href="#p_I/q+okK5mh" tabindex="-1" role="presentation"></a>The class stores its content in a single array of <em>width</em> × <em>height</em> elements. The elements are stored row by row, so, for example, the third element in the fifth row is (using zero-based indexing) stored at position 4 × <em>width</em> + 2.</p>
+<p><a class="p_ident" id="p_lPyVHlael7" href="#p_lPyVHlael7" tabindex="-1" role="presentation"></a>La clase almacena su contenido en un único array de elementos <em>altura</em> × <em>ancho</em>. Los elementos se almacenan fila por fila, por lo que, por ejemplo, el tercer elemento en la quinta fila es (utilizando indexación basada en cero) almacenado en la posición 4 × <em>ancho</em> + 2.</p>
 
-<p><a class="p_ident" id="p_RlDQ7yqK2c" href="#p_RlDQ7yqK2c" tabindex="-1" role="presentation"></a>The constructor function takes a width, a height, and an optional <code>element</code> function that will be used to fill in the initial values. There are <code>get</code> and <code>set</code> methods to retrieve and update elements in the matrix.</p>
+<p><a class="p_ident" id="p_klqmE/lSx+" href="#p_klqmE/lSx+" tabindex="-1" role="presentation"></a>La función constructora toma un ancho, una altura y una función opcional de contenido que se usará para llenar los valores iniciales. Hay métodos <code>obtener</code> y <code>establecer</code> para recuperar y actualizar elementos en la matriz.</p>
 
-<p><a class="p_ident" id="p_DHPUGxvFrD" href="#p_DHPUGxvFrD" tabindex="-1" role="presentation"></a>When looping over a matrix, you are usually interested in the position of the elements as well as the elements themselves, so we’ll have our iterator produce objects with <code>x</code>, <code>y</code>, and <code>value</code> properties.</p>
+<p><a class="p_ident" id="p_BlLSCfcpdj" href="#p_BlLSCfcpdj" tabindex="-1" role="presentation"></a>Al hacer un ciclo sobre una matriz, generalmente estás interesado en la posición tanto de los elementos como de los elementos en sí mismos, así que haremos que nuestro iterador produzca objetos con propiedades <code>x</code>, <code>y</code>, y <code>value</code> (“valor”).</p>
 
-<pre class="snippet cm-s-default" data-language="javascript" ><a class="c_ident" id="c_LtbqF2pl4c" href="#c_LtbqF2pl4c" tabindex="-1" role="presentation"></a><span class="cm-keyword">class</span> <span class="cm-def">MatrixIterator</span> {
-  <span class="cm-property">constructor</span>(<span class="cm-def">matrix</span>) {
+<pre class="snippet cm-s-default" data-language="javascript" ><a class="c_ident" id="c_JBxAT5bFlH" href="#c_JBxAT5bFlH" tabindex="-1" role="presentation"></a><span class="cm-keyword">class</span> <span class="cm-def">IteradorMatriz</span> {
+  <span class="cm-property">constructor</span>(<span class="cm-def">matriz</span>) {
     <span class="cm-keyword">this</span>.<span class="cm-property">x</span> <span class="cm-operator">=</span> <span class="cm-number">0</span>;
     <span class="cm-keyword">this</span>.<span class="cm-property">y</span> <span class="cm-operator">=</span> <span class="cm-number">0</span>;
-    <span class="cm-keyword">this</span>.<span class="cm-property">matrix</span> <span class="cm-operator">=</span> <span class="cm-variable-2">matrix</span>;
+    <span class="cm-keyword">this</span>.<span class="cm-property">matriz</span> <span class="cm-operator">=</span> <span class="cm-variable-2">matriz</span>;
   }
 
   <span class="cm-property">next</span>() {
-    <span class="cm-keyword">if</span> (<span class="cm-keyword">this</span>.<span class="cm-property">y</span> <span class="cm-operator">==</span> <span class="cm-keyword">this</span>.<span class="cm-property">matrix</span>.<span class="cm-property">height</span>) <span class="cm-keyword">return</span> {<span class="cm-property">done</span>: <span class="cm-atom">true</span>};
+    <span class="cm-keyword">if</span> (<span class="cm-keyword">this</span>.<span class="cm-property">y</span> <span class="cm-operator">==</span> <span class="cm-keyword">this</span>.<span class="cm-property">matriz</span>.<span class="cm-property">altura</span>) <span class="cm-keyword">return</span> {<span class="cm-property">done</span>: <span class="cm-atom">true</span>};
 
     <span class="cm-keyword">let</span> <span class="cm-def">value</span> <span class="cm-operator">=</span> {<span class="cm-property">x</span>: <span class="cm-keyword">this</span>.<span class="cm-property">x</span>,
                  <span class="cm-property">y</span>: <span class="cm-keyword">this</span>.<span class="cm-property">y</span>,
-                 <span class="cm-property">value</span>: <span class="cm-keyword">this</span>.<span class="cm-property">matrix</span>.<span class="cm-property">get</span>(<span class="cm-keyword">this</span>.<span class="cm-property">x</span>, <span class="cm-keyword">this</span>.<span class="cm-property">y</span>)};
+                 <span class="cm-property">value</span>: <span class="cm-keyword">this</span>.<span class="cm-property">matriz</span>.<span class="cm-property">obtener</span>(<span class="cm-keyword">this</span>.<span class="cm-property">x</span>, <span class="cm-keyword">this</span>.<span class="cm-property">y</span>)};
     <span class="cm-keyword">this</span>.<span class="cm-property">x</span><span class="cm-operator">++</span>;
-    <span class="cm-keyword">if</span> (<span class="cm-keyword">this</span>.<span class="cm-property">x</span> <span class="cm-operator">==</span> <span class="cm-keyword">this</span>.<span class="cm-property">matrix</span>.<span class="cm-property">width</span>) {
+    <span class="cm-keyword">if</span> (<span class="cm-keyword">this</span>.<span class="cm-property">x</span> <span class="cm-operator">==</span> <span class="cm-keyword">this</span>.<span class="cm-property">matriz</span>.<span class="cm-property">ancho</span>) {
       <span class="cm-keyword">this</span>.<span class="cm-property">x</span> <span class="cm-operator">=</span> <span class="cm-number">0</span>;
       <span class="cm-keyword">this</span>.<span class="cm-property">y</span><span class="cm-operator">++</span>;
     }
@@ -411,220 +411,220 @@
   }
 }</pre>
 
-<p><a class="p_ident" id="p_yBJg8/BmDJ" href="#p_yBJg8/BmDJ" tabindex="-1" role="presentation"></a>The class tracks the progress of iterating over a matrix in its <code>x</code> and <code>y</code> properties. The <code>next</code> method starts by checking whether the bottom of the matrix has been reached. If it hasn’t, it <em>first</em> creates the object holding the current value and <em>then</em> updates its position, moving to the next row if necessary.</p>
+<p><a class="p_ident" id="p_OA9RHd7mkI" href="#p_OA9RHd7mkI" tabindex="-1" role="presentation"></a>La clase hace un seguimiento del progreso de iterar sobre una matriz en sus propiedades <code>x</code> y <code>y</code>. El método <code>next</code> (“siguiente”) comienza comprobando si la parte inferior de la matriz ha sido alcanzada. Si no es así, <em>primero</em> crea el objeto que contiene el valor actual y <em>luego</em> actualiza su posición, moviéndose a la siguiente fila si es necesario.</p>
 
-<p><a class="p_ident" id="p_Iu3bFayPkp" href="#p_Iu3bFayPkp" tabindex="-1" role="presentation"></a>Let’s set up the <code>Matrix</code> class to be iterable. Throughout this book, I’ll occasionally use after-the-fact prototype manipulation to add methods to classes so that the individual pieces of code remain small and self-contained. In a regular program, where there is no need to split the code into small pieces, you’d declare these methods directly in the class instead.</p>
+<p><a class="p_ident" id="p_lKG3fKlE7t" href="#p_lKG3fKlE7t" tabindex="-1" role="presentation"></a>Configuremos la clase <code>Matriz</code> para que sea iterable. A lo largo de este libro, Ocasionalmente usaré la manipulación del prototipo después de los hechos para agregar métodos a clases, para que las piezas individuales de código permanezcan pequeñas y autónomas. En un programa regular, donde no hay necesidad de dividir el código en pedazos pequeños, declararias estos métodos directamente en la clase.</p>
 
-<pre class="snippet cm-s-default" data-language="javascript" ><a class="c_ident" id="c_BmOLk4O5HN" href="#c_BmOLk4O5HN" tabindex="-1" role="presentation"></a><span class="cm-variable">Matrix</span>.<span class="cm-property">prototype</span>[<span class="cm-variable">Symbol</span>.<span class="cm-property">iterator</span>] <span class="cm-operator">=</span> <span class="cm-keyword">function</span>() {
-  <span class="cm-keyword">return</span> <span class="cm-keyword">new</span> <span class="cm-variable">MatrixIterator</span>(<span class="cm-keyword">this</span>);
+<pre class="snippet cm-s-default" data-language="javascript" ><a class="c_ident" id="c_mEBQZrMP6Y" href="#c_mEBQZrMP6Y" tabindex="-1" role="presentation"></a><span class="cm-variable">Matriz</span>.<span class="cm-property">prototype</span>[<span class="cm-variable">Symbol</span>.<span class="cm-property">iterator</span>] <span class="cm-operator">=</span> <span class="cm-keyword">function</span>() {
+  <span class="cm-keyword">return</span> <span class="cm-keyword">new</span> <span class="cm-variable">IteradorMatriz</span>(<span class="cm-keyword">this</span>);
 };</pre>
 
-<p><a class="p_ident" id="p_+6FbIloB5k" href="#p_+6FbIloB5k" tabindex="-1" role="presentation"></a>We can now loop over a matrix with <code>for</code>/<code>of</code>.</p>
+<p><a class="p_ident" id="p_3Drv9Fyw5c" href="#p_3Drv9Fyw5c" tabindex="-1" role="presentation"></a>Ahora podemos recorrer una matriz con <code>for</code>/<code>of</code>.</p>
 
-<pre class="snippet cm-s-default" data-language="javascript" ><a class="c_ident" id="c_ek9pXBwNMJ" href="#c_ek9pXBwNMJ" tabindex="-1" role="presentation"></a><span class="cm-keyword">let</span> <span class="cm-def">matrix</span> <span class="cm-operator">=</span> <span class="cm-keyword">new</span> <span class="cm-variable">Matrix</span>(<span class="cm-number">2</span>, <span class="cm-number">2</span>, (<span class="cm-def">x</span>, <span class="cm-def">y</span>) <span class="cm-operator">=&gt;</span> <span class="cm-string-2">`value ${</span><span class="cm-variable-2">x</span><span class="cm-string-2">}</span><span class="cm-string-2">,${</span><span class="cm-variable-2">y</span><span class="cm-string-2">}</span><span class="cm-string-2">`</span>);
-<span class="cm-keyword">for</span> (<span class="cm-keyword">let</span> {<span class="cm-def">x</span>, <span class="cm-def">y</span>, <span class="cm-def">value</span>} <span class="cm-keyword">of</span> <span class="cm-variable">matrix</span>) {
+<pre class="snippet cm-s-default" data-language="javascript" ><a class="c_ident" id="c_DEUAmwYHbe" href="#c_DEUAmwYHbe" tabindex="-1" role="presentation"></a><span class="cm-keyword">let</span> <span class="cm-def">matriz</span> <span class="cm-operator">=</span> <span class="cm-keyword">new</span> <span class="cm-variable">Matriz</span>(<span class="cm-number">2</span>, <span class="cm-number">2</span>, (<span class="cm-def">x</span>, <span class="cm-def">y</span>) <span class="cm-operator">=&gt;</span> <span class="cm-string-2">`valor ${</span><span class="cm-variable-2">x</span><span class="cm-string-2">}</span><span class="cm-string-2">,${</span><span class="cm-variable-2">y</span><span class="cm-string-2">}</span><span class="cm-string-2">`</span>);
+<span class="cm-keyword">for</span> (<span class="cm-keyword">let</span> {<span class="cm-def">x</span>, <span class="cm-def">y</span>, <span class="cm-def">value</span>} <span class="cm-keyword">of</span> <span class="cm-variable">matriz</span>) {
   <span class="cm-variable">console</span>.<span class="cm-property">log</span>(<span class="cm-variable">x</span>, <span class="cm-variable">y</span>, <span class="cm-variable">value</span>);
 }
-<span class="cm-comment">// → 0 0 value 0,0</span>
-<span class="cm-comment">// → 1 0 value 1,0</span>
-<span class="cm-comment">// → 0 1 value 0,1</span>
-<span class="cm-comment">// → 1 1 value 1,1</span></pre>
+<span class="cm-comment">// → 0 0 valor 0,0</span>
+<span class="cm-comment">// → 1 0 valor 1,0</span>
+<span class="cm-comment">// → 0 1 valor 0,1</span>
+<span class="cm-comment">// → 1 1 valor 1,1</span></pre>
 
-<h2><a class="h_ident" id="h_3vwredi8nD" href="#h_3vwredi8nD" tabindex="-1" role="presentation"></a>Getters, setters, and statics</h2>
+<h2><a class="h_ident" id="h_m7QR5dYMZ9" href="#h_m7QR5dYMZ9" tabindex="-1" role="presentation"></a>Getters, setters y estáticos</h2>
 
-<p><a class="p_ident" id="p_6oukozZJBx" href="#p_6oukozZJBx" tabindex="-1" role="presentation"></a>Interfaces often consist mostly of methods, but it is also okay to include properties that hold non-function values. For example, <code>Map</code> objects have a <code>size</code> property that tells you how many keys are stored in them.</p>
+<p><a class="p_ident" id="p_6sQB4vMrmB" href="#p_6sQB4vMrmB" tabindex="-1" role="presentation"></a>A menudo, las interfaces consisten principalmente de métodos, pero también está bien incluir propiedades que contengan valores que no sean de función. Por ejemplo, los objetos <code>Map</code> tienen una propiedad <code>size</code> (“tamaño”) que te dice cuántas claves hay almacenanadas en ellos.</p>
 
-<p><a class="p_ident" id="p_SdyGtj5JbS" href="#p_SdyGtj5JbS" tabindex="-1" role="presentation"></a>It is not even necessary for such an object to compute and store such a property directly in the instance. Even properties that are accessed directly may hide a method call. Such methods are called <em>getters</em>, and they are defined by writing <code>get</code> in front of the method name in an object expression or class declaration.</p>
+<p><a class="p_ident" id="p_MYTFv4Jyst" href="#p_MYTFv4Jyst" tabindex="-1" role="presentation"></a>Ni siquiera es necesario que dicho objeto calcule y almacene tales propiedades directamente en la instancia. Incluso las propiedades que pueden ser accedidas directamente pueden ocultar una llamada a un método. Tales métodos se llaman <em>getters</em>, y se definen escribiendo <code>get</code> (“obtener”) delante del nombre del método en una expresión de objeto o declaración de clase.</p>
 
-<pre class="snippet cm-s-default" data-language="javascript" ><a class="c_ident" id="c_Np05mJ4GVO" href="#c_Np05mJ4GVO" tabindex="-1" role="presentation"></a><span class="cm-keyword">let</span> <span class="cm-def">varyingSize</span> <span class="cm-operator">=</span> {
-  <span class="cm-property">get</span> <span class="cm-property">size</span>() {
+<pre class="snippet cm-s-default" data-language="javascript" ><a class="c_ident" id="c_qjLRDSqyQI" href="#c_qjLRDSqyQI" tabindex="-1" role="presentation"></a><span class="cm-keyword">let</span> <span class="cm-def">tamañoCambiante</span> <span class="cm-operator">=</span> {
+  <span class="cm-property">get</span> <span class="cm-property">tamaño</span>() {
     <span class="cm-keyword">return</span> <span class="cm-variable">Math</span>.<span class="cm-property">floor</span>(<span class="cm-variable">Math</span>.<span class="cm-property">random</span>() <span class="cm-operator">*</span> <span class="cm-number">100</span>);
   }
 };
 
-<span class="cm-variable">console</span>.<span class="cm-property">log</span>(<span class="cm-variable">varyingSize</span>.<span class="cm-property">size</span>);
+<span class="cm-variable">console</span>.<span class="cm-property">log</span>(<span class="cm-variable">tamañoCambiante</span>.<span class="cm-property">tamaño</span>);
 <span class="cm-comment">// → 73</span>
-<span class="cm-variable">console</span>.<span class="cm-property">log</span>(<span class="cm-variable">varyingSize</span>.<span class="cm-property">size</span>);
+<span class="cm-variable">console</span>.<span class="cm-property">log</span>(<span class="cm-variable">tamañoCambiante</span>.<span class="cm-property">tamaño</span>);
 <span class="cm-comment">// → 49</span></pre>
 
-<p><a class="p_ident" id="p_QwpqNIZOsS" href="#p_QwpqNIZOsS" tabindex="-1" role="presentation"></a>Whenever someone reads from this object’s <code>size</code> property, the associated method is called. You can do a similar thing when a property is written to, using a <em>setter</em>.</p>
+<p><a class="p_ident" id="p_jK8TBW/lrk" href="#p_jK8TBW/lrk" tabindex="-1" role="presentation"></a>Cuando alguien lee desde la propiedad <code>tamaño</code> de este objeto, el método asociado es llamado. Puedes hacer algo similar cuando se escribe en una propiedad, usando un <em>setter</em>.</p>
 
-<pre class="snippet cm-s-default" data-language="javascript" ><a class="c_ident" id="c_7LQG88c1BA" href="#c_7LQG88c1BA" tabindex="-1" role="presentation"></a><span class="cm-keyword">class</span> <span class="cm-def">Temperature</span> {
+<pre class="snippet cm-s-default" data-language="javascript" ><a class="c_ident" id="c_ugy4DWOsKr" href="#c_ugy4DWOsKr" tabindex="-1" role="presentation"></a><span class="cm-keyword">class</span> <span class="cm-def">Temperatura</span> {
   <span class="cm-property">constructor</span>(<span class="cm-def">celsius</span>) {
     <span class="cm-keyword">this</span>.<span class="cm-property">celsius</span> <span class="cm-operator">=</span> <span class="cm-variable-2">celsius</span>;
   }
   <span class="cm-keyword">get</span> <span class="cm-property">fahrenheit</span>() {
     <span class="cm-keyword">return</span> <span class="cm-keyword">this</span>.<span class="cm-property">celsius</span> <span class="cm-operator">*</span> <span class="cm-number">1.8</span> <span class="cm-operator">+</span> <span class="cm-number">32</span>;
   }
-  <span class="cm-keyword">set</span> <span class="cm-property">fahrenheit</span>(<span class="cm-def">value</span>) {
-    <span class="cm-keyword">this</span>.<span class="cm-property">celsius</span> <span class="cm-operator">=</span> (<span class="cm-variable-2">value</span> <span class="cm-operator">-</span> <span class="cm-number">32</span>) <span class="cm-operator">/</span> <span class="cm-number">1.8</span>;
+  <span class="cm-keyword">set</span> <span class="cm-property">fahrenheit</span>(<span class="cm-def">valor</span>) {
+    <span class="cm-keyword">this</span>.<span class="cm-property">celsius</span> <span class="cm-operator">=</span> (<span class="cm-variable-2">valor</span> <span class="cm-operator">-</span> <span class="cm-number">32</span>) <span class="cm-operator">/</span> <span class="cm-number">1.8</span>;
   }
 
-  <span class="cm-keyword">static</span> <span class="cm-property">fromFahrenheit</span>(<span class="cm-def">value</span>) {
-    <span class="cm-keyword">return</span> <span class="cm-keyword">new</span> <span class="cm-variable">Temperature</span>((<span class="cm-variable-2">value</span> <span class="cm-operator">-</span> <span class="cm-number">32</span>) <span class="cm-operator">/</span> <span class="cm-number">1.8</span>);
+  <span class="cm-keyword">static</span> <span class="cm-property">desdeFahrenheit</span>(<span class="cm-def">valor</span>) {
+    <span class="cm-keyword">return</span> <span class="cm-keyword">new</span> <span class="cm-variable">Temperatura</span>((<span class="cm-variable-2">valor</span> <span class="cm-operator">-</span> <span class="cm-number">32</span>) <span class="cm-operator">/</span> <span class="cm-number">1.8</span>);
   }
 }
 
-<span class="cm-keyword">let</span> <span class="cm-def">temp</span> <span class="cm-operator">=</span> <span class="cm-keyword">new</span> <span class="cm-variable">Temperature</span>(<span class="cm-number">22</span>);
+<span class="cm-keyword">let</span> <span class="cm-def">temp</span> <span class="cm-operator">=</span> <span class="cm-keyword">new</span> <span class="cm-variable">Temperatura</span>(<span class="cm-number">22</span>);
 <span class="cm-variable">console</span>.<span class="cm-property">log</span>(<span class="cm-variable">temp</span>.<span class="cm-property">fahrenheit</span>);
 <span class="cm-comment">// → 71.6</span>
 <span class="cm-variable">temp</span>.<span class="cm-property">fahrenheit</span> <span class="cm-operator">=</span> <span class="cm-number">86</span>;
 <span class="cm-variable">console</span>.<span class="cm-property">log</span>(<span class="cm-variable">temp</span>.<span class="cm-property">celsius</span>);
 <span class="cm-comment">// → 30</span></pre>
 
-<p><a class="p_ident" id="p_Hf3p+suFR+" href="#p_Hf3p+suFR+" tabindex="-1" role="presentation"></a>The <code>Temperature</code> class allows you to read and write the temperature in either degrees Celsius or degrees Fahrenheit, but internally it stores only Celsius and automatically converts to and from Celsius in the <code>fahrenheit</code> getter and setter.</p>
+<p><a class="p_ident" id="p_QEGRRZji34" href="#p_QEGRRZji34" tabindex="-1" role="presentation"></a>La clase <code>Temperatura</code> te permite leer y escribir la temperatura ya sea en grados Celsius o grados Fahrenheit, pero internamente solo almacena Celsius y convierte automáticamente a Celsius en el getter y setter <code>fahrenheit</code>.</p>
 
-<p><a class="p_ident" id="p_MwIs1kR0mD" href="#p_MwIs1kR0mD" tabindex="-1" role="presentation"></a>Sometimes you want to attach some properties directly to your constructor function, rather than to the prototype. Such methods won’t have access to a class instance but can, for example, be used to provide additional ways to create instances.</p>
+<p><a class="p_ident" id="p_WJaVeU1Kos" href="#p_WJaVeU1Kos" tabindex="-1" role="presentation"></a>Algunas veces quieres adjuntar algunas propiedades directamente a tu función constructora, en lugar de al prototipo. Tales métodos no tienen acceso a una instancia de clase, pero pueden, por ejemplo, ser utilizados para proporcionar formas adicionales de crear instancias.</p>
 
-<p><a class="p_ident" id="p_zLJ2u9mlXs" href="#p_zLJ2u9mlXs" tabindex="-1" role="presentation"></a>Inside a class declaration, methods that have <code>static</code> written before their name are stored on the constructor. So the <code>Temperature</code> class allows you to write <code>Temperature.<wbr>fromFahrenheit(100)</code> to create a temperature using degrees Fahrenheit.</p>
+<p><a class="p_ident" id="p_TqEGsaffU8" href="#p_TqEGsaffU8" tabindex="-1" role="presentation"></a>Dentro de una declaración de clase, métodos que tienen <code>static</code> (“estatico”) escrito antes su nombre son almacenados en el constructor. Entonces, la clase <code>Temperatura</code> te permite escribir <code>Temperature.<wbr>desdeFahrenheit(100)</code> para crear una temperatura usando grados Fahrenheit.</p>
 
-<h2><a class="h_ident" id="h_/a3bnONnws" href="#h_/a3bnONnws" tabindex="-1" role="presentation"></a>Inheritance</h2>
+<h2><a class="h_ident" id="h_uawVYpHl7k" href="#h_uawVYpHl7k" tabindex="-1" role="presentation"></a>Herencia</h2>
 
-<p><a class="p_ident" id="p_seSalQnLZd" href="#p_seSalQnLZd" tabindex="-1" role="presentation"></a>Some matrices are known to be <em>symmetric</em>. If you mirror a symmetric matrix around its top-left-to-bottom-right diagonal, it stays the same. In other words, the value stored at <em>x</em>,<em>y</em> is always the same as that at <em>y</em>,<em>x</em>.</p>
+<p><a class="p_ident" id="p_iYZH0Bb62c" href="#p_iYZH0Bb62c" tabindex="-1" role="presentation"></a>Algunas matrices son conocidas por ser <em>simétricas</em>. Si duplicas una matriz simétrico alrededor de su diagonal de arriba-izquierda a derecha-abajo, esta se mantiene igual. En otras palabras, el valor almacenado en <em>x</em>,<em>y</em> es siempre el mismo al de <em>y</em>,<em>x</em>.</p>
 
-<p><a class="p_ident" id="p_InrSr2m6Kl" href="#p_InrSr2m6Kl" tabindex="-1" role="presentation"></a>Imagine we need a data structure like <code>Matrix</code> but one that enforces the fact that the matrix is and remains symmetrical. We could write it from scratch, but that would involve repeating some code very similar to what we already wrote.</p>
+<p><a class="p_ident" id="p_L15ZMmvA8G" href="#p_L15ZMmvA8G" tabindex="-1" role="presentation"></a>Imagina que necesitamos una estructura de datos como <code>Matriz</code> pero que haga cumplir el hecho de que la matriz es y siga siendo simétrica. Podríamos escribirla desde cero, pero eso implicaría repetir algo de código muy similar al que ya hemos escrito.</p>
 
-<p><a class="p_ident" id="p_kRtvgxF67W" href="#p_kRtvgxF67W" tabindex="-1" role="presentation"></a>JavaScript’s prototype system makes it possible to create a <em>new</em> class, much like the old class, but with new definitions for some of its properties. The prototype for the new class derives from the old prototype but adds a new definition for, say, the <code>set</code> method.</p>
+<p><a class="p_ident" id="p_ktTpSXJ8tT" href="#p_ktTpSXJ8tT" tabindex="-1" role="presentation"></a>El sistema de prototipos en JavaScript hace posible crear una <em>nueva</em> clase, parecida a la clase anterior, pero con nuevas definiciones para algunas de sus propiedades. El prototipo de la nueva clase deriva del antiguo prototipo, pero agrega una nueva definición para, por ejemplo, el método <code>set</code>.</p>
 
-<p><a class="p_ident" id="p_a3GMshNFYT" href="#p_a3GMshNFYT" tabindex="-1" role="presentation"></a>In object-oriented programming terms, this is called <em>inheritance</em>. The new class inherits properties and behavior from the old class.</p>
+<p><a class="p_ident" id="p_DivDX9OUrx" href="#p_DivDX9OUrx" tabindex="-1" role="presentation"></a>En términos de programación orientada a objetos, esto se llama <em>herencia</em>. La nueva clase hereda propiedades y comportamientos de la vieja clase.</p>
 
-<pre class="snippet cm-s-default" data-language="javascript" ><a class="c_ident" id="c_uuBcsDdS7D" href="#c_uuBcsDdS7D" tabindex="-1" role="presentation"></a><span class="cm-keyword">class</span> <span class="cm-def">SymmetricMatrix</span> <span class="cm-keyword">extends</span> <span class="cm-variable">Matrix</span> {
-  <span class="cm-property">constructor</span>(<span class="cm-def">size</span>, <span class="cm-def">element</span> <span class="cm-operator">=</span> (<span class="cm-def">x</span>, <span class="cm-def">y</span>) <span class="cm-operator">=&gt;</span> <span class="cm-atom">undefined</span>) {
-    <span class="cm-keyword">super</span>(<span class="cm-variable-2">size</span>, <span class="cm-variable-2">size</span>, (<span class="cm-def">x</span>, <span class="cm-def">y</span>) <span class="cm-operator">=&gt;</span> {
-      <span class="cm-keyword">if</span> (<span class="cm-variable-2">x</span> <span class="cm-operator">&lt;</span> <span class="cm-variable-2">y</span>) <span class="cm-keyword">return</span> <span class="cm-variable-2">element</span>(<span class="cm-variable-2">y</span>, <span class="cm-variable-2">x</span>);
-      <span class="cm-keyword">else</span> <span class="cm-keyword">return</span> <span class="cm-variable-2">element</span>(<span class="cm-variable-2">x</span>, <span class="cm-variable-2">y</span>);
+<pre class="snippet cm-s-default" data-language="javascript" ><a class="c_ident" id="c_yeHzXnJdQ4" href="#c_yeHzXnJdQ4" tabindex="-1" role="presentation"></a><span class="cm-keyword">class</span> <span class="cm-def">MatrizSimetrica</span> <span class="cm-keyword">extends</span> <span class="cm-variable">Matriz</span> {
+  <span class="cm-property">constructor</span>(<span class="cm-def">tamaño</span>, <span class="cm-def">elemento</span> <span class="cm-operator">=</span> (<span class="cm-def">x</span>, <span class="cm-def">y</span>) <span class="cm-operator">=&gt;</span> <span class="cm-atom">undefined</span>) {
+    <span class="cm-keyword">super</span>(<span class="cm-variable-2">tamaño</span>, <span class="cm-variable-2">tamaño</span>, (<span class="cm-def">x</span>, <span class="cm-def">y</span>) <span class="cm-operator">=&gt;</span> {
+      <span class="cm-keyword">if</span> (<span class="cm-variable-2">x</span> <span class="cm-operator">&lt;</span> <span class="cm-variable-2">y</span>) <span class="cm-keyword">return</span> <span class="cm-variable-2">elemento</span>(<span class="cm-variable-2">y</span>, <span class="cm-variable-2">x</span>);
+      <span class="cm-keyword">else</span> <span class="cm-keyword">return</span> <span class="cm-variable-2">elemento</span>(<span class="cm-variable-2">x</span>, <span class="cm-variable-2">y</span>);
     });
   }
 
-  <span class="cm-property">set</span>(<span class="cm-def">x</span>, <span class="cm-def">y</span>, <span class="cm-def">value</span>) {
-    <span class="cm-keyword">super</span>.<span class="cm-property">set</span>(<span class="cm-variable-2">x</span>, <span class="cm-variable-2">y</span>, <span class="cm-variable-2">value</span>);
+  <span class="cm-property">set</span>(<span class="cm-def">x</span>, <span class="cm-def">y</span>, <span class="cm-def">valor</span>) {
+    <span class="cm-keyword">super</span>.<span class="cm-property">set</span>(<span class="cm-variable-2">x</span>, <span class="cm-variable-2">y</span>, <span class="cm-variable-2">valor</span>);
     <span class="cm-keyword">if</span> (<span class="cm-variable-2">x</span> <span class="cm-operator">!=</span> <span class="cm-variable-2">y</span>) {
-      <span class="cm-keyword">super</span>.<span class="cm-property">set</span>(<span class="cm-variable-2">y</span>, <span class="cm-variable-2">x</span>, <span class="cm-variable-2">value</span>);
+      <span class="cm-keyword">super</span>.<span class="cm-property">set</span>(<span class="cm-variable-2">y</span>, <span class="cm-variable-2">x</span>, <span class="cm-variable-2">valor</span>);
     }
   }
 }
 
-<span class="cm-keyword">let</span> <span class="cm-def">matrix</span> <span class="cm-operator">=</span> <span class="cm-keyword">new</span> <span class="cm-variable">SymmetricMatrix</span>(<span class="cm-number">5</span>, (<span class="cm-def">x</span>, <span class="cm-def">y</span>) <span class="cm-operator">=&gt;</span> <span class="cm-string-2">`${</span><span class="cm-variable-2">x</span><span class="cm-string-2">}</span><span class="cm-string-2">,${</span><span class="cm-variable-2">y</span><span class="cm-string-2">}</span><span class="cm-string-2">`</span>);
-<span class="cm-variable">console</span>.<span class="cm-property">log</span>(<span class="cm-variable">matrix</span>.<span class="cm-property">get</span>(<span class="cm-number">2</span>, <span class="cm-number">3</span>));
+<span class="cm-keyword">let</span> <span class="cm-def">matriz</span> <span class="cm-operator">=</span> <span class="cm-keyword">new</span> <span class="cm-variable">MatrizSimetrica</span>(<span class="cm-number">5</span>, (<span class="cm-def">x</span>, <span class="cm-def">y</span>) <span class="cm-operator">=&gt;</span> <span class="cm-string-2">`${</span><span class="cm-variable-2">x</span><span class="cm-string-2">}</span><span class="cm-string-2">,${</span><span class="cm-variable-2">y</span><span class="cm-string-2">}</span><span class="cm-string-2">`</span>);
+<span class="cm-variable">console</span>.<span class="cm-property">log</span>(<span class="cm-variable">matriz</span>.<span class="cm-property">get</span>(<span class="cm-number">2</span>, <span class="cm-number">3</span>));
 <span class="cm-comment">// → 3,2</span></pre>
 
-<p><a class="p_ident" id="p_RZZzYHZ3d6" href="#p_RZZzYHZ3d6" tabindex="-1" role="presentation"></a>The use of the word <code>extends</code> indicates that this class shouldn’t be directly based on the default <code>Object</code> prototype but on some other class. This is called the <em>superclass</em>. The derived class is the <em>subclass</em>.</p>
+<p><a class="p_ident" id="p_m6E59FdSaD" href="#p_m6E59FdSaD" tabindex="-1" role="presentation"></a>El uso de la palabra <code>extends</code> indica que esta clase no debe estar basada directamente en el prototipo de <code>Objeto</code> predeterminado, pero de alguna otra clase. Esta se llama la <em>superclase</em>. La clase derivada es la <em>subclase</em>.</p>
 
-<p><a class="p_ident" id="p_mss/w8sDfy" href="#p_mss/w8sDfy" tabindex="-1" role="presentation"></a>To initialize a <code>SymmetricMatrix</code> instance, the constructor calls its superclass’s constructor through the <code>super</code> keyword. This is necessary because if this new object is to behave (roughly) like a <code>Matrix</code>, it is going to need the instance properties that matrices have. To ensure the matrix is symmetrical, the constructor wraps the <code>element</code> function to swap the coordinates for values below the diagonal.</p>
+<p><a class="p_ident" id="p_hxCNhSOfkr" href="#p_hxCNhSOfkr" tabindex="-1" role="presentation"></a>Para inicializar una instancia de <code>MatrizSimetrica</code>, el constructor llama a su constructor de superclase a través de la palabra clave <code>super</code>. Esto es necesario porque si este nuevo objeto se comporta (más o menos) como una <code>Matriz</code>, va a necesitar las propiedades de instancia que tienen las matrices. En orden para asegurar que la matriz sea simétrica, el constructor ajusta el método <code>contenido</code> para intercambiar las coordenadas de los valores por debajo del diagonal.</p>
 
-<p><a class="p_ident" id="p_9XrYhhYXI8" href="#p_9XrYhhYXI8" tabindex="-1" role="presentation"></a>The <code>set</code> method again uses <code>super</code> but this time not to call the constructor but to call a specific method from the superclass’s set of methods. We are redefining <code>set</code> but do want to use the original behavior. Because <code>this.set</code> refers to the <em>new</em> <code>set</code> method, calling that wouldn’t work. Inside class methods, <code>super</code> provides a way to call methods as they were defined in the superclass.</p>
+<p><a class="p_ident" id="p_rBDZ197wfU" href="#p_rBDZ197wfU" tabindex="-1" role="presentation"></a>El método <code>set</code> nuevamente usa <code>super</code>, pero esta vez no para llamar al constructor, pero para llamar a un método específico del conjunto de metodos de la superclase. Estamos redefiniendo <code>set</code> pero queremos usar el comportamiento original. Ya que <code>this.set</code> se refiere al <em>nuevo</em> método<code>set</code>, llamarlo no funcionaria. Dentro de los métodos de clase, <code>super</code> proporciona una forma de llamar a los métodos tal y como se definieron en la superclase.</p>
 
-<p><a class="p_ident" id="p_apvJjMYcsg" href="#p_apvJjMYcsg" tabindex="-1" role="presentation"></a>Inheritance allows us to build slightly different data types from existing data types with relatively little work. It is a fundamental part of the object-oriented tradition, alongside encapsulation and polymorphism. But while the latter two are now generally regarded as wonderful ideas, inheritance is more controversial.</p>
+<p><a class="p_ident" id="p_AAGbiYrmSk" href="#p_AAGbiYrmSk" tabindex="-1" role="presentation"></a>La herencia nos permite construir tipos de datos ligeramente diferentes a partir de tipos de datos existentes con relativamente poco trabajo. Es una parte fundamental de la tradición orientada a objetos, junto con la encapsulación y el polimorfismo. Pero mientras que los últimos dos son considerados como ideas maravillosas en la actualidad, la herencia es más controversial.</p>
 
-<p><a class="p_ident" id="p_CWDhzksvzb" href="#p_CWDhzksvzb" tabindex="-1" role="presentation"></a>Whereas encapsulation and polymorphism can be used to <em>separate</em> pieces of code from each other, reducing the tangledness of the overall program, inheritance fundamentally ties classes together, creating <em>more</em> tangle. When inheriting from a class, you usually have to know more about how it works than when simply using it. Inheritance can be a useful tool, and I use it now and then in my own programs, but it shouldn’t be the first tool you reach for, and you probably shouldn’t actively go looking for opportunities to construct class hierarchies (family trees of classes).</p>
+<p><a class="p_ident" id="p_RpADkI6ZgO" href="#p_RpADkI6ZgO" tabindex="-1" role="presentation"></a>Mientras que la encapsulación y el polimorfismo se pueden usar para <em>separar</em> piezas de código entre sí, reduciendo el enredo del programa en general, la herencia fundamentalmente vincula las clases, creando <em>mas</em> enredo. Al heredar de una clase, generalmente tienes que saber más sobre cómo funciona que cuando simplemente la usas. La herencia puede ser una herramienta útil, y la uso de vez en cuando en mis propios programas, pero no debería ser la primera herramienta que busques, y probablemente no deberías estar buscando oportunidades para construir jerarquías (árboles genealógicos de clases) de clases en una manera activa.</p>
 
-<h2><a class="h_ident" id="h_Fdk67dJHwg" href="#h_Fdk67dJHwg" tabindex="-1" role="presentation"></a>The instanceof operator</h2>
+<h2><a class="h_ident" id="h_bPUPRLPX+i" href="#h_bPUPRLPX+i" tabindex="-1" role="presentation"></a>El operador instanceof</h2>
 
-<p><a class="p_ident" id="p_wnmK5D9foe" href="#p_wnmK5D9foe" tabindex="-1" role="presentation"></a>It is occasionally useful to know whether an object was derived from a specific class. For this, JavaScript provides a binary operator called <code>instanceof</code>.</p>
+<p><a class="p_ident" id="p_cPY88dP9cK" href="#p_cPY88dP9cK" tabindex="-1" role="presentation"></a>Ocasionalmente es útil saber si un objeto fue derivado de una clase específica. Para esto, JavaScript proporciona un operador binario llamado <code>instanceof</code> (“instancia de”).</p>
 
-<pre class="snippet cm-s-default" data-language="javascript" ><a class="c_ident" id="c_1/4hH+dV3k" href="#c_1/4hH+dV3k" tabindex="-1" role="presentation"></a><span class="cm-variable">console</span>.<span class="cm-property">log</span>(
-  <span class="cm-keyword">new</span> <span class="cm-variable">SymmetricMatrix</span>(<span class="cm-number">2</span>) <span class="cm-keyword">instanceof</span> <span class="cm-variable">SymmetricMatrix</span>);
+<pre class="snippet cm-s-default" data-language="javascript" ><a class="c_ident" id="c_sXrUG+fO5W" href="#c_sXrUG+fO5W" tabindex="-1" role="presentation"></a><span class="cm-variable">console</span>.<span class="cm-property">log</span>(
+  <span class="cm-keyword">new</span> <span class="cm-variable">MatrizSimetrica</span>(<span class="cm-number">2</span>) <span class="cm-keyword">instanceof</span> <span class="cm-variable">MatrizSimetrica</span>);
 <span class="cm-comment">// → true</span>
-<span class="cm-variable">console</span>.<span class="cm-property">log</span>(<span class="cm-keyword">new</span> <span class="cm-variable">SymmetricMatrix</span>(<span class="cm-number">2</span>) <span class="cm-keyword">instanceof</span> <span class="cm-variable">Matrix</span>);
+<span class="cm-variable">console</span>.<span class="cm-property">log</span>(<span class="cm-keyword">new</span> <span class="cm-variable">MatrizSimetrica</span>(<span class="cm-number">2</span>) <span class="cm-keyword">instanceof</span> <span class="cm-variable">Matriz</span>);
 <span class="cm-comment">// → true</span>
-<span class="cm-variable">console</span>.<span class="cm-property">log</span>(<span class="cm-keyword">new</span> <span class="cm-variable">Matrix</span>(<span class="cm-number">2</span>, <span class="cm-number">2</span>) <span class="cm-keyword">instanceof</span> <span class="cm-variable">SymmetricMatrix</span>);
+<span class="cm-variable">console</span>.<span class="cm-property">log</span>(<span class="cm-keyword">new</span> <span class="cm-variable">Matriz</span>(<span class="cm-number">2</span>, <span class="cm-number">2</span>) <span class="cm-keyword">instanceof</span> <span class="cm-variable">MatrizSimetrica</span>);
 <span class="cm-comment">// → false</span>
 <span class="cm-variable">console</span>.<span class="cm-property">log</span>([<span class="cm-number">1</span>] <span class="cm-keyword">instanceof</span> <span class="cm-variable">Array</span>);
 <span class="cm-comment">// → true</span></pre>
 
-<p><a class="p_ident" id="p_VtvmEyRrv+" href="#p_VtvmEyRrv+" tabindex="-1" role="presentation"></a>The operator will see through inherited types, so a <code>SymmetricMatrix</code> is an instance of <code>Matrix</code>. The operator can also be applied to standard constructors like <code>Array</code>. Almost every object is an instance of <code>Object</code>.</p>
+<p><a class="p_ident" id="p_LL4X6Q0xqE" href="#p_LL4X6Q0xqE" tabindex="-1" role="presentation"></a>El operador verá a través de los tipos heredados, por lo que una <code>MatrizSimetrica</code> es una instancia de <code>Matriz</code>. El operador también se puede aplicar a constructores estándar como <code>Array</code>. Casi todos los objetos son una instancia de <code>Object</code>.</p>
 
-<h2><a class="h_ident" id="h_ErccPg/l98" href="#h_ErccPg/l98" tabindex="-1" role="presentation"></a>Summary</h2>
+<h2><a class="h_ident" id="h_NUFOUyK+lw" href="#h_NUFOUyK+lw" tabindex="-1" role="presentation"></a>Resumen</h2>
 
-<p><a class="p_ident" id="p_VPlYPbumD2" href="#p_VPlYPbumD2" tabindex="-1" role="presentation"></a>So objects do more than just hold their own properties. They have prototypes, which are other objects. They’ll act as if they have properties they don’t have as long as their prototype has that property. Simple objects have <code>Object.prototype</code> as their prototype.</p>
+<p><a class="p_ident" id="p_4bLPvg7o1i" href="#p_4bLPvg7o1i" tabindex="-1" role="presentation"></a>Entonces los objetos hacen más que solo tener sus propias propiedades. Ellos tienen prototipos, que son otros objetos. Estos actuarán como si tuvieran propiedades que no tienen mientras su prototipo tenga esa propiedad. Los objetos simples tienen <code>Object.prototype</code> como su prototipo.</p>
 
-<p><a class="p_ident" id="p_A+dQsxCVz8" href="#p_A+dQsxCVz8" tabindex="-1" role="presentation"></a>Constructors, which are functions whose names usually start with a capital letter, can be used with the <code>new</code> operator to create new objects. The new object’s prototype will be the object found in the <code>prototype</code> property of the constructor. You can make good use of this by putting the properties that all values of a given type share into their prototype. There’s a <code>class</code> notation that provides a clear way to define a constructor and its prototype.</p>
+<p><a class="p_ident" id="p_4mpQle7DxG" href="#p_4mpQle7DxG" tabindex="-1" role="presentation"></a>Los constructores, que son funciones cuyos nombres generalmente comienzan con una mayúscula, se pueden usar con el operador <code>new</code> para crear nuevos objetos. El prototipo del nuevo objeto será el objeto encontrado en la propiedad <code>prototype</code> del constructor. Puedes hacer un buen uso de esto al poner las propiedades que todos los valores de un tipo dado comparten en su prototipo. Hay una notación de <code>class</code> que proporciona una manera clara de definir un constructor y su prototipo.</p>
 
-<p><a class="p_ident" id="p_AFyYjRH+5G" href="#p_AFyYjRH+5G" tabindex="-1" role="presentation"></a>You can define getters and setters to secretly call methods every time an object’s property is accessed. Static methods are methods stored in a class’s constructor, rather than its prototype.</p>
+<p><a class="p_ident" id="p_k4oNcZD5jz" href="#p_k4oNcZD5jz" tabindex="-1" role="presentation"></a>Puedes definir getters y setters para secretamente llamar a métodos cada vez que se acceda a la propiedad de un objeto. Los métodos estáticos son métodos almacenados en el constructor de clase, en lugar de su prototipo.</p>
 
-<p><a class="p_ident" id="p_U1iTgKNfyX" href="#p_U1iTgKNfyX" tabindex="-1" role="presentation"></a>The <code>instanceof</code> operator can, given an object and a constructor, tell you whether that object is an instance of that constructor.</p>
+<p><a class="p_ident" id="p_V4iOZ7bWJx" href="#p_V4iOZ7bWJx" tabindex="-1" role="presentation"></a>El operador <code>instanceof</code> puede, dado un objeto y un constructor, decir si ese objeto es una instancia de ese constructor.</p>
 
-<p><a class="p_ident" id="p_zzr1L1PppY" href="#p_zzr1L1PppY" tabindex="-1" role="presentation"></a>One useful thing to do with objects is to specify an interface for them and tell everybody that they are supposed to talk to your object only through that interface. The rest of the details that make up your object are now <em>encapsulated</em>, hidden behind the interface.</p>
+<p><a class="p_ident" id="p_wnmIDf1H/+" href="#p_wnmIDf1H/+" tabindex="-1" role="presentation"></a>Una cosa útil que hacer con los objetos es especificar una interfaz para ellos y decirle a todos que se supone que deben hablar con ese objeto solo a través de esa interfaz. El resto de los detalles que componen tu objeto ahora estan <em>encapsulados</em>, escondidos detrás de la interfaz.</p>
 
-<p><a class="p_ident" id="p_NWmKpeeGiT" href="#p_NWmKpeeGiT" tabindex="-1" role="presentation"></a>More than one type may implement the same interface. Code written to use an interface automatically knows how to work with any number of different objects that provide the interface. This is called <em>polymorphism</em>.</p>
+<p><a class="p_ident" id="p_70kaTy0WYh" href="#p_70kaTy0WYh" tabindex="-1" role="presentation"></a>Más de un tipo puede implementar la misma interfaz. El código escrito para utilizar una interfaz automáticamente sabe cómo trabajar con cualquier cantidad de objetos diferentes que proporcionen la interfaz. Esto se llama <em>polimorfismo</em>.</p>
 
-<p><a class="p_ident" id="p_fg/ZL+fqD3" href="#p_fg/ZL+fqD3" tabindex="-1" role="presentation"></a>When implementing multiple classes that differ in only some details, it can be helpful to write the new classes as <em>subclasses</em> of an existing class, <em>inheriting</em> part of its behavior.</p>
+<p><a class="p_ident" id="p_eFguwJbQeF" href="#p_eFguwJbQeF" tabindex="-1" role="presentation"></a>Al implementar múltiples clases que difieran solo en algunos detalles, puede ser útil escribir las nuevas clases como <em>subclases</em> de una clase existente, <em>heredando</em> parte de su comportamiento.</p>
 
-<h2><a class="h_ident" id="h_TcUD2vzyMe" href="#h_TcUD2vzyMe" tabindex="-1" role="presentation"></a>Exercises</h2>
+<h2><a class="h_ident" id="h_tkm7ntLto1" href="#h_tkm7ntLto1" tabindex="-1" role="presentation"></a>Ejercicios</h2>
 
-<h3 id="exercise_vector"><a class="i_ident" id="i_zO8FRQBMAy" href="#i_zO8FRQBMAy" tabindex="-1" role="presentation"></a>A vector type</h3>
+<h3 id="exercise_vector"><a class="i_ident" id="i_RXP1a4qVB4" href="#i_RXP1a4qVB4" tabindex="-1" role="presentation"></a>Un tipo vector</h3>
 
-<p><a class="p_ident" id="p_YtkHcQdZSH" href="#p_YtkHcQdZSH" tabindex="-1" role="presentation"></a>Write a class <code>Vec</code> that represents a vector in two-dimensional space. It takes <code>x</code> and <code>y</code> parameters (numbers), which it should save to properties of the same name.</p>
+<p><a class="p_ident" id="p_F9C1LVy+Xt" href="#p_F9C1LVy+Xt" tabindex="-1" role="presentation"></a>Escribe una clase <code>Vec</code> que represente un vector en un espacio de dos dimensiones. Toma los parámetros (numericos) <code>x</code> y <code>y</code>, que debería guardar como propiedades del mismo nombre.</p>
 
-<p><a class="p_ident" id="p_8DOrtO0lbU" href="#p_8DOrtO0lbU" tabindex="-1" role="presentation"></a>Give the <code>Vec</code> prototype two methods, <code>plus</code> and <code>minus</code>, that take another vector as a parameter and return a new vector that has the sum or difference of the two vectors’ (<code>this</code> and the parameter) <em>x</em> and <em>y</em> values.</p>
+<p><a class="p_ident" id="p_CGgW55D0LN" href="#p_CGgW55D0LN" tabindex="-1" role="presentation"></a>Dale al prototipo de <code>Vector</code> dos métodos, <code>mas</code> y <code>menos</code>, los cuales toman otro vector como parámetro y retornan un nuevo vector que tiene la suma o diferencia de los valores <em>x</em> y <em>y</em> de los dos vectores (<code>this</code> y el parámetro).</p>
 
-<p><a class="p_ident" id="p_F5nP+jpza3" href="#p_F5nP+jpza3" tabindex="-1" role="presentation"></a>Add a getter property <code>length</code> to the prototype that computes the length of the vector—that is, the distance of the point (<em>x</em>, <em>y</em>) from the origin (0, 0).</p>
+<p><a class="p_ident" id="p_NRjy/7e22k" href="#p_NRjy/7e22k" tabindex="-1" role="presentation"></a>Agrega una propiedad getter llamada <code>longitud</code> al prototipo que calcule la longitud del vector—es decir, la distancia del punto (<em>x</em>, <em>y</em>) desde el origen (0, 0).</p>
 
-<pre class="snippet cm-s-default" data-language="javascript" ><a class="c_ident" id="c_f3P62tUJWH" href="#c_f3P62tUJWH" tabindex="-1" role="presentation"></a><span class="cm-comment">// Your code here.</span>
+<pre class="snippet cm-s-default" data-language="javascript" ><a class="c_ident" id="c_6GzUuvSRLW" href="#c_6GzUuvSRLW" tabindex="-1" role="presentation"></a><span class="cm-comment">// Your code here.</span>
 
-<span class="cm-variable">console</span>.<span class="cm-property">log</span>(<span class="cm-keyword">new</span> <span class="cm-variable">Vec</span>(<span class="cm-number">1</span>, <span class="cm-number">2</span>).<span class="cm-property">plus</span>(<span class="cm-keyword">new</span> <span class="cm-variable">Vec</span>(<span class="cm-number">2</span>, <span class="cm-number">3</span>)));
-<span class="cm-comment">// → Vec{x: 3, y: 5}</span>
-<span class="cm-variable">console</span>.<span class="cm-property">log</span>(<span class="cm-keyword">new</span> <span class="cm-variable">Vec</span>(<span class="cm-number">1</span>, <span class="cm-number">2</span>).<span class="cm-property">minus</span>(<span class="cm-keyword">new</span> <span class="cm-variable">Vec</span>(<span class="cm-number">2</span>, <span class="cm-number">3</span>)));
-<span class="cm-comment">// → Vec{x: -1, y: -1}</span>
-<span class="cm-variable">console</span>.<span class="cm-property">log</span>(<span class="cm-keyword">new</span> <span class="cm-variable">Vec</span>(<span class="cm-number">3</span>, <span class="cm-number">4</span>).<span class="cm-property">length</span>);
+<span class="cm-variable">console</span>.<span class="cm-property">log</span>(<span class="cm-keyword">new</span> <span class="cm-variable">Vector</span>(<span class="cm-number">1</span>, <span class="cm-number">2</span>).<span class="cm-property">mas</span>(<span class="cm-keyword">new</span> <span class="cm-variable">Vector</span>(<span class="cm-number">2</span>, <span class="cm-number">3</span>)));
+<span class="cm-comment">// → Vector{x: 3, y: 5}</span>
+<span class="cm-variable">console</span>.<span class="cm-property">log</span>(<span class="cm-keyword">new</span> <span class="cm-variable">Vector</span>(<span class="cm-number">1</span>, <span class="cm-number">2</span>).<span class="cm-property">menos</span>(<span class="cm-keyword">new</span> <span class="cm-variable">Vector</span>(<span class="cm-number">2</span>, <span class="cm-number">3</span>)));
+<span class="cm-comment">// → Vector{x: -1, y: -1}</span>
+<span class="cm-variable">console</span>.<span class="cm-property">log</span>(<span class="cm-keyword">new</span> <span class="cm-variable">Vector</span>(<span class="cm-number">3</span>, <span class="cm-number">4</span>).<span class="cm-property">longitud</span>);
 <span class="cm-comment">// → 5</span></pre>
 
 <div class="solution"><div class="solution-text">
 
-<p><a class="p_ident" id="p_jRIa414Yh5" href="#p_jRIa414Yh5" tabindex="-1" role="presentation"></a>Look back to the <code>Rabbit</code> class example if you’re unsure how <code>class</code> declarations look.</p>
+<p><a class="p_ident" id="p_U3N5YiBIk/" href="#p_U3N5YiBIk/" tabindex="-1" role="presentation"></a>Mira de nuevo al ejemplo de la clase <code>Conejo</code> si no recuerdas muy bien como se ven las declaraciones de clases.</p>
 
-<p><a class="p_ident" id="p_uZnm2ZSaRd" href="#p_uZnm2ZSaRd" tabindex="-1" role="presentation"></a>Adding a getter property to the constructor can be done by putting the word <code>get</code> before the method name. To compute the distance from (0, 0) to (x, y), you can use the Pythagorean theorem, which says that the square of the distance we are looking for is equal to the square of the x-coordinate plus the square of the y-coordinate. Thus, √(x<sup>2</sup> + y<sup>2</sup>) is the number you want, and <code>Math.sqrt</code> is the way you compute a square root in JavaScript.</p>
+<p><a class="p_ident" id="p_kdxpSAPRp0" href="#p_kdxpSAPRp0" tabindex="-1" role="presentation"></a>Agregar una propiedad getter al constructor se puede hacer al poner la palabra <code>get</code> antes del nombre del método. Para calcular la distancia desde (0, 0) a (x, y), puedes usar el teorema de Pitágoras, que dice que el cuadrado de la distancia que estamos buscando es igual al cuadrado de la coordenada x más el cuadrado de la coordenada y. Por lo tanto, √(x<sup>2</sup> + y<sup>2</sup>) es el número que quieres, y <code>Math.sqrt</code> es la forma en que calculas una raíz cuadrada en JavaScript.</p>
 
 </div></div>
 
-<h3><a class="i_ident" id="i_rpYp9Ou4LG" href="#i_rpYp9Ou4LG" tabindex="-1" role="presentation"></a>Groups</h3>
+<h3><a class="i_ident" id="i_4jtSE6A4W6" href="#i_4jtSE6A4W6" tabindex="-1" role="presentation"></a>Conjuntos</h3>
 
-<p id="groups"><a class="p_ident" id="p_1TnXiDoyR2" href="#p_1TnXiDoyR2" tabindex="-1" role="presentation"></a>The standard JavaScript environment provides another data structure called <code>Set</code>. Like an instance of <code>Map</code>, a set holds a collection of values. Unlike <code>Map</code>, it does not associate other values with those—it just tracks which values are part of the set. A value can be part of a set only once—adding it again doesn’t have any effect.</p>
+<p id="groups"><a class="p_ident" id="p_iZaAsTOuzo" href="#p_iZaAsTOuzo" tabindex="-1" role="presentation"></a>El entorno de JavaScript estándar proporciona otra estructura de datos llamada <code>Set</code> (“Conjunto”). Al igual que una instancia de <code>Map</code>, un conjunto contiene una colección de valores. Pero a diferencia de <code>Map</code>, este no asocia valores con otros—este solo rastrea qué valores son parte del conjunto. Un valor solo puede ser parte de un conjunto una vez—agregarlo de nuevo no tiene ningún efecto.</p>
 
-<p><a class="p_ident" id="p_IBo4QI1mvy" href="#p_IBo4QI1mvy" tabindex="-1" role="presentation"></a>Write a class called <code>Group</code> (since <code>Set</code> is already taken). Like <code>Set</code>, it has <code>add</code>, <code>delete</code>, and <code>has</code> methods. Its constructor creates an empty group, <code>add</code> adds a value to the group (but only if it isn’t already a member), <code>delete</code> removes its argument from the group (if it was a member), and <code>has</code> returns a Boolean value indicating whether its argument is a member of the group.</p>
+<p><a class="p_ident" id="p_zWU/zTTCiD" href="#p_zWU/zTTCiD" tabindex="-1" role="presentation"></a>Escribe una clase llamada <code>Conjunto</code>. Como <code>Set</code>, debe tener los métodos <code>add</code> (“añadir”), <code>delete</code> (“eliminar”), y <code>has</code> (“tiene”). Su constructor crea un conjunto vacío, <code>añadir</code> agrega un valor al conjunto (pero solo si no es ya un miembro), <code>eliminar</code> elimina su argumento del conjunto (si era un miembro) y <code>tiene</code> retorna un valor booleano que indica si su argumento es un miembro del conjunto.</p>
 
-<p><a class="p_ident" id="p_cHm3PZ0L5i" href="#p_cHm3PZ0L5i" tabindex="-1" role="presentation"></a>Use the <code>===</code> operator, or something equivalent such as <code>indexOf</code>, to determine whether two values are the same.</p>
+<p><a class="p_ident" id="p_YdE9RBfWsV" href="#p_YdE9RBfWsV" tabindex="-1" role="presentation"></a>Usa el operador <code>===</code>, o algo equivalente como <code>indexOf</code>, para determinar si dos valores son iguales.</p>
 
-<p><a class="p_ident" id="p_CbJ60eqr+J" href="#p_CbJ60eqr+J" tabindex="-1" role="presentation"></a>Give the class a static <code>from</code> method that takes an iterable object as argument and creates a group that contains all the values produced by iterating over it.</p>
+<p><a class="p_ident" id="p_pMcBNk5lSk" href="#p_pMcBNk5lSk" tabindex="-1" role="presentation"></a>Proporcionale a la clase un método estático <code>desde</code> que tome un objeto iterable como argumento y cree un grupo que contenga todos los valores producidos al iterar sobre el.</p>
 
-<pre class="snippet cm-s-default" data-language="javascript" ><a class="c_ident" id="c_dNauaecKx+" href="#c_dNauaecKx+" tabindex="-1" role="presentation"></a><span class="cm-keyword">class</span> <span class="cm-def">Group</span> {
-  <span class="cm-comment">// Your code here.</span>
+<pre class="snippet cm-s-default" data-language="javascript" ><a class="c_ident" id="c_+hHN7GyrYo" href="#c_+hHN7GyrYo" tabindex="-1" role="presentation"></a><span class="cm-keyword">class</span> <span class="cm-def">Conjunto</span> {
+  <span class="cm-comment">// Tu código aquí.</span>
 }
 
-<span class="cm-keyword">let</span> <span class="cm-def">group</span> <span class="cm-operator">=</span> <span class="cm-variable">Group</span>.<span class="cm-property">from</span>([<span class="cm-number">10</span>, <span class="cm-number">20</span>]);
-<span class="cm-variable">console</span>.<span class="cm-property">log</span>(<span class="cm-variable">group</span>.<span class="cm-property">has</span>(<span class="cm-number">10</span>));
+<span class="cm-keyword">let</span> <span class="cm-def">conjunto</span> <span class="cm-operator">=</span> <span class="cm-variable">Conjunto</span>.<span class="cm-property">desde</span>([<span class="cm-number">10</span>, <span class="cm-number">20</span>]);
+<span class="cm-variable">console</span>.<span class="cm-property">log</span>(<span class="cm-variable">conjunto</span>.<span class="cm-property">tiene</span>(<span class="cm-number">10</span>));
 <span class="cm-comment">// → true</span>
-<span class="cm-variable">console</span>.<span class="cm-property">log</span>(<span class="cm-variable">group</span>.<span class="cm-property">has</span>(<span class="cm-number">30</span>));
+<span class="cm-variable">console</span>.<span class="cm-property">log</span>(<span class="cm-variable">conjunto</span>.<span class="cm-property">tiene</span>(<span class="cm-number">30</span>));
 <span class="cm-comment">// → false</span>
-<span class="cm-variable">group</span>.<span class="cm-property">add</span>(<span class="cm-number">10</span>);
-<span class="cm-variable">group</span>.<span class="cm-property">delete</span>(<span class="cm-number">10</span>);
-<span class="cm-variable">console</span>.<span class="cm-property">log</span>(<span class="cm-variable">group</span>.<span class="cm-property">has</span>(<span class="cm-number">10</span>));
+<span class="cm-variable">conjunto</span>.<span class="cm-property">añadir</span>(<span class="cm-number">10</span>);
+<span class="cm-variable">conjunto</span>.<span class="cm-property">eliminar</span>(<span class="cm-number">10</span>);
+<span class="cm-variable">console</span>.<span class="cm-property">log</span>(<span class="cm-variable">conjunto</span>.<span class="cm-property">tiene</span>(<span class="cm-number">10</span>));
 <span class="cm-comment">// → false</span></pre>
 
 <div class="solution"><div class="solution-text">
 
-<p><a class="p_ident" id="p_fQA7KS4poU" href="#p_fQA7KS4poU" tabindex="-1" role="presentation"></a>The easiest way to do this is to store an array of group members in an instance property. The <code>includes</code> or <code>indexOf</code> methods can be used to check whether a given value is in the array.</p>
+<p><a class="p_ident" id="p_7oedrRBDw1" href="#p_7oedrRBDw1" tabindex="-1" role="presentation"></a>La forma más fácil de hacer esto es almacenar un array con los miembros del conjunto en una propiedad de instancia. Los métodos <code>includes</code> o <code>indexOf</code> pueden ser usados para verificar si un valor dado está en el array.</p>
 
-<p><a class="p_ident" id="p_2+V8dOgKHs" href="#p_2+V8dOgKHs" tabindex="-1" role="presentation"></a>Your class’s constructor can set the member collection to an empty array. When <code>add</code> is called, it must check whether the given value is in the array or add it, for example with <code>push</code>, otherwise.</p>
+<p><a class="p_ident" id="p_HEN3NaL8rR" href="#p_HEN3NaL8rR" tabindex="-1" role="presentation"></a>El constructor de clase puede establecer la colección de miembros como un array vacio. Cuando se llama a <code>añadir</code>, debes verificar si el valor dado esta en el conjunto y agregarlo, por ejemplo con <code>push</code>, de lo contrario.</p>
 
-<p><a class="p_ident" id="p_GVg0o9XSa+" href="#p_GVg0o9XSa+" tabindex="-1" role="presentation"></a>Deleting an element from an array, in <code>delete</code>, is less straightforward, but you can use <code>filter</code> to create a new array without the value. Don’t forget to overwrite the property holding the members with the newly filtered version of the array.</p>
+<p><a class="p_ident" id="p_+nb0kbrnJv" href="#p_+nb0kbrnJv" tabindex="-1" role="presentation"></a>Eliminar un elemento de un array, en <code>eliminar</code>, es menos sencillo, pero puedes usar <code>filter</code> para crear un nuevo array sin el valor. No te olvides de sobrescribir la propiedad que sostiene los miembros del conjunto con la versión recién filtrada del array.</p>
 
-<p><a class="p_ident" id="p_1KdbI2vH34" href="#p_1KdbI2vH34" tabindex="-1" role="presentation"></a>The <code>from</code> method can use a <code>for</code>/<code>of</code> loop to get the values out of the iterable object and call <code>add</code> to put them into a newly created group.</p>
+<p><a class="p_ident" id="p_FRNRO0zc96" href="#p_FRNRO0zc96" tabindex="-1" role="presentation"></a>El método <code>desde</code> puede usar un bucle <code>for</code>/<code>of</code> para obtener los valores de el objeto iterable y llamar a <code>añadir</code> para ponerlos en un conjunto recien creado.</p>
 
 </div></div>
 
-<h3><a class="i_ident" id="i_djD3XDJ27V" href="#i_djD3XDJ27V" tabindex="-1" role="presentation"></a>Iterable groups</h3>
+<h3><a class="i_ident" id="i_t2OY8AXfE8" href="#i_t2OY8AXfE8" tabindex="-1" role="presentation"></a>Conjuntos Iterables</h3>
 
-<p id="group_iterator"><a class="p_ident" id="p_azaOoj0ezw" href="#p_azaOoj0ezw" tabindex="-1" role="presentation"></a>Make the <code>Group</code> class from the previous exercise iterable. Refer to the section about the iterator interface earlier in the chapter if you aren’t clear on the exact form of the interface anymore.</p>
+<p id="group_iterator"><a class="p_ident" id="p_7c9K3ECTnV" href="#p_7c9K3ECTnV" tabindex="-1" role="presentation"></a>Haz iterable la clase <code>Conjunto</code> del ejercicio anterior. Puedes remitirte a la sección acerca de la interfaz del iterador anteriormente en el capítulo si ya no recuerdas muy bien la forma exacta de la interfaz.</p>
 
-<p><a class="p_ident" id="p_SoL9V7zUCt" href="#p_SoL9V7zUCt" tabindex="-1" role="presentation"></a>If you used an array to represent the group’s members, don’t just return the iterator created by calling the <code>Symbol.iterator</code> method on the array. That would work, but it defeats the purpose of this exercise.</p>
+<p><a class="p_ident" id="p_UVQ3SuwlK7" href="#p_UVQ3SuwlK7" tabindex="-1" role="presentation"></a>Si usaste un array para representar a los miembros del conjunto, no solo retornes el iterador creado llamando al método <code>Symbol.iterator</code> en el array. Eso funcionaría, pero frustra el propósito de este ejercicio.</p>
 
-<p><a class="p_ident" id="p_rLyKomI6vw" href="#p_rLyKomI6vw" tabindex="-1" role="presentation"></a>It is okay if your iterator behaves strangely when the group is modified during iteration.</p>
+<p><a class="p_ident" id="p_8RHrsgBfOU" href="#p_8RHrsgBfOU" tabindex="-1" role="presentation"></a>Está bien si tu iterador se comporta de manera extraña cuando el conjunto es modificado durante la iteración.</p>
 
-<pre class="snippet cm-s-default" data-language="javascript" ><a class="c_ident" id="c_n6ZNn/zRLj" href="#c_n6ZNn/zRLj" tabindex="-1" role="presentation"></a><span class="cm-comment">// Your code here (and the code from the previous exercise)</span>
+<pre class="snippet cm-s-default" data-language="javascript" ><a class="c_ident" id="c_BolBm7QSK6" href="#c_BolBm7QSK6" tabindex="-1" role="presentation"></a><span class="cm-comment">// Tu código aquí (y el codigo del ejercicio anterior)</span>
 
-<span class="cm-keyword">for</span> (<span class="cm-keyword">let</span> <span class="cm-def">value</span> <span class="cm-keyword">of</span> <span class="cm-variable">Group</span>.<span class="cm-property">from</span>([<span class="cm-string">&quot;a&quot;</span>, <span class="cm-string">&quot;b&quot;</span>, <span class="cm-string">&quot;c&quot;</span>])) {
-  <span class="cm-variable">console</span>.<span class="cm-property">log</span>(<span class="cm-variable">value</span>);
+<span class="cm-keyword">for</span> (<span class="cm-keyword">let</span> <span class="cm-def">valor</span> <span class="cm-keyword">of</span> <span class="cm-variable">Conjunto</span>.<span class="cm-property">desde</span>([<span class="cm-string">&quot;a&quot;</span>, <span class="cm-string">&quot;b&quot;</span>, <span class="cm-string">&quot;c&quot;</span>])) {
+  <span class="cm-variable">console</span>.<span class="cm-property">log</span>(<span class="cm-variable">valor</span>);
 }
 <span class="cm-comment">// → a</span>
 <span class="cm-comment">// → b</span>
@@ -632,29 +632,29 @@
 
 <div class="solution"><div class="solution-text">
 
-<p><a class="p_ident" id="p_URAzFlYuQP" href="#p_URAzFlYuQP" tabindex="-1" role="presentation"></a>It is probably worthwhile to define a new class <code>GroupIterator</code>. Iterator instances should have a property that tracks the current position in the group. Every time <code>next</code> is called, it checks whether it is done and, if not, moves past the current value and returns it.</p>
+<p><a class="p_ident" id="p_057b+f60Ej" href="#p_057b+f60Ej" tabindex="-1" role="presentation"></a>Probablemente valga la pena definir una nueva clase <code>IteradorConjunto</code>. Las instancias de Iterador deberian tener una propiedad que rastree la posición actual en el conjunto. Cada vez que se invoque a <code>next</code>, este comprueba si está hecho, y si no, se mueve más allá del valor actual y lo retorna.</p>
 
-<p><a class="p_ident" id="p_il9bvEkyQT" href="#p_il9bvEkyQT" tabindex="-1" role="presentation"></a>The <code>Group</code> class itself gets a method named by <code>Symbol.iterator</code> that, when called, returns a new instance of the iterator class for that group.</p>
+<p><a class="p_ident" id="p_z8Zfz+zhKc" href="#p_z8Zfz+zhKc" tabindex="-1" role="presentation"></a>La clase <code>Conjunto</code> recibe un método llamado por <code>Symbol.iterator</code> que, cuando se llama, retorna una nueva instancia de la clase de iterador para ese grupo.</p>
 
 </div></div>
 
-<h3><a class="i_ident" id="i_wcWSnr9zHV" href="#i_wcWSnr9zHV" tabindex="-1" role="presentation"></a>Borrowing a method</h3>
+<h3><a class="i_ident" id="i_ogqRiVFGtd" href="#i_ogqRiVFGtd" tabindex="-1" role="presentation"></a>Tomando un método prestado</h3>
 
-<p><a class="p_ident" id="p_HxMI3VGcht" href="#p_HxMI3VGcht" tabindex="-1" role="presentation"></a>Earlier in the chapter I mentioned that an object’s <code>hasOwnProperty</code> can be used as a more robust alternative to the <code>in</code> operator when you want to ignore the prototype’s properties. But what if your map needs to include the word <code>&quot;hasOwnProperty&quot;</code>? You won’t be able to call that method anymore because the object’s own property hides the method value.</p>
+<p><a class="p_ident" id="p_948FQ8dd/a" href="#p_948FQ8dd/a" tabindex="-1" role="presentation"></a>Anteriormente en el capítulo mencioné que el metodo <code>hasOwnProperty</code> de un objeto puede usarse como una alternativa más robusta al operador <code>in</code> cuando quieras ignorar las propiedades del prototipo. Pero, ¿y si tu mapa necesita incluir la palabra <code>&quot;hasOwnProperty&quot;</code>? Ya no podrás llamar a ese método ya que la propiedad del objeto oculta el valor del método.</p>
 
-<p><a class="p_ident" id="p_nxOrPKy+Ky" href="#p_nxOrPKy+Ky" tabindex="-1" role="presentation"></a>Can you think of a way to call <code>hasOwnProperty</code> on an object that has its own property by that name?</p>
+<p><a class="p_ident" id="p_i7l7WNNPvB" href="#p_i7l7WNNPvB" tabindex="-1" role="presentation"></a>¿Puedes pensar en una forma de llamar <code>hasOwnProperty</code> en un objeto que tiene una propia propiedad con ese nombre?</p>
 
-<pre class="snippet cm-s-default" data-language="javascript" ><a class="c_ident" id="c_LtMKqqkY0Q" href="#c_LtMKqqkY0Q" tabindex="-1" role="presentation"></a><span class="cm-keyword">let</span> <span class="cm-def">map</span> <span class="cm-operator">=</span> {<span class="cm-property">one</span>: <span class="cm-atom">true</span>, <span class="cm-property">two</span>: <span class="cm-atom">true</span>, <span class="cm-property">hasOwnProperty</span>: <span class="cm-atom">true</span>};
+<pre class="snippet cm-s-default" data-language="javascript" ><a class="c_ident" id="c_oK8hr5fxsn" href="#c_oK8hr5fxsn" tabindex="-1" role="presentation"></a><span class="cm-keyword">let</span> <span class="cm-def">mapa</span> <span class="cm-operator">=</span> {<span class="cm-property">uno</span>: <span class="cm-atom">true</span>, <span class="cm-property">dos</span>: <span class="cm-atom">true</span>, <span class="cm-property">hasOwnProperty</span>: <span class="cm-atom">true</span>};
 
-<span class="cm-comment">// Fix this call</span>
-<span class="cm-variable">console</span>.<span class="cm-property">log</span>(<span class="cm-variable">map</span>.<span class="cm-property">hasOwnProperty</span>(<span class="cm-string">&quot;one&quot;</span>));
+<span class="cm-comment">// Arregla esta llamada</span>
+<span class="cm-variable">console</span>.<span class="cm-property">log</span>(<span class="cm-variable">mapa</span>.<span class="cm-property">hasOwnProperty</span>(<span class="cm-string">&quot;uno&quot;</span>));
 <span class="cm-comment">// → true</span></pre>
 
 <div class="solution"><div class="solution-text">
 
-<p><a class="p_ident" id="p_Pg/cWjUrKm" href="#p_Pg/cWjUrKm" tabindex="-1" role="presentation"></a>Remember that methods that exist on plain objects come from <code>Object.prototype</code>.</p>
+<p><a class="p_ident" id="p_MRaJm7SVKX" href="#p_MRaJm7SVKX" tabindex="-1" role="presentation"></a>Recuerda que los métodos que existen en objetos simples provienen de <code>Object.prototype</code>.</p>
 
-<p><a class="p_ident" id="p_wCf1aBfcJA" href="#p_wCf1aBfcJA" tabindex="-1" role="presentation"></a>Also remember that you can call a function with a specific <code>this</code> binding by using its <code>call</code> method.</p>
+<p><a class="p_ident" id="p_TwQVnbWJMT" href="#p_TwQVnbWJMT" tabindex="-1" role="presentation"></a>Y que puedes llamar a una función con una vinculación <code>this</code> específica al usar su método <code>call</code>.</p>
 
 </div></div><nav><a href="05_higher_order.html" title="previous chapter">◀</a> <a href="index.html" title="cover">◆</a> <a href="07_robot.html" title="next chapter">▶</a></nav>
 </article>
