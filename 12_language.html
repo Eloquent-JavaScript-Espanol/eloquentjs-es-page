@@ -22,7 +22,7 @@
 
 </blockquote>
 
-<p><a class="p_ident" id="p_/UuqC5gn16" href="#p_/UuqC5gn16" tabindex="-1" role="presentation"></a>Construir tu propio lenguaje de programaciónes sorprendentemente fácil (siempre y cuando no apunted demasiado alto) y muy esclarecedor.</p>
+<p><a class="p_ident" id="p_/UuqC5gn16" href="#p_/UuqC5gn16" tabindex="-1" role="presentation"></a>Construir tu propio lenguaje de programación es sorprendentemente fácil (siempre y cuando no apuntes demasiado alto) y muy esclarecedor.</p>
 
 <p><a class="p_ident" id="p_vypEKNuk0L" href="#p_vypEKNuk0L" tabindex="-1" role="presentation"></a>Lo principal que quiero mostrar en este capítulo es que no hay magia involucrada en la construcción de tu propio lenguaje. A menudo he sentido que algunos inventos humanos eran tan inmensamente inteligentes y complicados que nunca podría llegar a entenderlos. Pero con un poco de lectura y experimentación, a menudo resultan ser bastante mundanos.</p>
 
@@ -32,9 +32,9 @@
 
 <p><a class="p_ident" id="p_LWCHgQ8jiK" href="#p_LWCHgQ8jiK" tabindex="-1" role="presentation"></a>La parte más visible de un lenguaje de programación es su <em>sintaxis</em>, o notación. Un <em>analizador</em> es un programa que lee una pieza de texto y produce una estructura de datos que refleja la estructura del programa contenido en ese texto. Si el texto no forma un programa válido, el analizador debe señalar el error.</p>
 
-<p><a class="p_ident" id="p_PDRJRTzhYP" href="#p_PDRJRTzhYP" tabindex="-1" role="presentation"></a>Nuestro lenguaje tendrá una sintaxis simple y uniforme. Todo en Egg es una expresión. Una expresión puede ser el nombre de una vinculación, un número, un string o una <em>aplicación</em>. Las aplicaciones son usadas para llamadas de función pero también para constructos como <code>if</code> o <code>while</code>.</p>
+<p><a class="p_ident" id="p_PDRJRTzhYP" href="#p_PDRJRTzhYP" tabindex="-1" role="presentation"></a>Nuestro lenguaje tendrá una sintaxis simple y uniforme. Todo en Egg es una expresión. Una expresión puede ser el nombre de una vinculación (binding), un número, una cadena de texto o una <em>aplicación</em>. Las aplicaciones son usadas para llamadas de función pero también para constructos como <code>if</code> o <code>while</code>.</p>
 
-<p><a class="p_ident" id="p_ep+0glVGES" href="#p_ep+0glVGES" tabindex="-1" role="presentation"></a>Para mantener el analizador simple, los strings en Egg no soportan nada parecido a escapes de barra invertida. Un string es simplemente una secuencia de caracteres que no son comillas dobles, envueltas en comillas dobles. Un número es un secuencia de dígitos. Los nombres de vinculaciones pueden consistir en cualquier carácter no que sea un espacio en blanco y eso no tiene un significado especial en la sintaxis.</p>
+<p><a class="p_ident" id="p_ep+0glVGES" href="#p_ep+0glVGES" tabindex="-1" role="presentation"></a>Para mantener el analizador simple, las cadenas en Egg no soportarán nada parecido a escapes de barra invertida. Una cadena es simplemente una secuencia de caracteres que no sean comillas dobles, envueltas en comillas dobles. Un número es un secuencia de dígitos. Los nombres de vinculaciones pueden consistir en cualquier carácter no que sea un espacio en blanco y eso no tiene un significado especial en la sintaxis.</p>
 
 <p><a class="p_ident" id="p_vwvgo3jFhV" href="#p_vwvgo3jFhV" tabindex="-1" role="presentation"></a>Las aplicaciones se escriben tal y como están en JavaScript, poniendo paréntesis después de una expresión y teniendo cualquier cantidad de argumentos entre esos paréntesis, separados por comas.</p>
 
