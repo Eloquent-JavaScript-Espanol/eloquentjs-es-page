@@ -10,7 +10,7 @@
   <script src="js/ejs.js"></script><script>var chapNum = 11;var sandboxLoadFiles = ["code/crow-tech.js","code/chapter/11_async.js"];</script></head>
 
 <article>
-<nav><a href="10_modulos.html" title="previous chapter">◀</a> <a href="index.html" title="cover">◆</a> <a href="12_language.html" title="next chapter">▶</a></nav>
+<nav><a href="10_modules.html" title="previous chapter">◀</a> <a href="index.html" title="cover">◆</a> <a href="12_language.html" title="next chapter">▶</a></nav>
 
 <h1><span class=chap_num>Chapter 11</span>Programación Asincrónica</h1>
 
@@ -460,7 +460,7 @@ llamada—para indicar cuándo hay una respuesta disponible.</p>
 
 <p><a class="p_ident" id="p_dM7BxA7dgQ" href="#p_dM7BxA7dgQ" tabindex="-1" role="presentation"></a>Esta capacidad de las funciones para pausar y luego reanudarse nuevamente no es exclusiva para las funciones <code>async</code>. JavaScript también tiene una caracteristica llamada funciones <em>generador</em>. Estss son similares, pero sin las promesas.</p>
 
-<p><a class="p_ident" id="p_yqNuWdd44C" href="#p_yqNuWdd44C" tabindex="-1" role="presentation"></a>Cuando defines una función con <code>function*</code> (colocando un asterisco después de la palabra <code>function</code>), se convierte en un generador. Cuando llamas un generador, este retorna un iterador, que ya vimos en el <a href="06_objeto.html">Capítulo 6</a>.</p>
+<p><a class="p_ident" id="p_yqNuWdd44C" href="#p_yqNuWdd44C" tabindex="-1" role="presentation"></a>Cuando defines una función con <code>function*</code> (colocando un asterisco después de la palabra <code>function</code>), se convierte en un generador. Cuando llamas un generador, este retorna un iterador, que ya vimos en el <a href="objeto">Capítulo 6</a>.</p>
 
 <pre class="snippet cm-s-default" data-language="javascript" ><a class="c_ident" id="c_/8RYRuiP0Y" href="#c_/8RYRuiP0Y" tabindex="-1" role="presentation"></a><span class="cm-keyword">function</span><span class="cm-keyword">*</span> <span class="cm-def">potenciacion</span>(<span class="cm-def">n</span>) {
   <span class="cm-keyword">for</span> (<span class="cm-keyword">let</span> <span class="cm-def">actual</span> <span class="cm-operator">=</span> <span class="cm-variable-2">n</span>;; <span class="cm-variable-2">actual</span> <span class="cm-operator">*=</span> <span class="cm-variable-2">n</span>) {
@@ -668,5 +668,5 @@ pila vacía. Esta es una de las razones por las cuales, sin promesas, la gestió
 
 <p><a class="p_ident" id="p_gVtcrlVjl1" href="#p_gVtcrlVjl1" tabindex="-1" role="presentation"></a>El manejo de la falla requiere pensar un poco, pero resulta ser extremadamente sencillo. Solo pasa la función <code>reject</code> de la promesa de envoltura a cada una de las promesas en el array como manejador <code>catch</code> o como segundo argumento a <code>then</code> para que una falla en una de ellos desencadene el rechazo de la promesa de envoltura completa.</p>
 
-</div></div><nav><a href="10_modulos.html" title="previous chapter">◀</a> <a href="index.html" title="cover">◆</a> <a href="12_language.html" title="next chapter">▶</a></nav>
+</div></div><nav><a href="10_modules.html" title="previous chapter">◀</a> <a href="index.html" title="cover">◆</a> <a href="12_language.html" title="next chapter">▶</a></nav>
 </article>

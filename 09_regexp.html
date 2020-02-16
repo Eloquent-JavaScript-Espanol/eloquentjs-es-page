@@ -10,7 +10,7 @@
   <script src="js/ejs.js"></script><script>var chapNum = 9;</script></head>
 
 <article>
-<nav><a href="08_error.html" title="previous chapter">◀</a> <a href="index.html" title="cover">◆</a> <a href="10_modulos.html" title="next chapter">▶</a></nav>
+<nav><a href="08_error.html" title="previous chapter">◀</a> <a href="index.html" title="cover">◆</a> <a href="10_modules.html" title="next chapter">▶</a></nav>
 
 <h1><span class=chap_num>Chapter 9</span>Expresiones Regulares</h1>
 
@@ -557,7 +557,7 @@ directoriosalida=/home/marijn/enemies/davaeorn</pre>
 
 <p><a class="p_ident" id="p_g7nzf3T0qT" href="#p_g7nzf3T0qT" tabindex="-1" role="presentation"></a>Nuestra tarea es convertir un string como este en un objeto cuyas propiedades contengas strings para configuraciones sin sección y sub-objetos para secciones, con esos subobjetos conteniendo la configuración de la sección.</p>
 
-<p><a class="p_ident" id="p_7z9fdAqy4R" href="#p_7z9fdAqy4R" tabindex="-1" role="presentation"></a>Dado que el formato debe procesarse línea por línea, dividir el archivo en líneas separadas es un buen comienzo. Usamos <code>string.<wbr>split(&quot;\n&quot;)</code> para hacer esto en el <a href="04_datos.html#split">Capítulo 4</a>. Algunos sistemas operativos, sin embargo, usan no solo un carácter de nueva línea para separar lineas sino un carácter de retorno de carro seguido de una nueva línea (<code>&quot;\r\n&quot;</code>). Dado que el método <code>split</code> también permite una expresión regular como su argumento, podemos usar una expresión regular como <code>/\r?\n/</code> para dividir el string de una manera que permita tanto <code>&quot;\n&quot;</code> como <code>&quot;\r\n&quot;</code> entre líneas.</p>
+<p><a class="p_ident" id="p_7z9fdAqy4R" href="#p_7z9fdAqy4R" tabindex="-1" role="presentation"></a>Dado que el formato debe procesarse línea por línea, dividir el archivo en líneas separadas es un buen comienzo. Usamos <code>string.<wbr>split(&quot;\n&quot;)</code> para hacer esto en el <a href="datos#split">Capítulo 4</a>. Algunos sistemas operativos, sin embargo, usan no solo un carácter de nueva línea para separar lineas sino un carácter de retorno de carro seguido de una nueva línea (<code>&quot;\r\n&quot;</code>). Dado que el método <code>split</code> también permite una expresión regular como su argumento, podemos usar una expresión regular como <code>/\r?\n/</code> para dividir el string de una manera que permita tanto <code>&quot;\n&quot;</code> como <code>&quot;\r\n&quot;</code> entre líneas.</p>
 
 <pre class="snippet cm-s-default" data-language="javascript" ><a class="c_ident" id="c_6ohSnIFUhZ" href="#c_6ohSnIFUhZ" tabindex="-1" role="presentation"></a><span class="cm-keyword">function</span> <span class="cm-def">analizarINI</span>(<span class="cm-def">string</span>) {
   <span class="cm-comment">// Comenzar con un objeto para mantener los campos de nivel superior</span>
@@ -599,7 +599,7 @@ caracter” es solo uno de los 26 caracteres en el alfabeto latino (mayúsculas 
 
 <p><a class="p_ident" id="p_vYGtSLL3lx" href="#p_vYGtSLL3lx" tabindex="-1" role="presentation"></a>Por un extraño accidente histórico, <code>\s</code> (espacio en blanco) no tiene este problema y coincide con todos los caracteres que el estándar Unicode considera espacios en blanco, incluyendo cosas como el (espacio de no separación) y el Separador de vocales Mongol.</p>
 
-<p><a class="p_ident" id="p_j2w4HWt2Mr" href="#p_j2w4HWt2Mr" tabindex="-1" role="presentation"></a>Otro problema es que, de forma predeterminada, las expresiones regulares funcionan en unidades del código, como se discute en el <a href="05_orden_superior.html#unidades_del_codigo">Capítulo 5</a>, no en caracteres reales. Esto significa que los caracteres que estan compustos de dos unidades de código se comportan de manera extraña.</p>
+<p><a class="p_ident" id="p_j2w4HWt2Mr" href="#p_j2w4HWt2Mr" tabindex="-1" role="presentation"></a>Otro problema es que, de forma predeterminada, las expresiones regulares funcionan en unidades del código, como se discute en el <a href="orden_superior#unidades_del_codigo">Capítulo 5</a>, no en caracteres reales. Esto significa que los caracteres que estan compustos de dos unidades de código se comportan de manera extraña.</p>
 
 <pre class="snippet cm-s-default" data-language="javascript" ><a class="c_ident" id="c_CfMTYxun8D" href="#c_CfMTYxun8D" tabindex="-1" role="presentation"></a><span class="cm-variable">console</span>.<span class="cm-property">log</span>(<span class="cm-string-2">/🍎{3}/</span>.<span class="cm-property">test</span>(<span class="cm-string">&quot;🍎🍎🍎&quot;</span>));
 <span class="cm-comment">// → false</span>
@@ -849,5 +849,5 @@ caracter” es solo uno de los 26 caracteres en el alfabeto latino (mayúsculas 
 
 <p><a class="p_ident" id="p_6x0vWl69bT" href="#p_6x0vWl69bT" tabindex="-1" role="presentation"></a>Finalmente, para hacer que la <em>e</em> pueda ser mayuscula o minuscula, agrega una opción <code>i</code> a la expresión regular o usa <code>[eE]</code>.</p>
 
-</div></div><nav><a href="08_error.html" title="previous chapter">◀</a> <a href="index.html" title="cover">◆</a> <a href="10_modulos.html" title="next chapter">▶</a></nav>
+</div></div><nav><a href="08_error.html" title="previous chapter">◀</a> <a href="index.html" title="cover">◆</a> <a href="10_modules.html" title="next chapter">▶</a></nav>
 </article>
