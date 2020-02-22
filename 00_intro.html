@@ -1,5 +1,14 @@
 <!doctype html>
 <head>
+  <!-- Global site tag (gtag.js) - Google Analytics -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=UA-158904079-1"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+
+    gtag('config', 'UA-158904079-1');
+  </script>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Introducción :: Eloquent JavaScript</title>
@@ -84,6 +93,8 @@
 
 <p><a class="p_ident" id="p_BxIAMutX7Y" href="#p_BxIAMutX7Y" tabindex="-1" role="presentation"></a>Por supuesto, ingresar manualmente estos patrones arcanos de bits (los unos y ceros) le dieron al programador un profundo sentido de ser un poderoso mago. Y eso tiene que valer algo en términos de satisfacción laboral.</p>
 
+<p><a class="p_ident" id="p_feKr4Kw39d" href="#p_feKr4Kw39d" tabindex="-1" role="presentation"></a>{{index memoria, instrucción}}</p>
+
 <p><a class="p_ident" id="p_2u+pOAf3d/" href="#p_2u+pOAf3d/" tabindex="-1" role="presentation"></a>Cada línea del programa anterior contiene una sola instrucción. Podría ser escrito en español así:</p>
 
 <ol>
@@ -126,7 +137,7 @@
 
 </ol>
 
-<p><a class="p_ident" id="p_8IC8S1UXRk" href="#p_8IC8S1UXRk" tabindex="-1" role="presentation"></a>Aunque eso ya es más legible que la sopa de bits, es aún dificil de entender. Usar nombres en lugar de números para las instrucciones y ubicaciones de memoria ayuda:</p>
+<p><a class="p_ident" id="p_8IC8S1UXRk" href="#p_8IC8S1UXRk" tabindex="-1" role="presentation"></a>Aunque eso ya es más legible que la sopa de bits, es aún difícil de entender. Usar nombres en lugar de números para las instrucciones y ubicaciones de memoria ayuda:</p>
 
 <pre class="snippet cm-s-default" data-language="text/plain" ><a class="c_ident" id="c_Jr+olj7GZW" href="#c_Jr+olj7GZW" tabindex="-1" role="presentation"></a> Establecer &quot;total&quot; como 0.
  Establecer &quot;cuenta&quot; como 1.
@@ -175,11 +186,11 @@
 
 <p><a class="p_ident" id="p_V9g6euYGiE" href="#p_V9g6euYGiE" tabindex="-1" role="presentation"></a>Después de su adopción fuera de Netscape, un documento estándar fue escrito para describir la forma en que debería funcionar el lenguaje JavaScript, para que las diversas piezas de software que decían ser compatibles con JavaScript en realidad estuvieran hablando del mismo lenguaje. Este se llamo el Estándar ECMAScript, por Ecma International que hizo la estandarización. En la práctica, los términos ECMAScript y JavaScript se puede usar indistintamente, son dos nombres para el mismo lenguaje.</p>
 
-<p><a class="p_ident" id="p_b4b9RPbxnt" href="#p_b4b9RPbxnt" tabindex="-1" role="presentation"></a>Hay quienes dirán cosas <em>terribles</em> sobre JavaScript. Muchas de estas cosas son verdaderas. Cuando estaba comenzando a escribir algo en JavaScript por primera vez, rápidamente comencé a despreciarlo. El lenguaje aceptaba casi cualquier cosa que escribiera, pero la interpretaba de una manera que era completamente diferente de lo que queria decir. Por supuesto, esto tenía mucho que ver con el hecho de que no tenía idea de lo que estaba haciendo, pero hay un problema real aquí: JavaScript es ridículamente liberal en lo que permite. La idea detrás de este diseño era que haría a la programación en JavaScript más fácil para los principiantes. En realidad, lo que mas hace es que encontrar problemas en tus programas sea más difícil porque el sistema no los señalará por ti.</p>
+<p><a class="p_ident" id="p_b4b9RPbxnt" href="#p_b4b9RPbxnt" tabindex="-1" role="presentation"></a>Hay quienes dirán cosas <em>terribles</em> sobre JavaScript. Muchas de estas cosas son verdaderas. Cuando estaba comenzando a escribir algo en JavaScript por primera vez, rápidamente comencé a despreciarlo. El lenguaje aceptaba casi cualquier cosa que escribiera, pero la interpretaba de una manera que era completamente diferente de lo que quería decir. Por supuesto, esto tenía mucho que ver con el hecho de que no tenía idea de lo que estaba haciendo, pero hay un problema real aquí: JavaScript es ridículamente liberal en lo que permite. La idea detrás de este diseño era que haría a la programación en JavaScript más fácil para los principiantes. En realidad, lo que mas hace es que encontrar problemas en tus programas sea más difícil porque el sistema no los señalará por ti.</p>
 
 <p><a class="p_ident" id="p_5feGNuDU/W" href="#p_5feGNuDU/W" tabindex="-1" role="presentation"></a>Sin embargo, esta flexibilidad también tiene sus ventajas. Deja espacio para muchas técnicas que son imposibles en idiomas más rígidos, y como verás (por ejemplo en el <a href="m%C3%B3dulos">Capítulo 10</a>) se pueden usar para superar algunas de las deficiencias de JavaScript. Después de aprender el idioma correctamente y luego de trabajar con él por un tiempo, he aprendido a <em>querer</em> a JavaScript.</p>
 
-<p><a class="p_ident" id="p_ueMoUbQJQR" href="#p_ueMoUbQJQR" tabindex="-1" role="presentation"></a>Ha habido varias versiones de JavaScript. ECMAScript versión 3 fue la versión mas ampliamente compatible en el momento del ascenso de JavaScript a su dominio, aproximadamente entre 2000 y 2010. Durante este tiempo, se trabajó en marcha hacia una ambiciosa versión 4, que planeaba una serie de radicales mejoras y extensiones al lenguaje. Cambiar un lenguaje vivo y ampliamente utilizado de una manera tan radical resultó ser políticamente difícil, y el trabajo en la versión 4 fue abandonado en 2008, lo que llevó a la versión 5, mucho menos ambiciosa, que saldria en el 2009. Luego, en 2015, una actualización importante, incluyendo algunas de las ideas planificadas para la versión 4, fue realizada. Desde entonces hemos tenido actualizaciones nuevas y pequeñas cada año.</p>
+<p><a class="p_ident" id="p_ueMoUbQJQR" href="#p_ueMoUbQJQR" tabindex="-1" role="presentation"></a>Ha habido varias versiones de JavaScript. ECMAScript versión 3 fue la versión mas ampliamente compatible en el momento del ascenso de JavaScript a su dominio, aproximadamente entre 2000 y 2010. Durante este tiempo, se trabajó en marcha hacia una ambiciosa versión 4, que planeaba una serie de radicales mejoras y extensiones al lenguaje. Cambiar un lenguaje vivo y ampliamente utilizado de una manera tan radical resultó ser políticamente difícil, y el trabajo en la versión 4 fue abandonado en 2008, lo que llevó a la versión 5, mucho menos ambiciosa, que se publicaría en el 2009. Luego, en 2015, una actualización importante, incluyendo algunas de las ideas planificadas para la versión 4, fue realizada. Desde entonces hemos tenido actualizaciones nuevas y pequeñas cada año.</p>
 
 <p><a class="p_ident" id="p_fYKVZYc8lB" href="#p_fYKVZYc8lB" tabindex="-1" role="presentation"></a>El hecho de que el lenguaje esté evolucionando significa que los navegadores deben mantenerse constantemente al día, y si estás usando uno más antiguo, puede que este no soporte todas las mejoras. Los diseñadores de lenguajes tienen cuidado de no realizar cualquier cambio que pueda romper los programas ya existentes, de manera que los nuevos navegadores puedan todavía ejecutar programas viejos. En este libro, usaré la versión 2017 de JavaScript.</p>
 
