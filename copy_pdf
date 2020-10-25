@@ -1,1 +1,4 @@
 cp ../Eloquent-JavaScript-ES/book.pdf ./Eloquent_JavaScript.pdf
+cp ../Eloquent-JavaScript-ES/book.mobi ./Eloquent_JavaScript.mobi
+cp ../Eloquent-JavaScript-ES/book.epub ./Eloquent_JavaScript.epub
+cp ../Eloquent-JavaScript-ES/book_mobile.pdf ./Eloquent_JavaScript_small.pdf
